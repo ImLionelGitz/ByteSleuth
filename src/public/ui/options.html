@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ByteSleuth - Settings</title>
+    <link rel="stylesheet" href="index.css">
+  </head>
+  <body>
+    <div class="OptionContainer">
+      <div class="container">
+        <h1>Add Tiles For Output Table</h1>
+
+        <input type="text" id="tagInput">
+      </div>
+
+      <div class="container">
+        <h1>Pick A Color For The Highlighter</h1>
+
+        <div id="highlightColor" class="ref"></div>
+      </div>
+
+      <div class="container">
+        <h1>Pick A Theme Color Of Ur Choice</h1>
+
+        <div id="themePicker">
+          <label for="background">Background Color</label>
+          <div id="background" class="ref"></div>
+      
+          <label for="button1">Button #1 Color</label>
+          <div id="button1" class="ref"></div>
+      
+          <label for="button2">Button #2 Color</label>
+          <div id="button2" class="ref"></div>
+
+          <label for="text">Text Color</label>
+          <div id="text" class="ref"></div>
+        </div>
+      </div>
+
+      <div class="container">
+        <h1>Custom Behaviour</h1>
+
+        <div class="innerContainer">
+          <label class="CheckBox">Enable
+            <input type="checkbox">
+            <span class="checkmark"></span>
+          </label>
+        
+          <button class="BSButton" id="EditorBtn" disabled>Open Editor</button>
+        </div>
+      </div>
+
+      <div class="container">
+        <div class="innerContainer">
+          <button class="BSButton" id="SaveBtn">Save</button>
+          <button class="BSButton" id="ResetBtn">Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="index.js"></script>
+  </body>
+</html>
