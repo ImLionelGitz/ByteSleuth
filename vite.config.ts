@@ -12,11 +12,13 @@ export default defineConfig({
       '@': `${path.resolve(__dirname, 'src')}`,
     },
   },
+
   plugins: [
     react(),
     crx({ manifest }),
     zip({ outDir: 'release', outFileName: `crx-${name}-${version}.zip` }),
   ],
+
   server: {
     cors: {
       origin: [
@@ -24,4 +26,12 @@ export default defineConfig({
       ],
     },
   },
+
+   build: {
+    rollupOptions: {
+      input: {
+        result: "src/popup/result.html"
+      }
+    }
+  }
 })
