@@ -1,0 +1,33 @@
+@font-face {
+  font-family: "Bubbly";
+  src: url('/src/assets/FuzzyBubbles.ttf');
+}
+
+:root {
+  width: 320px;
+  height: 400px;
+  background: #6722a3;
+  color: aliceblue;
+  box-sizing: border-box;
+}
+
+* {
+  font-family: 'Bubbly';
+}
+
+h1, h3, h4 {
+  margin: 0;
+}
+
+h1 {
+  font-size: 25px;
+  font-weight: 100;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4 {
+  font-size: 12px;
+}
