@@ -1,4 +1,5 @@
-import { Button, Divider, Stack } from '@mui/material'
+import { themeOptions } from '@/popup/Theme'
+import { Button, Divider, Stack, ThemeProvider } from '@mui/material'
 
 type colorData = {
    title: string
@@ -7,38 +8,40 @@ type colorData = {
 
 export default function Results() {
    return (
-      <Stack direction="column" gap={1}>
-         <Stack direction="row" gap={1}>
-            <h1>Settings</h1>
-         </Stack>
+      <ThemeProvider theme={themeOptions}>
+         <Stack direction="column" gap={1}>
+            <Stack direction="row" gap={1}>
+               <h1>Settings</h1>
+            </Stack>
 
-         <Divider sx={{ background: 'aliceblue' }} />
+            <Divider sx={{ background: 'aliceblue' }} />
 
-         <Stack gap={2}>
-            <ColorPicker title="Background Color" color="aliceblue" />
-            <ColorPicker title="Foreground Color" color="aliceblue" />
-            <ColorPicker title="Highlight Color" color="aliceblue" />
-            <ColorPicker title="Rejection Color" color="aliceblue" />
-            <ColorPicker title="Text Color" color="aliceblue" />
-         </Stack>
+            <Stack gap={2}>
+               <ColorPicker title="Background Color" color="aliceblue" />
+               <ColorPicker title="Foreground Color" color="aliceblue" />
+               <ColorPicker title="Highlight Color" color="aliceblue" />
+               <ColorPicker title="Rejection Color" color="aliceblue" />
+               <ColorPicker title="Text Color" color="aliceblue" />
+            </Stack>
 
-         <Stack
-            direction="row"
-            sx={{ justifyContent: 'space-around', marginTop: '8%' }}
-         >
-            <Button variant="contained" sx={{ fontFamily: 'Bubbly' }}>
-               Save Changes
-            </Button>
-
-            <Button
-               variant="contained"
-               color="secondary"
-               sx={{ fontFamily: 'Bubbly' }}
+            <Stack
+               direction="row"
+               sx={{ justifyContent: 'space-around', marginTop: '8%' }}
             >
-               Reset
-            </Button>
+               <Button variant="contained" sx={{ fontFamily: 'Bubbly' }}>
+                  Save Changes
+               </Button>
+
+               <Button
+                  variant="contained"
+                  color="secondary"
+                  sx={{ fontFamily: 'Bubbly' }}
+               >
+                  Reset
+               </Button>
+            </Stack>
          </Stack>
-      </Stack>
+      </ThemeProvider>
    )
 }
 
