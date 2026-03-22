@@ -1,55 +1,34 @@
+import SplitButton from '@/popup/components/SplitButton'
+import TableBit from '@/popup/components/Table'
 import { themeOptions } from '@/popup/Theme'
-import { Button, Divider, Stack, ThemeProvider } from '@mui/material'
-
-type colorData = {
-   title: string
-   color: string
-}
+import { Divider, Paper, Stack, ThemeProvider } from '@mui/material'
 
 export default function Results() {
    return (
       <ThemeProvider theme={themeOptions}>
-         <Stack direction="column" gap={1}>
-            <Stack direction="row" gap={1}>
-               <h1>Settings</h1>
-            </Stack>
+         <Stack direction="column" gap={1} sx={{ textAlign: 'center' }}>
+            <h1>The Results</h1>
 
             <Divider sx={{ background: 'aliceblue' }} />
 
-            <Stack gap={2}>
-               <ColorPicker title="Background Color" color="aliceblue" />
-               <ColorPicker title="Foreground Color" color="aliceblue" />
-               <ColorPicker title="Highlight Color" color="aliceblue" />
-               <ColorPicker title="Rejection Color" color="aliceblue" />
-               <ColorPicker title="Text Color" color="aliceblue" />
-            </Stack>
-
-            <Stack
-               direction="row"
-               sx={{ justifyContent: 'space-around', marginTop: '8%' }}
+            <Paper
+               sx={{
+                  height: 350,
+                  marginBottom: 1,
+               }}
             >
-               <Button variant="contained" sx={{ fontFamily: 'Bubbly' }}>
-                  Save Changes
-               </Button>
+               <TableBit
+                  data={[
+                     { title: 'names', data: ['broly', 'goku'] },
+                     { title: 'income', data: ['$100'] },
+                  ]}
+               />
+            </Paper>
 
-               <Button
-                  variant="contained"
-                  color="secondary"
-                  sx={{ fontFamily: 'Bubbly' }}
-               >
-                  Reset
-               </Button>
+            <Stack alignItems="center">
+               <SplitButton options={['zip', 'csv', 'json', 'xlns']} />
             </Stack>
          </Stack>
       </ThemeProvider>
-   )
-}
-
-function ColorPicker({ title, color }: colorData) {
-   return (
-      <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
-         <h3>{title}</h3>
-         <Button sx={{ background: color, minWidth: 24 }}></Button>
-      </Stack>
    )
 }

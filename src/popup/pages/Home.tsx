@@ -1,5 +1,4 @@
 import NumberSpinner from '@/popup/components/NumberInput'
-import Table from '@/popup/components/Table'
 import {
    Button,
    Divider,
@@ -8,9 +7,10 @@ import {
    Stack,
    Switch,
 } from '@mui/material'
-import { FaMinus, FaPlay, FaPlus } from 'react-icons/fa'
+import { FaPlay, FaPlus } from 'react-icons/fa'
 import { FaGear } from 'react-icons/fa6'
 import { Link } from 'react-router-dom'
+import EntryEditor from '../components/EntryEditor'
 
 export default function Home() {
    return (
@@ -46,19 +46,20 @@ export default function Home() {
             >
                <h3>Create a Table</h3>
 
-               <Stack direction="row">
-                  <IconButton color="primary" disableRipple>
-                     <FaPlus />
-                  </IconButton>
-
-                  <IconButton color="secondary" disableRipple>
-                     <FaMinus />
-                  </IconButton>
-               </Stack>
+               <IconButton color="primary" disableRipple>
+                  <FaPlus />
+               </IconButton>
             </Stack>
 
-            <Paper sx={{ height: 125, marginBottom: 1 }}>
-               <Table />
+            <Paper
+               sx={{
+                  height: 125,
+                  marginBottom: 1,
+                  overflowY: 'auto',
+                  overflowX: 'hidden',
+               }}
+            >
+               <EntryEditor />
             </Paper>
          </Stack>
 
@@ -90,6 +91,14 @@ export default function Home() {
                      fontFamily: 'Bubbly',
                      fontSize: 12,
                      fontWeight: '900',
+                  }}
+                  onClick={() => {
+                     chrome.windows.create({
+                        url: chrome.runtime.getURL('src/popup/result.html'),
+                        type: 'popup',
+                        width: 800,
+                        height: 600,
+                     })
                   }}
                >
                   Pick the next btn
