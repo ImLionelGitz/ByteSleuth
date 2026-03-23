@@ -11,15 +11,27 @@ import { FaPlay, FaPlus } from 'react-icons/fa'
 import { FaGear } from 'react-icons/fa6'
 import { Link } from 'react-router-dom'
 import EntryEditor from '../components/EntryEditor'
+import { HIDE_CONTENT } from '@/Messages'
 
 export default function Home() {
+   const informPage = async () => {
+      const [tab] = await chrome.tabs.query({
+         active: true,
+         currentWindow: true,
+      })
+
+      if (tab.id) {
+         chrome.tabs.sendMessage(tab.id, HIDE_CONTENT)
+      }
+   }
+
    return (
       <Stack direction="column" gap={1}>
          <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
             <h1>BitSleuth</h1>
 
             <Stack direction="row" gap={2}>
-               <Button color="primary" variant="contained">
+               <Button color="primary" variant="contained" onClick={informPage}>
                   <FaPlay />
                </Button>
 
