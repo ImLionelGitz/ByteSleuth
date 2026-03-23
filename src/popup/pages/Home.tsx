@@ -14,7 +14,7 @@ import EntryEditor from '../components/EntryEditor'
 import { HIDE_CONTENT } from '@/Messages'
 import { useEffect, useState } from 'react'
 import { EntryBit } from '@/Types'
-import { TableFields } from '@/Vars'
+import { TableFields, UniversalPad } from '@/Vars'
 import Empty from '../components/Empty'
 
 export default function Home() {
@@ -58,7 +58,7 @@ export default function Home() {
    }, [])
 
    return (
-      <Stack direction="column" gap={1}>
+      <Stack direction="column" gap={1} padding={UniversalPad}>
          <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
             <h1>BitSleuth</h1>
 
@@ -151,7 +151,7 @@ export default function Home() {
                sx={{
                   overflow: 'hidden',
                   transition: 'height 0.2s ease',
-                  height: pageLook ? 60 : 0,
+                  height: pageLook ? 63 : 0,
                }}
             >
                <Stack sx={{ alignItems: 'center' }} gap={1}>

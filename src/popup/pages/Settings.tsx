@@ -1,3 +1,4 @@
+import { UniversalPad } from '@/Vars'
 import { Button, Divider, Stack } from '@mui/material'
 import { IoMdArrowRoundBack } from 'react-icons/io'
 import { Link } from 'react-router-dom'
@@ -9,7 +10,7 @@ type colorData = {
 
 export default function Settings() {
    return (
-      <Stack direction="column" gap={1}>
+      <Stack direction="column" gap={1} padding={UniversalPad}>
          <Stack direction="row" gap={1}>
             <Link
                to="/"

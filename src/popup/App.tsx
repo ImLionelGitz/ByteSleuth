@@ -1,10 +1,9 @@
-import { ThemeProvider } from '@mui/material'
 import { AnimatePresence, motion } from 'motion/react'
 import React from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
 import Home from './pages/Home'
 import Settings from './pages/Settings'
-import { themeOptions } from './Theme'
+import { SleuthTheme } from './Theme'
 
 export default function App() {
    // const startSelection = async () => {
@@ -34,7 +33,7 @@ export default function App() {
    )
 
    return (
-      <ThemeProvider theme={themeOptions}>
+      <SleuthTheme>
          <AnimatePresence mode="wait">
             <Routes location={location} key={location.pathname}>
                <Route
@@ -56,6 +55,6 @@ export default function App() {
                />
             </Routes>
          </AnimatePresence>
-      </ThemeProvider>
+      </SleuthTheme>
    )
 }
