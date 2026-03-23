@@ -1,4 +1,5 @@
 export interface EntryBit {
+   id: number
    name: string
    selector: string
 }

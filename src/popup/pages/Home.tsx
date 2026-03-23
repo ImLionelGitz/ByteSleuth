@@ -12,9 +12,16 @@ import { FaGear } from 'react-icons/fa6'
 import { Link } from 'react-router-dom'
 import EntryEditor from '../components/EntryEditor'
 import { HIDE_CONTENT } from '@/Messages'
+import { useEffect, useState } from 'react'
+import { EntryBit } from '@/Types'
+import { TableFields } from '@/Vars'
+import Empty from '../components/Empty'
 
 export default function Home() {
-   const informPage = async () => {
+   const [entries, setEntry] = useState<EntryBit[]>([])
+   const [pageLook, toggleLookup] = useState(false)
+
+   const initScrape = async () => {
       const [tab] = await chrome.tabs.query({
          active: true,
          currentWindow: true,
@@ -25,13 +32,38 @@ export default function Home() {
       }
    }
 
+   const addEntry = () => {
+      setEntry((old) => {
+         const newArr: EntryBit[] = [
+            ...old,
+            {
+               id: old.length,
+               name: 'Unnamed Field',
+               selector: '',
+            },
+         ]
+
+         chrome.storage.local.set({ [TableFields]: newArr })
+         return newArr
+      })
+   }
+
+   useEffect(() => {
+      chrome.storage.local.get(
+         TableFields,
+         (res: Record<string, EntryBit[]>) => {
+            setEntry(res[TableFields] || [])
+         }
+      )
+   }, [])
+
    return (
       <Stack direction="column" gap={1}>
          <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
             <h1>BitSleuth</h1>
 
             <Stack direction="row" gap={2}>
-               <Button color="primary" variant="contained" onClick={informPage}>
+               <Button color="primary" variant="contained" onClick={initScrape}>
                   <FaPlay />
                </Button>
 
@@ -58,7 +90,7 @@ export default function Home() {
             >
                <h3>Create a Table</h3>
 
-               <IconButton color="primary" disableRipple>
+               <IconButton color="primary" disableRipple onClick={addEntry}>
                   <FaPlus />
                </IconButton>
             </Stack>
@@ -71,20 +103,56 @@ export default function Home() {
                   overflowX: 'hidden',
                }}
             >
-               <EntryEditor />
+               {entries.length > 0 ? (
+                  <EntryEditor
+                     allEntries={entries}
+                     entryChanged={(newEntry) => {
+                        setEntry((list) => {
+                           const newList = list.map((entry) =>
+                              entry.id === newEntry.id ? newEntry : entry
+                           )
+
+                           chrome.storage.local.set({ [TableFields]: newList })
+                           return newList
+                        })
+                     }}
+                     entryRemoval={(discarded) => {
+                        setEntry((list) => {
+                           const newList = list
+                              .filter((entry) => entry.id !== discarded.id)
+                              .map((e, i) => ({ ...e, id: i }))
+
+                           chrome.storage.local.set({ [TableFields]: newList })
+                           return newList
+                        })
+                     }}
+                  />
+               ) : (
+                  <Empty />
+               )}
             </Paper>
          </Stack>
 
          <Stack gap={3}>
             <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
                <h3>Multi-page Lookup</h3>
-               <Switch />
+               <Switch
+                  value={pageLook}
+                  onChange={(_, checked) => {
+                     toggleLookup(checked)
+                  }}
+               />
             </Stack>
 
             <Stack
                direction="row"
                justifyContent="space-between"
-               alignItems="flex-end"
+               alignItems="flex-end" // 60px
+               sx={{
+                  overflow: 'hidden',
+                  transition: 'height 0.2s ease',
+                  height: pageLook ? 60 : 0,
+               }}
             >
                <Stack sx={{ alignItems: 'center' }} gap={1}>
                   <h4>Max pages</h4>
@@ -94,24 +162,26 @@ export default function Home() {
                      max={999}
                      defaultValue={0}
                      size="small"
+                     disabled={!pageLook}
                   />
                </Stack>
 
                <Button
                   variant="contained"
+                  disabled={!pageLook}
                   sx={{
                      fontFamily: 'Bubbly',
                      fontSize: 12,
                      fontWeight: '900',
                   }}
-                  onClick={() => {
-                     chrome.windows.create({
-                        url: chrome.runtime.getURL('src/popup/result.html'),
-                        type: 'popup',
-                        width: 800,
-                        height: 600,
-                     })
-                  }}
+                  // onClick={() => {
+                  //    chrome.windows.create({
+                  //       url: chrome.runtime.getURL('src/popup/result.html'),
+                  //       type: 'popup',
+                  //       width: 800,
+                  //       height: 600,
+                  //    })
+                  // }}
                >
                   Pick the next btn
                </Button>

@@ -7,29 +7,54 @@ import {
    ListItemText,
 } from '@mui/material'
 import HoverButton from './HoverButton'
+import { EntryBit } from '@/Types'
 
-export default function EntryEditor() {
+interface EntryEditor {
+   allEntries: EntryBit[]
+   entryChanged: (entry: EntryBit) => void
+   entryRemoval: (entry: EntryBit) => void
+}
+
+interface Entry {
+   token: EntryBit
+   onNewValue: (e: EntryBit) => void
+   onDelete: (e: EntryBit) => void
+}
+
+export default function EntryEditor(props: EntryEditor) {
+   const { allEntries, entryChanged, entryRemoval } = props
+
    return (
       <List>
-         <Entry />
-         <Entry />
+         {allEntries.map((entry) => (
+            <Entry
+               key={entry.id}
+               token={entry}
+               onNewValue={entryChanged}
+               onDelete={entryRemoval}
+            />
+         ))}
       </List>
    )
 }
 
-function Entry() {
+function Entry({ token, onNewValue, onDelete }: Entry) {
    return (
       <ListItem alignItems="flex-start">
          <ListItemAvatar>
-            <HoverButton />
+            <HoverButton onClick={() => onDelete(token)} />
          </ListItemAvatar>
 
          <ListItemText
             primary={
                <Input
                   placeholder="Enter a name"
+                  value={token.name}
                   disableUnderline
                   sx={{ fontFamily: 'Bubbly', fontWeight: 900, width: '80%' }}
+                  onChange={(e) =>
+                     onNewValue({ ...token, name: e.target.value })
+                  }
                />
             }
             secondary={
@@ -37,7 +62,7 @@ function Entry() {
                   variant="contained"
                   sx={{ fontFamily: 'Bubbly', fontWeight: 900 }}
                >
-                  Pick an element
+                  {token.selector ? token.selector : 'Pick an element'}
                </Button>
             }
          />

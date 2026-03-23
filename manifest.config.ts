@@ -10,7 +10,7 @@ export default defineManifest({
     48: 'public/logo.png',
   },
 
-  permissions: ["activeTab", "scripting"],
+  permissions: ["activeTab", "scripting", "storage"],
   host_permissions: ["<all_urls>"],
 
   action: {

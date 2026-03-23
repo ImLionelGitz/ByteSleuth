@@ -3,7 +3,7 @@ import { IconButton, useTheme } from '@mui/material'
 import { BsClipboard2DataFill } from 'react-icons/bs'
 import { FaXmark } from 'react-icons/fa6'
 
-export default function HoverButton() {
+export default function HoverButton({ onClick }: { onClick: () => void }) {
    const [hovered, setHovered] = useState(false)
    const theme = useTheme()
 
@@ -11,6 +11,7 @@ export default function HoverButton() {
       <IconButton
          onMouseEnter={() => setHovered(true)}
          onMouseLeave={() => setHovered(false)}
+         onClick={onClick}
          sx={{
             backgroundColor: '#bdbdbd',
             transition: 'all 0.3s ease',
