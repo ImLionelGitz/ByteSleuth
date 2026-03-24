@@ -15,7 +15,7 @@ type colorData = {
 
 export default function Settings() {
    const { palette } = useTheme()
-   const { theme, setTheme, resetTheme, saveTheme } = useThemeUpdate()
+   const { theme, setTheme, resetTheme } = useThemeUpdate()
 
    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
    const [curSetting, setSetting] = useState('')
@@ -23,18 +23,21 @@ export default function Settings() {
 
    return (
       <Stack direction="column" gap={1} padding={UniversalPad}>
-         <Stack direction="row" gap={1}>
-            <Link
-               to="/"
-               style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  color: palette.text.primary,
-                  fontSize: 24,
-               }}
-            >
-               <IoMdArrowRoundBack color={palette.text.primary} />
-            </Link>
+         <Stack direction="row" gap={1.4}>
+            <Button variant="contained" sx={{ minWidth: 0, padding: 0 }}>
+               <Link
+                  to="/"
+                  style={{
+                     display: 'flex',
+                     alignItems: 'center',
+                     color: palette.text.primary,
+                     fontSize: 24,
+                     padding: 6,
+                  }}
+               >
+                  <IoMdArrowRoundBack color={palette.text.primary} />
+               </Link>
+            </Button>
 
             <h1>Settings</h1>
          </Stack>
@@ -42,23 +45,25 @@ export default function Settings() {
          <Divider sx={{ background: palette.text.primary }} />
 
          <Stack gap={2}>
-            {Object.keys(theme).map((key) => (
-               <ColorSetting
-                  key={key}
-                  title={key.split('_').join(' ')}
-                  color={(theme as Record<string, string>)[key]}
-                  onClick={(el) => {
-                     const daColor = ColorService.convert(
-                        'hex',
-                        (theme as Record<string, string>)[key]
-                     )
+            {Object.keys(theme)
+               .sort()
+               .map((key) => (
+                  <ColorSetting
+                     key={key}
+                     title={key.split('_').join(' ')}
+                     color={(theme as Record<string, string>)[key]}
+                     onClick={(el) => {
+                        const daColor = ColorService.convert(
+                           'hex',
+                           (theme as Record<string, string>)[key]
+                        )
 
-                     setColor(daColor)
-                     setSetting(key)
-                     setAnchorEl(el)
-                  }}
-               />
-            ))}
+                        setColor(daColor)
+                        setSetting(key)
+                        setAnchorEl(el)
+                     }}
+                  />
+               ))}
          </Stack>
 
          <Popover
@@ -84,18 +89,7 @@ export default function Settings() {
             />
          </Popover>
 
-         <Stack
-            direction="row"
-            sx={{ justifyContent: 'space-around', marginTop: '8%' }}
-         >
-            <Button
-               variant="contained"
-               sx={{ fontFamily: 'Bubbly' }}
-               onClick={saveTheme}
-            >
-               Save Changes
-            </Button>
-
+         <Stack direction="row" marginTop="8%" justifyContent="center">
             <Button
                variant="contained"
                color="secondary"

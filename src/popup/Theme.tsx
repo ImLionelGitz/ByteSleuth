@@ -16,13 +16,11 @@ type Action =
    | { type: 'UPDATE'; payload: { key: keyof State; val: string } }
    | { type: 'LOAD'; payload: State }
    | { type: 'RESET' }
-   | { type: 'SAVE' }
 
 interface ThemeContextType {
    theme: State
    setTheme: (type: string, color: string) => void
    resetTheme: () => void
-   saveTheme: () => void
 }
 
 const defaultState: State = {
@@ -36,19 +34,19 @@ const defaultState: State = {
 
 function reducer(state: State, action: Action): State {
    switch (action.type) {
-      case 'UPDATE':
-         return {
+      case 'UPDATE': {
+         const newState = {
             ...state,
             [action.payload.key]: action.payload.val,
          }
 
-      case 'RESET':
-         chrome.storage.local.set({ [ThemeFields]: defaultState })
-         return defaultState
+         chrome.storage.local.set({ [ThemeFields]: newState })
+         return newState
+      }
 
-      case 'SAVE':
-         chrome.storage.local.set({ [ThemeFields]: state })
-         return state
+      case 'RESET':
+         chrome.storage.local.set({ [ThemeFields]: {} })
+         return defaultState
 
       case 'LOAD':
          return action.payload
@@ -70,7 +68,7 @@ export function SleuthTheme({ children }: { children: ReactNode }) {
          const loaded = res[ThemeFields]
 
          if (loaded) {
-            dispatch({ type: 'LOAD', payload: loaded })
+            dispatch({ type: 'LOAD', payload: { ...defaultState, ...loaded } })
          }
       })
    }, [])
@@ -182,9 +180,6 @@ export function SleuthTheme({ children }: { children: ReactNode }) {
             },
             resetTheme: () => {
                dispatch({ type: 'RESET' })
-            },
-            saveTheme: () => {
-               dispatch({ type: 'SAVE' })
             },
          }}
       >
