@@ -1,14 +1,26 @@
 import { UniversalPad } from '@/Vars'
-import { Button, Divider, Stack } from '@mui/material'
+import { Button, Divider, Popover, Stack, useTheme } from '@mui/material'
 import { IoMdArrowRoundBack } from 'react-icons/io'
 import { Link } from 'react-router-dom'
+import { useThemeUpdate } from '../hooks/useThemeUpdate'
+import tiny from 'tinycolor2'
+import { useMemo, useState } from 'react'
+import { ColorPicker, ColorService, useColor } from 'react-color-palette'
 
 type colorData = {
    title: string
    color: string
+   onClick: (anchor: HTMLElement) => void
 }
 
 export default function Settings() {
+   const { palette } = useTheme()
+   const { theme, setTheme, resetTheme, saveTheme } = useThemeUpdate()
+
+   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
+   const [curSetting, setSetting] = useState('')
+   const [curColor, setColor] = useColor('#000')
+
    return (
       <Stack direction="column" gap={1} padding={UniversalPad}>
          <Stack direction="row" gap={1}>
@@ -17,31 +29,70 @@ export default function Settings() {
                style={{
                   display: 'flex',
                   alignItems: 'center',
-                  color: 'aliceblue',
+                  color: palette.text.primary,
                   fontSize: 24,
                }}
             >
-               <IoMdArrowRoundBack color="aliceblue" />
+               <IoMdArrowRoundBack color={palette.text.primary} />
             </Link>
 
             <h1>Settings</h1>
          </Stack>
 
-         <Divider sx={{ background: 'aliceblue' }} />
+         <Divider sx={{ background: palette.text.primary }} />
 
          <Stack gap={2}>
-            <ColorPicker title="Background Color" color="aliceblue" />
-            <ColorPicker title="Foreground Color" color="aliceblue" />
-            <ColorPicker title="Highlight Color" color="aliceblue" />
-            <ColorPicker title="Rejection Color" color="aliceblue" />
-            <ColorPicker title="Text Color" color="aliceblue" />
+            {Object.keys(theme).map((key) => (
+               <ColorSetting
+                  key={key}
+                  title={key.split('_').join(' ')}
+                  color={(theme as Record<string, string>)[key]}
+                  onClick={(el) => {
+                     const daColor = ColorService.convert(
+                        'hex',
+                        (theme as Record<string, string>)[key]
+                     )
+
+                     setColor(daColor)
+                     setSetting(key)
+                     setAnchorEl(el)
+                  }}
+               />
+            ))}
          </Stack>
+
+         <Popover
+            open={anchorEl !== null && curSetting !== null}
+            anchorEl={anchorEl}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+            onClose={() => {
+               setAnchorEl(null)
+               setSetting('')
+            }}
+            slotProps={{
+               paper: { sx: { borderRadius: '12px' } },
+            }}
+         >
+            <ColorPicker
+               hideInput={['rgb', 'hsv']}
+               hideAlpha
+               color={curColor}
+               onChange={setColor}
+               onChangeComplete={(c) => {
+                  setTheme(curSetting, c.hex)
+               }}
+            />
+         </Popover>
 
          <Stack
             direction="row"
             sx={{ justifyContent: 'space-around', marginTop: '8%' }}
          >
-            <Button variant="contained" sx={{ fontFamily: 'Bubbly' }}>
+            <Button
+               variant="contained"
+               sx={{ fontFamily: 'Bubbly' }}
+               onClick={saveTheme}
+            >
                Save Changes
             </Button>
 
@@ -49,6 +100,7 @@ export default function Settings() {
                variant="contained"
                color="secondary"
                sx={{ fontFamily: 'Bubbly' }}
+               onClick={resetTheme}
             >
                Reset
             </Button>
@@ -57,11 +109,21 @@ export default function Settings() {
    )
 }
 
-function ColorPicker({ title, color }: colorData) {
+function ColorSetting({ title, color, onClick }: colorData) {
+   const modifier = useMemo(() => tiny(color), [])
+
    return (
       <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
-         <h3>{title}</h3>
-         <Button sx={{ background: color, minWidth: 24 }}></Button>
+         <h3 style={{ textTransform: 'capitalize' }}>{title}</h3>
+
+         <Button
+            sx={{
+               background: color,
+               minWidth: 24,
+               border: `2px solid ${modifier.darken(15)}`,
+            }}
+            onClick={(e) => onClick(e.currentTarget)}
+         ></Button>
       </Stack>
    )
 }

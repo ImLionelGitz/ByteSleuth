@@ -1,15 +1,26 @@
 import SplitButton from '@/popup/components/SplitButton'
 import TableBit from '@/popup/components/Table'
-import { themeOptions } from '@/popup/Theme'
-import { Divider, Paper, Stack, ThemeProvider } from '@mui/material'
+import { SleuthTheme } from '@/popup/Theme'
+import { Paper, Stack } from '@mui/material'
 
 export default function Results() {
    return (
-      <ThemeProvider theme={themeOptions}>
-         <Stack direction="column" gap={1} sx={{ textAlign: 'center' }}>
-            <h1>The Results</h1>
-
-            <Divider sx={{ background: 'aliceblue' }} />
+      <SleuthTheme>
+         <Stack
+            direction="column"
+            gap={1}
+            sx={{ textAlign: 'center' }}
+            padding={1.5}
+         >
+            <h1
+               style={{
+                  borderBottom: '1px solid',
+                  paddingBottom: '6px',
+                  marginBottom: '4px',
+               }}
+            >
+               The Results
+            </h1>
 
             <Paper
                sx={{
@@ -29,6 +40,6 @@ export default function Results() {
                <SplitButton options={['zip', 'csv', 'json', 'xlns']} />
             </Stack>
          </Stack>
-      </ThemeProvider>
+      </SleuthTheme>
    )
 }

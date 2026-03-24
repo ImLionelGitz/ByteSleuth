@@ -1,3 +1,4 @@
+import { useTheme } from '@mui/material'
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion'
 import { useEffect } from 'react'
 
@@ -8,11 +9,15 @@ interface GlowingImage {
 
 export default function GlowingImage({ src, active }: GlowingImage) {
    const glowLevel = useMotionValue(0)
+   const { palette } = useTheme()
 
    const shadow = useTransform(
       glowLevel,
       [0, 14],
-      ['drop-shadow(0px 0px 0px #6722a3)', 'drop-shadow(0px 0px 14px #6722a3)']
+      [
+         `drop-shadow(0px 0px 0px ${palette.background.default})`,
+         `drop-shadow(0px 0px 14px ${palette.background.default})`,
+      ]
    )
 
    const opacity = useTransform(glowLevel, [0, 14], [0.01, 1])

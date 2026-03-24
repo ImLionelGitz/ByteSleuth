@@ -1,18 +1,17 @@
+import { IconButton } from '@mui/material'
 import { useState } from 'react'
-import { IconButton, useTheme } from '@mui/material'
 import { BsClipboard2DataFill } from 'react-icons/bs'
 import { FaXmark } from 'react-icons/fa6'
 
 export default function HoverButton({ onClick }: { onClick: () => void }) {
    const [hovered, setHovered] = useState(false)
-   const theme = useTheme()
 
    return (
       <IconButton
          onMouseEnter={() => setHovered(true)}
          onMouseLeave={() => setHovered(false)}
          onClick={onClick}
-         sx={{
+         sx={({ palette }) => ({
             backgroundColor: '#bdbdbd',
             transition: 'all 0.3s ease',
             position: 'relative',
@@ -20,9 +19,9 @@ export default function HoverButton({ onClick }: { onClick: () => void }) {
             height: 48,
 
             '&:hover': {
-               backgroundColor: theme.palette.secondary.main,
+               backgroundColor: palette.secondary.main,
             },
-         }}
+         })}
       >
          <BsClipboard2DataFill
             style={{

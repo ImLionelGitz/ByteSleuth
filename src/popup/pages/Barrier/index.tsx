@@ -1,19 +1,26 @@
 import GlowingImage from '@/popup/components/GlowingImg'
-import { themeOptions } from '@/popup/Theme'
-import { Stack, ThemeProvider } from '@mui/material'
+import { SleuthTheme } from '@/popup/Theme'
+import { GlobalStyles, Stack } from '@mui/material'
 
 export default function Barrier() {
    return (
-      <ThemeProvider theme={themeOptions}>
+      <SleuthTheme>
+         <GlobalStyles
+            styles={({ palette }) => ({
+               body: { backgroundColor: palette.primary.main },
+            })}
+         />
+
          <Stack
             direction="column"
             gap={1}
-            sx={{ textAlign: 'center', alignItems: 'center' }}
+            textAlign="center"
+            alignItems="center"
          >
             <h1>Finding and finding and finding</h1>
 
             <GlowingImage src="/crx.svg" />
          </Stack>
-      </ThemeProvider>
+      </SleuthTheme>
    )
 }

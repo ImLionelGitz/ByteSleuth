@@ -1,5 +1,5 @@
 import { NumberField as BaseNumberField } from '@base-ui/react/number-field'
-import { OutlinedInput } from '@mui/material'
+import { OutlinedInput, useTheme } from '@mui/material'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import FormControl from '@mui/material/FormControl'
@@ -19,6 +19,9 @@ export default function NumberInput({
    if (idProp) {
       id = idProp
    }
+
+   const { palette } = useTheme()
+
    return (
       <BaseNumberField.Root
          {...other}
@@ -65,7 +68,7 @@ export default function NumberInput({
                   />
                }
             >
-               <FaPlus fontSize={size} color="aliceblue" />
+               <FaPlus fontSize={size} color={palette.text.primary} />
             </BaseNumberField.Increment>
 
             <BaseNumberField.Input
@@ -114,7 +117,7 @@ export default function NumberInput({
                   />
                }
             >
-               <FaMinus fontSize={size} color="aliceblue" />
+               <FaMinus fontSize={size} color={palette.text.primary} />
             </BaseNumberField.Decrement>
          </Box>
       </BaseNumberField.Root>

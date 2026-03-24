@@ -6,6 +6,7 @@ import {
    Paper,
    Stack,
    Switch,
+   useTheme,
 } from '@mui/material'
 import { FaPlay, FaPlus } from 'react-icons/fa'
 import { FaGear } from 'react-icons/fa6'
@@ -20,6 +21,7 @@ import Empty from '../components/Empty'
 export default function Home() {
    const [entries, setEntry] = useState<EntryBit[]>([])
    const [pageLook, toggleLookup] = useState(false)
+   const { palette } = useTheme()
 
    const initScrape = async () => {
       const [tab] = await chrome.tabs.query({
@@ -60,10 +62,21 @@ export default function Home() {
    return (
       <Stack direction="column" gap={1} padding={UniversalPad}>
          <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
-            <h1>BitSleuth</h1>
+            <Stack>
+               <h3 style={{ fontSize: '10px', fontWeight: '100' }}>
+                  {`v${chrome.runtime.getVersion()}`}
+               </h3>
+
+               <h1>BitSleuth</h1>
+            </Stack>
 
             <Stack direction="row" gap={2}>
-               <Button color="primary" variant="contained" onClick={initScrape}>
+               <Button
+                  color="primary"
+                  variant="contained"
+                  sx={{ fontSize: 21 }}
+                  onClick={initScrape}
+               >
                   <FaPlay />
                </Button>
 
@@ -72,7 +85,7 @@ export default function Home() {
                   style={{
                      display: 'flex',
                      alignItems: 'center',
-                     color: 'aliceblue',
+                     color: palette.text.primary,
                      fontSize: 24,
                   }}
                >
@@ -81,14 +94,14 @@ export default function Home() {
             </Stack>
          </Stack>
 
-         <Divider sx={{ background: 'aliceblue' }} />
+         <Divider sx={{ background: palette.text.primary }} />
 
          <Stack direction="column">
             <Stack
                direction="row"
                sx={{ alignItems: 'center', justifyContent: 'space-between' }}
             >
-               <h3>Create a Table</h3>
+               <h3>Define Table Fields</h3>
 
                <IconButton color="primary" disableRipple onClick={addEntry}>
                   <FaPlus />
@@ -97,10 +110,11 @@ export default function Home() {
 
             <Paper
                sx={{
-                  height: 125,
+                  height: 200,
                   marginBottom: 1,
                   overflowY: 'auto',
                   overflowX: 'hidden',
+                  background: palette.error.main,
                }}
             >
                {entries.length > 0 ? (
@@ -174,14 +188,14 @@ export default function Home() {
                      fontSize: 12,
                      fontWeight: '900',
                   }}
-                  // onClick={() => {
-                  //    chrome.windows.create({
-                  //       url: chrome.runtime.getURL('src/popup/result.html'),
-                  //       type: 'popup',
-                  //       width: 800,
-                  //       height: 600,
-                  //    })
-                  // }}
+                  onClick={() => {
+                     chrome.windows.create({
+                        url: chrome.runtime.getURL('src/popup/result.html'),
+                        type: 'popup',
+                        width: 800,
+                        height: 600,
+                     })
+                  }}
                >
                   Pick the next btn
                </Button>

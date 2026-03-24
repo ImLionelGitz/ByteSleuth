@@ -6,6 +6,7 @@ import {
    TableCell,
    TableContainer,
    TableRow,
+   useTheme,
 } from '@mui/material'
 import { forwardRef, useMemo } from 'react'
 import { TableVirtuoso, type TableComponents } from 'react-virtuoso'
@@ -14,49 +15,47 @@ interface TableSection {
    data: TableData[]
 }
 
-const textCol = '#ececec'
-const scroll_classname =
-   'scrollbar scrollbar-thumb-[#0da26b] scrollbar-track-transparent'
-
-const compos: TableComponents<number> = {
-   Scroller: forwardRef<HTMLDivElement>(function Scroller(props, ref) {
-      return (
-         <TableContainer
-            ref={ref}
-            component={Paper}
-            sx={{
-               width: '97%',
-               background: '#3c3c3c',
-               color: textCol,
-               overflow: 'hidden',
-            }}
-            className={`${scroll_classname} h-32`}
-            {...props}
-         />
-      )
-   }),
-
-   TableBody: forwardRef<HTMLTableSectionElement>(function Body(props, ref) {
-      return <TableBody {...props} ref={ref} />
-   }),
-
-   Table: (props) => <Table {...props} stickyHeader />,
-}
-
-const Header = ({ cols }: { cols: TableData[] }) => (
-   <TableRow sx={{ background: '#2e2e2e' }}>
-      {cols.map(({ title }) => (
-         <TableCell
-            key={title}
-            sx={{ textTransform: 'capitalize', color: textCol }}
-         >
-            <strong>{title}</strong>
-         </TableCell>
-      ))}
-   </TableRow>
-)
-
 export default function TableBit({ data }: TableSection) {
+   const { palette } = useTheme()
+   const textCol = palette.text.primary
+
+   const compos: TableComponents<number> = {
+      Scroller: forwardRef<HTMLDivElement>(function Scroller(props, ref) {
+         return (
+            <TableContainer
+               ref={ref}
+               component={Paper}
+               sx={{
+                  width: '97%',
+                  background: palette.error.main,
+                  color: textCol,
+                  overflow: 'hidden',
+               }}
+               {...props}
+            />
+         )
+      }),
+
+      TableBody: forwardRef<HTMLTableSectionElement>(function Body(props, ref) {
+         return <TableBody {...props} ref={ref} />
+      }),
+
+      Table: (props) => <Table {...props} stickyHeader />,
+   }
+
+   const Header = ({ cols }: { cols: TableData[] }) => (
+      <TableRow sx={{ background: palette.error.dark }}>
+         {cols.map(({ title }) => (
+            <TableCell
+               key={title}
+               sx={{ textTransform: 'capitalize', color: textCol }}
+            >
+               <strong>{title}</strong>
+            </TableCell>
+         ))}
+      </TableRow>
+   )
+
    /**
     * 🔑 Compute max rows across all columns
     */
@@ -87,7 +86,6 @@ export default function TableBit({ data }: TableSection) {
                      whiteSpace: 'nowrap',
                      fontFamily: 'monospace',
                   }}
-                  className={scroll_classname}
                >
                   {col.data[rowIndex] ?? ''}
                </TableCell>
