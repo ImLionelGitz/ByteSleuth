@@ -89,7 +89,7 @@ export default function Settings() {
             />
          </Popover>
 
-         <Stack direction="row" marginTop="8%" justifyContent="center">
+         <Stack direction="row" margin="8px 0" justifyContent="center">
             <Button
                variant="contained"
                color="secondary"

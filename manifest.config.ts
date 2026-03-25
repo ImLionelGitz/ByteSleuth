@@ -17,12 +17,17 @@ export default defineManifest({
     default_icon: {
       48: 'public/logo.png',
     },
-    default_popup: 'src/popup/index.html',
   },
 
   background: {
     service_worker: "src/background/background.ts"
   },
+
+  web_accessible_resources: [{
+    resources: ['src/popup/index.html'],
+    matches: ['<all_urls>'],
+    use_dynamic_url: true
+  }],
 
   content_scripts: [{
     matches: ["<all_urls>"],

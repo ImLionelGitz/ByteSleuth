@@ -1,4 +1,4 @@
-const HIDE_CONTENT = 'hide_contents'
+const OPEN_MENU = 'open_menu'
 const BEGIN_SELECTION = 'start_selection'
 
-export { HIDE_CONTENT, BEGIN_SELECTION }
+export { OPEN_MENU, BEGIN_SELECTION }

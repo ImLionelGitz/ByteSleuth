@@ -1,4 +1,6 @@
 import NumberSpinner from '@/popup/components/NumberInput'
+import { EntryBit } from '@/Types'
+import { TableFields, UniversalPad } from '@/Vars'
 import {
    Button,
    Divider,
@@ -8,16 +10,12 @@ import {
    Switch,
    useTheme,
 } from '@mui/material'
+import { useEffect, useState } from 'react'
 import { FaPlay, FaPlus } from 'react-icons/fa'
 import { FaGear } from 'react-icons/fa6'
 import { Link } from 'react-router-dom'
-import EntryEditor from '../components/EntryEditor'
-import { HIDE_CONTENT } from '@/Messages'
-import { useEffect, useState } from 'react'
-import { EntryBit } from '@/Types'
-import { TableFields, UniversalPad } from '@/Vars'
 import Empty from '../components/Empty'
-import sendRequest from '../helpers/messager'
+import EntryEditor from '../components/EntryEditor'
 
 export default function Home() {
    const [entries, setEntry] = useState<EntryBit[]>([])
@@ -65,7 +63,6 @@ export default function Home() {
                   color="primary"
                   variant="contained"
                   sx={{ fontSize: 21 }}
-                  onClick={() => sendRequest(HIDE_CONTENT)}
                >
                   <FaPlay />
                </Button>

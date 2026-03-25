@@ -6,11 +6,7 @@ import './index.scss'
 import 'react-color-palette/css'
 import { MemoryRouter } from 'react-router-dom'
 
-const rootElem = document.getElementById('root')!
-rootElem.style.width = '320px'
-rootElem.style.height = '400px'
-
-createRoot(rootElem).render(
+createRoot(document.getElementById('root')!).render(
    <StrictMode>
       <MemoryRouter>
          <App />
