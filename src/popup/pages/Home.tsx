@@ -17,22 +17,12 @@ import { useEffect, useState } from 'react'
 import { EntryBit } from '@/Types'
 import { TableFields, UniversalPad } from '@/Vars'
 import Empty from '../components/Empty'
+import sendRequest from '../helpers/messager'
 
 export default function Home() {
    const [entries, setEntry] = useState<EntryBit[]>([])
    const [pageLook, toggleLookup] = useState(false)
    const { palette } = useTheme()
-
-   const initScrape = async () => {
-      const [tab] = await chrome.tabs.query({
-         active: true,
-         currentWindow: true,
-      })
-
-      if (tab.id) {
-         chrome.tabs.sendMessage(tab.id, HIDE_CONTENT)
-      }
-   }
 
    const addEntry = () => {
       setEntry((old) => {
@@ -75,7 +65,7 @@ export default function Home() {
                   color="primary"
                   variant="contained"
                   sx={{ fontSize: 21 }}
-                  onClick={initScrape}
+                  onClick={() => sendRequest(HIDE_CONTENT)}
                >
                   <FaPlay />
                </Button>

@@ -8,6 +8,8 @@ import {
 } from '@mui/material'
 import HoverButton from './HoverButton'
 import { EntryBit } from '@/Types'
+import sendRequest from '../helpers/messager'
+import { BEGIN_SELECTION } from '@/Messages'
 
 interface EntryEditor {
    allEntries: EntryBit[]
@@ -61,6 +63,7 @@ function Entry({ token, onNewValue, onDelete }: Entry) {
                <Button
                   variant="contained"
                   sx={{ fontFamily: 'Bubbly', fontWeight: 900 }}
+                  onClick={() => sendRequest(BEGIN_SELECTION)}
                >
                   {token.selector ? token.selector : 'Pick an element'}
                </Button>

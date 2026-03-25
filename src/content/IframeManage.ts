@@ -1,22 +1,24 @@
-export default function Init() {
-   const iframe = document.createElement('iframe')
-   iframe.style.position = 'fixed'
-   iframe.style.height = '0'
-   iframe.style.zIndex = '9999'
-   iframe.style.border = '0'
-   iframe.style.width = '100%'
-   iframe.style.transition = '0.2s ease-out'
-   iframe.src = chrome.runtime.getURL('src/popup/barrier.html')
+export default class IframeManager {
+   private iframe: HTMLIFrameElement
 
-   document.documentElement.prepend(iframe)
+   constructor() {
+      this.iframe = document.createElement('iframe')
+      this.iframe.style.position = 'fixed'
+      this.iframe.style.height = '0'
+      this.iframe.style.zIndex = '9999'
+      this.iframe.style.border = '0'
+      this.iframe.style.width = '100%'
+      this.iframe.style.transition = '0.2s ease-out'
+      this.iframe.src = chrome.runtime.getURL('src/popup/barrier.html')
 
-   return {
-      coverUP: () => {
-         iframe.style.height = '100%'
-      },
+      document.documentElement.prepend(this.iframe)
+   }
 
-      coverDOWN: () => {
-         iframe.style.height = '0'
-      },
+   coverUP() {
+      this.iframe.style.height = '100%'
+   }
+
+   coverDOWN() {
+      this.iframe.style.height = '0'
    }
 }
