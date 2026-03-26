@@ -1,10 +1,19 @@
+import getSmartSelector from '@/popup/helpers/selector'
+import { EntryBit, LocalData } from '@/Types'
+import { TableFields } from '@/Vars'
+
 export default class SelectManager {
    private lastEl: HTMLElement | null
    private overlay: HTMLElement
+   private curFieldID: number | null
+
+   isSelecting: boolean
 
    constructor() {
       this.overlay = document.createElement('div')
       this.lastEl = null
+      this.curFieldID = null
+      this.isSelecting = false
 
       this.overlay.style.position = 'fixed'
       this.overlay.style.display = 'none'
@@ -21,16 +30,47 @@ export default class SelectManager {
       document.body.appendChild(this.overlay)
    }
 
-   enableSelection() {
+   enableSelection(fieldID: number) {
+      this.isSelecting = true
       this.overlay.style.display = 'block'
+      this.curFieldID = fieldID
    }
 
    disableSelection() {
       this.overlay.style.display = 'none'
+      this.curFieldID = null
+      this.isSelecting = false
    }
 
    private handleClick = () => {
-      console.log(this.lastEl)
+      if (this.lastEl) {
+         const selector = getSmartSelector(this.lastEl)
+
+         const data: LocalData = {
+            type: 'SELECTOR_FOUND',
+         }
+
+         this.lastEl.style.outline = ''
+         this.lastEl = null
+
+         chrome.storage.local.get(TableFields, async (res) => {
+            const curData = res[TableFields] as EntryBit[]
+
+            const modData = curData.map((d) => {
+               if (d.id === this.curFieldID) {
+                  return { ...d, selector: selector }
+               } else return d
+            })
+
+            await chrome.storage.local.set({ [TableFields]: modData })
+            window.postMessage(data, window.location.origin)
+         })
+      }
+
+      // document.querySelectorAll(selector).forEach((match) => {
+      //    const el = match as HTMLElement
+      //    el.style.outline = '2px solid blue'
+      // })
    }
 
    private handleOver = (e: MouseEvent) => {

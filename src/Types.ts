@@ -9,4 +9,6 @@ export interface TableData {
    data: string[]
 }
 
-export type LocalData = { type: 'BEGIN_SELECTION' }
+export type LocalData =
+   | { type: 'BEGIN_SELECTION'; payload: number }
+   | { type: 'SELECTOR_FOUND' }

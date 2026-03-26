@@ -1,4 +1,4 @@
-import { cross, local } from '@/Messages'
+import { local } from '@/Messages'
 import { Backdrop, GlobalStyles } from '@mui/material'
 import { AnimatePresence, motion } from 'motion/react'
 import React, { useEffect, useState } from 'react'
@@ -23,27 +23,14 @@ export default function App() {
    )
 
    useEffect(() => {
-      function onMessage(msg: string) {
-         switch (msg) {
-            case cross.APP_OPEN:
-               if (appVisible) setVisibility(false)
-               else setVisibility(true)
-               break
-
-            default:
-               break
-         }
-      }
-
-      chrome.runtime.onMessage.addListener(onMessage)
-      return () => chrome.runtime.onMessage.removeListener(onMessage)
-   }, [appVisible])
-
-   useEffect(() => {
       window.addEventListener('message', (e: MessageEvent<string>) => {
          switch (e.data) {
             case local.HIDE_MENU:
                setVisibility(false)
+               break
+
+            case local.OPEN_MENU:
+               setVisibility(true)
                break
 
             default:

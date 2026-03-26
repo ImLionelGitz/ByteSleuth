@@ -61,15 +61,19 @@ function Entry({ token, onNewValue, onDelete }: Entry) {
                <Button
                   variant="contained"
                   sx={{ fontFamily: 'Bubbly', fontWeight: 900 }}
+                  color={token.selector ? 'secondary' : 'primary'}
                   onClick={() => {
                      const data: LocalData = {
                         type: 'BEGIN_SELECTION',
+                        payload: token.id,
                      }
 
                      window.parent.postMessage(data, '*')
                   }}
                >
-                  {token.selector ? token.selector : 'Pick an element'}
+                  {token.selector
+                     ? token.selector.substring(0, 14)
+                     : 'Pick an element'}
                </Button>
             }
          />

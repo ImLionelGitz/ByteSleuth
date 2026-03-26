@@ -1,25 +1,28 @@
-import { cross } from '@/Messages'
+import { cross, local } from '@/Messages'
 import IframeManager from './classes/IframeManage'
-import window_communicator from './window'
+import SelectManager from './classes/SelectManage'
 
-const iframeMGR = new IframeManager()
+export default function chrome_communicator(
+   iframeMGR: IframeManager,
+   selectMGR: SelectManager
+) {
+   chrome.runtime.onMessage.addListener((msg) => {
+      if (selectMGR.isSelecting) return
 
-window_communicator(iframeMGR)
+      switch (msg) {
+         case cross.APP_OPEN:
+            if (iframeMGR.isEnabled) {
+               iframeMGR.disableIframe()
+               iframeMGR.notify(local.HIDE_MENU)
+            } else {
+               iframeMGR.enableIframe()
+               iframeMGR.notify(local.OPEN_MENU)
+            }
 
-chrome.runtime.onMessage.addListener((msg) => {
-   switch (msg) {
-      case cross.APP_OPEN:
-         if (iframeMGR.isEnabled) {
-            iframeMGR.disableIframe()
-         } else {
-            iframeMGR.enableIframe()
-         }
+            break
 
-         break
-
-      default:
-         break
-   }
-})
-
-console.log('Content script loaded')
+         default:
+            break
+      }
+   })
+}
