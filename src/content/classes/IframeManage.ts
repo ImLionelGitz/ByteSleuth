@@ -1,10 +1,10 @@
 export default class IframeManager {
    private iframe: HTMLIFrameElement
-   isOpen: boolean
+   isEnabled: boolean
 
    constructor() {
       this.iframe = document.createElement('iframe')
-      this.isOpen = false
+      this.isEnabled = false
 
       this.iframe.style.position = 'fixed'
       this.iframe.style.pointerEvents = 'none'
@@ -16,16 +16,20 @@ export default class IframeManager {
       this.iframe.style.zIndex = '999999'
       this.iframe.src = chrome.runtime.getURL('src/popup/index.html')
 
-      document.documentElement.prepend(this.iframe)
+      document.body.appendChild(this.iframe)
    }
 
    enableIframe() {
       this.iframe.style.pointerEvents = 'all'
-      this.isOpen = true
+      this.isEnabled = true
    }
 
    disableIframe() {
       this.iframe.style.pointerEvents = 'none'
-      this.isOpen = false
+      this.isEnabled = false
+   }
+
+   notify(message: string) {
+      this.iframe.contentWindow?.postMessage(message, '*')
    }
 }

@@ -8,3 +8,5 @@ export interface TableData {
    title: string
    data: string[]
 }
+
+export type LocalData = { type: 'BEGIN_SELECTION' }

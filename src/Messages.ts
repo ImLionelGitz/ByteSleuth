@@ -1,4 +1,9 @@
-const OPEN_MENU = 'open_menu'
-const BEGIN_SELECTION = 'start_selection'
+const local = {
+   HIDE_MENU: 'hide_menu',
+}
 
-export { OPEN_MENU, BEGIN_SELECTION }
+const cross = {
+   APP_OPEN: 'app_opened',
+}
+
+export { local, cross }

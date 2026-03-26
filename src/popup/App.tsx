@@ -1,11 +1,11 @@
+import { cross, local } from '@/Messages'
+import { Backdrop, GlobalStyles } from '@mui/material'
 import { AnimatePresence, motion } from 'motion/react'
 import React, { useEffect, useState } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
 import Home from './pages/Home'
 import Settings from './pages/Settings'
 import { SleuthTheme } from './Theme'
-import { Backdrop, GlobalStyles } from '@mui/material'
-import { OPEN_MENU } from '@/Messages'
 
 export default function App() {
    const [appVisible, setVisibility] = useState(false)
@@ -23,13 +23,34 @@ export default function App() {
    )
 
    useEffect(() => {
-      chrome.runtime.onMessage.addListener((msg) => {
-         if (msg === OPEN_MENU) {
-            if (appVisible) setVisibility(false)
-            else setVisibility(true)
+      function onMessage(msg: string) {
+         switch (msg) {
+            case cross.APP_OPEN:
+               if (appVisible) setVisibility(false)
+               else setVisibility(true)
+               break
+
+            default:
+               break
+         }
+      }
+
+      chrome.runtime.onMessage.addListener(onMessage)
+      return () => chrome.runtime.onMessage.removeListener(onMessage)
+   }, [appVisible])
+
+   useEffect(() => {
+      window.addEventListener('message', (e: MessageEvent<string>) => {
+         switch (e.data) {
+            case local.HIDE_MENU:
+               setVisibility(false)
+               break
+
+            default:
+               break
          }
       })
-   }, [appVisible])
+   }, [])
 
    return (
       <SleuthTheme>
@@ -50,7 +71,7 @@ export default function App() {
 
          <Backdrop
             open={appVisible}
-            sx={{ alignItems: 'flex-start', justifyContent: 'flex-start' }}
+            sx={{ alignItems: 'flex-start', justifyContent: 'flex-end' }}
          >
             <div className="real-window">
                <AnimatePresence mode="wait">
