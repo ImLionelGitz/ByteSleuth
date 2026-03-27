@@ -5,6 +5,7 @@ const local = {
 
 const cross = {
    APP_OPEN: 'app_opened',
+   DONE_NXT_SAVE: 'save_next',
 }
 
 export { local, cross }

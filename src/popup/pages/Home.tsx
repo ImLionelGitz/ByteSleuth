@@ -1,6 +1,6 @@
 import NumberSpinner from '@/popup/components/NumberInput'
-import { EntryBit } from '@/Types'
-import { TableFields, UniversalPad } from '@/Vars'
+import { EntryBit, LocalData, MultiLookData } from '@/Types'
+import { NxtFields, TableFields, UniversalPad } from '@/Vars'
 import {
    Button,
    Divider,
@@ -19,7 +19,12 @@ import EntryEditor from '../components/EntryEditor'
 
 export default function Home() {
    const [entries, setEntry] = useState<EntryBit[]>([])
-   const [pageLook, toggleLookup] = useState(false)
+   const [multiPg, setMultiPage] = useState<MultiLookData>({
+      enabled: false,
+      maxPages: 0,
+      nextBtn: '',
+   })
+
    const { palette } = useTheme()
 
    const addEntry = () => {
@@ -45,6 +50,19 @@ export default function Home() {
             setEntry(res[TableFields] || [])
          }
       )
+
+      chrome.storage.session.get(
+         NxtFields,
+         (res: Record<string, MultiLookData>) => {
+            const data: MultiLookData = res[NxtFields] || {
+               enabled: false,
+               maxPages: 0,
+               nextBtn: '',
+            }
+
+            setMultiPage(data)
+         }
+      )
    }, [])
 
    return (
@@ -63,6 +81,13 @@ export default function Home() {
                   color="primary"
                   variant="contained"
                   sx={{ fontSize: 21 }}
+                  onClick={() => {
+                     const data: LocalData = {
+                        type: 'START_SCRAPE',
+                     }
+
+                     window.parent.postMessage(data, '*')
+                  }}
                >
                   <FaPlay />
                </Button>
@@ -137,10 +162,16 @@ export default function Home() {
          <Stack gap={3}>
             <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
                <h3>Multi-page Lookup</h3>
+
                <Switch
-                  value={pageLook}
+                  checked={multiPg.enabled}
                   onChange={(_, checked) => {
-                     toggleLookup(checked)
+                     setMultiPage((old) => {
+                        const newState = { ...old, enabled: checked }
+
+                        chrome.storage.session.set({ [NxtFields]: newState })
+                        return newState
+                     })
                   }}
                />
             </Stack>
@@ -152,7 +183,7 @@ export default function Home() {
                sx={{
                   overflow: 'hidden',
                   transition: 'height 0.2s ease',
-                  height: pageLook ? 63 : 0,
+                  height: multiPg.enabled ? 63 : 0,
                }}
             >
                <Stack sx={{ alignItems: 'center' }} gap={1}>
@@ -161,30 +192,45 @@ export default function Home() {
                   <NumberSpinner
                      min={0}
                      max={999}
-                     defaultValue={0}
+                     value={multiPg.maxPages}
                      size="small"
-                     disabled={!pageLook}
+                     disabled={!multiPg.enabled}
+                     onValueChange={(val) => {
+                        setMultiPage((old) => {
+                           const newState = { ...old, maxPages: val! }
+
+                           chrome.storage.session.set({ [NxtFields]: newState })
+                           return newState
+                        })
+                     }}
                   />
                </Stack>
 
                <Button
                   variant="contained"
-                  disabled={!pageLook}
+                  disabled={!multiPg.enabled}
+                  color={multiPg.nextBtn ? 'secondary' : 'primary'}
                   sx={{
                      fontFamily: 'Bubbly',
                      fontSize: 12,
                      fontWeight: '900',
                   }}
                   onClick={() => {
-                     chrome.windows.create({
-                        url: chrome.runtime.getURL('src/popup/result.html'),
-                        type: 'popup',
-                        width: 800,
-                        height: 600,
-                     })
+                     const data: LocalData = {
+                        type: 'SELECT_NXT_BTN',
+                     }
+
+                     window.parent.postMessage(data, '*')
+
+                     // chrome.windows.create({
+                     //    url: chrome.runtime.getURL('src/popup/result.html'),
+                     //    type: 'popup',
+                     //    width: 800,
+                     //    height: 600,
+                     // })
                   }}
                >
-                  Pick the next btn
+                  {multiPg.nextBtn ? 'Next button picked' : 'Pick the next btn'}
                </Button>
             </Stack>
          </Stack>

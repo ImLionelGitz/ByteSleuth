@@ -1,7 +1,9 @@
-import { LocalData } from '@/Types'
+import { EntryBit, LocalData } from '@/Types'
 import type IframeManager from './classes/IframeManage'
 import SelectManager from './classes/SelectManage'
 import { local } from '@/Messages'
+import { TableFields } from '@/Vars'
+import startScrape from '@/popup/helpers/scraper'
 
 export default function window_communicator(
    selectMGR: SelectManager,
@@ -10,7 +12,7 @@ export default function window_communicator(
    const extensionOrigin = `chrome-extension://${chrome.runtime.id}`
    const webOrigin = window.location.origin
 
-   window.addEventListener('message', (e: MessageEvent<LocalData>) => {
+   window.addEventListener('message', async (e: MessageEvent<LocalData>) => {
       if (e.origin === extensionOrigin || e.origin === webOrigin) {
          switch (e.data.type) {
             case 'BEGIN_SELECTION':
@@ -24,6 +26,20 @@ export default function window_communicator(
                iframeMGR.enableIframe()
                iframeMGR.notify(local.OPEN_MENU)
                break
+
+            case 'SELECT_NXT_BTN':
+               selectMGR.enableNxtSelect()
+               iframeMGR.disableIframe()
+               iframeMGR.notify(local.HIDE_MENU)
+               break
+
+            case 'START_SCRAPE': {
+               const loaded = await chrome.storage.local.get(TableFields)
+               const entries = loaded[TableFields] as EntryBit[]
+
+               startScrape(entries)
+               break
+            }
 
             default:
                break

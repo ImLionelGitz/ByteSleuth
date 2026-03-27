@@ -1,11 +1,13 @@
+import { cross } from '@/Messages'
 import getSmartSelector from '@/popup/helpers/selector'
-import { EntryBit, LocalData } from '@/Types'
+import { CrossData, EntryBit, LocalData } from '@/Types'
 import { TableFields } from '@/Vars'
 
 export default class SelectManager {
    private lastEl: HTMLElement | null
    private overlay: HTMLElement
    private curFieldID: number | null
+   private nxtSelection: boolean
 
    isSelecting: boolean
 
@@ -14,6 +16,7 @@ export default class SelectManager {
       this.lastEl = null
       this.curFieldID = null
       this.isSelecting = false
+      this.nxtSelection = false
 
       this.overlay.style.position = 'fixed'
       this.overlay.style.display = 'none'
@@ -36,6 +39,12 @@ export default class SelectManager {
       this.curFieldID = fieldID
    }
 
+   enableNxtSelect() {
+      this.isSelecting = true
+      this.overlay.style.display = 'block'
+      this.nxtSelection = true
+   }
+
    disableSelection() {
       this.overlay.style.display = 'none'
       this.curFieldID = null
@@ -53,18 +62,28 @@ export default class SelectManager {
          this.lastEl.style.outline = ''
          this.lastEl = null
 
-         chrome.storage.local.get(TableFields, async (res) => {
-            const curData = res[TableFields] as EntryBit[]
+         if (!this.nxtSelection)
+            chrome.storage.local.get(TableFields, async (res) => {
+               const curData = res[TableFields] as EntryBit[]
 
-            const modData = curData.map((d) => {
-               if (d.id === this.curFieldID) {
-                  return { ...d, selector: selector }
-               } else return d
+               const modData = curData.map((d) => {
+                  if (d.id === this.curFieldID) {
+                     return { ...d, selector: selector }
+                  } else return d
+               })
+
+               await chrome.storage.local.set({ [TableFields]: modData })
+               window.postMessage(data, window.location.origin)
             })
+         else {
+            const msg: CrossData = { type: 'SAVE_MULTIPAGE', payload: selector }
 
-            await chrome.storage.local.set({ [TableFields]: modData })
-            window.postMessage(data, window.location.origin)
-         })
+            chrome.runtime.sendMessage(msg, (res: string) => {
+               if (res === cross.DONE_NXT_SAVE) {
+                  window.postMessage(data, window.location.origin)
+               }
+            })
+         }
       }
 
       // document.querySelectorAll(selector).forEach((match) => {
