@@ -21,4 +21,6 @@ export type LocalData =
    | { type: 'START_SCRAPE' }
    | { type: 'SELECT_NXT_BTN' }
 
-export type CrossData = { type: 'SAVE_MULTIPAGE'; payload: string }
+export type CrossData =
+   | { type: 'SAVE_MULTIPAGE'; payload: string }
+   | { type: 'RETRIEVE_DATA' }

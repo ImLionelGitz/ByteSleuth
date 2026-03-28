@@ -25,4 +25,13 @@ chrome.runtime.onMessage.addListener((msg: CrossData, _, sendResponse) => {
 
       return true
    }
+
+   if (msg.type === 'RETRIEVE_DATA') {
+      chrome.storage.session.get(NxtFields, async (res) => {
+         const curData = res[NxtFields] as MultiLookData
+         sendResponse(curData)
+      })
+
+      return true
+   }
 })
