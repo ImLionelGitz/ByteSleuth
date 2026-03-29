@@ -66,11 +66,46 @@ function extractData(container: HTMLElement, selector: string) {
    const slots = document.querySelectorAll(conSelector)
 
    const items = Array.from(slots)
+   console.log(items)
 
    return items.map((item) => {
       const el = item.matches(selector) ? item : item.querySelector(selector)
-      return cleanText(el)
+      return cleanValue(el)
    })
+}
+
+function cleanValue(el: Element | null): string {
+   if (!el) return ''
+
+   // Try image inside element
+   const img = el.tagName.toLowerCase() === 'img' ? el : el.querySelector('img')
+
+   if (img) {
+      const src =
+         (img as HTMLImageElement).src ||
+         img.getAttribute('data-src') ||
+         img.getAttribute('srcset')
+
+      if (src) return toAbsoluteUrl(src)
+   }
+
+   // Try link
+   if (el.tagName === 'A') {
+      const href = (el as HTMLAnchorElement).href || el.getAttribute('href')
+
+      if (href) return toAbsoluteUrl(href)
+   }
+
+   // Fallback text
+   return cleanText(el)
+}
+
+function toAbsoluteUrl(url: string): string {
+   try {
+      return new URL(url, window.location.origin).href
+   } catch {
+      return url
+   }
 }
 
 function cleanText(el: Element | null) {

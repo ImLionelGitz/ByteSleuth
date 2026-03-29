@@ -1,9 +1,9 @@
+import { local } from '@/Messages'
 import { EntryBit, LocalData } from '@/Types'
 import type IframeManager from './classes/IframeManage'
 import SelectManager from './classes/SelectManage'
-import { local } from '@/Messages'
-import { TableFields } from '@/Vars'
 import startScrape from '@/popup/helpers/scraper'
+import { TableFields } from '@/Vars'
 
 export default function window_communicator(
    selectMGR: SelectManager,
@@ -27,13 +27,8 @@ export default function window_communicator(
                iframeMGR.notify(local.OPEN_MENU)
                break
 
-            case 'SELECT_NXT_BTN':
-               selectMGR.enableNxtSelect()
-               iframeMGR.disableIframe()
-               iframeMGR.notify(local.HIDE_MENU)
-               break
-
-            case 'START_SCRAPE': {
+            case 'START_SCRAPE':
+            case 'START_COLLECTING': {
                const loaded = await chrome.storage.local.get(TableFields)
                const entries = loaded[TableFields] as EntryBit[]
 

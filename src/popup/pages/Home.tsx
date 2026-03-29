@@ -1,4 +1,3 @@
-import NumberSpinner from '@/popup/components/NumberInput'
 import { EntryBit, LocalData, MultiLookData } from '@/Types'
 import { NxtFields, TableFields, UniversalPad } from '@/Vars'
 import {
@@ -10,20 +9,44 @@ import {
    Switch,
    useTheme,
 } from '@mui/material'
-import { useEffect, useState } from 'react'
-import { FaPlay, FaPlus } from 'react-icons/fa'
+import { JSX, useEffect, useState } from 'react'
+import { BsBagPlusFill } from 'react-icons/bs'
+import { FaEye, FaPlay, FaPlus } from 'react-icons/fa'
 import { FaGear } from 'react-icons/fa6'
 import { Link } from 'react-router-dom'
 import Empty from '../components/Empty'
 import EntryEditor from '../components/EntryEditor'
 
+interface MultiModeBtn {
+   icon: JSX.Element
+   onClick: () => void
+}
+
 export default function Home() {
    const [entries, setEntry] = useState<EntryBit[]>([])
-   const [multiPg, setMultiPage] = useState<MultiLookData>({
+   const [multiSup, setMultiData] = useState<MultiLookData>({
       enabled: false,
-      maxPages: 0,
-      nextBtn: '',
+      collected: [],
    })
+
+   const multiModeBtns: Record<string, MultiModeBtn> = {
+      Collect: {
+         icon: <BsBagPlusFill />,
+         onClick: () => notifyWindow({ type: 'START_COLLECTING' }),
+      },
+
+      Results: {
+         icon: <FaEye />,
+         onClick: () => {
+            chrome.windows.create({
+               url: chrome.runtime.getURL('src/popup/result.html'),
+               type: 'popup',
+               width: 800,
+               height: 600,
+            })
+         },
+      },
+   }
 
    const { palette } = useTheme()
 
@@ -43,6 +66,10 @@ export default function Home() {
       })
    }
 
+   const notifyWindow = (msg: LocalData) => {
+      window.parent.postMessage(msg, '*')
+   }
+
    useEffect(() => {
       chrome.storage.local.get(
          TableFields,
@@ -56,11 +83,10 @@ export default function Home() {
          (res: Record<string, MultiLookData>) => {
             const data: MultiLookData = res[NxtFields] || {
                enabled: false,
-               maxPages: 0,
-               nextBtn: '',
+               collected: [],
             }
 
-            setMultiPage(data)
+            setMultiData(data)
          }
       )
    }, [])
@@ -77,20 +103,16 @@ export default function Home() {
             </Stack>
 
             <Stack direction="row" gap={2}>
-               <Button
-                  color="primary"
-                  variant="contained"
-                  sx={{ fontSize: 21 }}
-                  onClick={() => {
-                     const data: LocalData = {
-                        type: 'START_SCRAPE',
-                     }
-
-                     window.parent.postMessage(data, '*')
-                  }}
-               >
-                  <FaPlay />
-               </Button>
+               {!multiSup.enabled && (
+                  <Button
+                     color="primary"
+                     variant="contained"
+                     sx={{ fontSize: 21 }}
+                     onClick={() => notifyWindow({ type: 'START_SCRAPE' })}
+                  >
+                     <FaPlay />
+                  </Button>
+               )}
 
                <Link
                   to="/settings"
@@ -161,15 +183,15 @@ export default function Home() {
 
          <Stack gap={3}>
             <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
-               <h3>Multi-page Lookup</h3>
+               <h3>Multiple pages?</h3>
 
                <Switch
-                  checked={multiPg.enabled}
+                  checked={multiSup.enabled}
                   onChange={(_, checked) => {
-                     setMultiPage((old) => {
+                     setMultiData((old) => {
                         const newState = { ...old, enabled: checked }
 
-                        chrome.storage.session.set({ [NxtFields]: newState })
+                        //chrome.storage.session.set({ [NxtFields]: newState })
                         return newState
                      })
                   }}
@@ -178,60 +200,31 @@ export default function Home() {
 
             <Stack
                direction="row"
-               justifyContent="space-between"
-               alignItems="flex-end" // 60px
+               justifyContent="space-evenly"
+               alignItems="flex-end"
+               overflow="hidden"
+               height={multiSup.enabled ? 40 : 0}
                sx={{
-                  overflow: 'hidden',
                   transition: 'height 0.2s ease',
-                  height: multiPg.enabled ? 63 : 0,
                }}
             >
-               <Stack sx={{ alignItems: 'center' }} gap={1}>
-                  <h4>Max pages</h4>
-
-                  <NumberSpinner
-                     min={0}
-                     max={999}
-                     value={multiPg.maxPages}
-                     size="small"
-                     disabled={!multiPg.enabled}
-                     onValueChange={(val) => {
-                        setMultiPage((old) => {
-                           const newState = { ...old, maxPages: val! }
-
-                           chrome.storage.session.set({ [NxtFields]: newState })
-                           return newState
-                        })
+               {Object.keys(multiModeBtns).map((key) => (
+                  <Button
+                     key={key}
+                     variant="contained"
+                     disabled={!multiSup.enabled}
+                     sx={{
+                        fontFamily: 'Bubbly',
+                        fontSize: 12,
+                        fontWeight: '900',
+                        gap: 0.5,
                      }}
-                  />
-               </Stack>
-
-               <Button
-                  variant="contained"
-                  disabled={!multiPg.enabled}
-                  color={multiPg.nextBtn ? 'secondary' : 'primary'}
-                  sx={{
-                     fontFamily: 'Bubbly',
-                     fontSize: 12,
-                     fontWeight: '900',
-                  }}
-                  onClick={() => {
-                     const data: LocalData = {
-                        type: 'SELECT_NXT_BTN',
-                     }
-
-                     window.parent.postMessage(data, '*')
-
-                     // chrome.windows.create({
-                     //    url: chrome.runtime.getURL('src/popup/result.html'),
-                     //    type: 'popup',
-                     //    width: 800,
-                     //    height: 600,
-                     // })
-                  }}
-               >
-                  {multiPg.nextBtn ? 'Next button picked' : 'Pick the next btn'}
-               </Button>
+                     onClick={multiModeBtns[key].onClick}
+                  >
+                     {multiModeBtns[key].icon}
+                     {key}
+                  </Button>
+               ))}
             </Stack>
          </Stack>
       </Stack>

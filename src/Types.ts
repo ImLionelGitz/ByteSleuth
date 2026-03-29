@@ -11,16 +11,13 @@ export interface TableData {
 
 export interface MultiLookData {
    enabled: boolean
-   maxPages: number
-   nextBtn: string
+   collected: TableData[]
 }
 
 export type LocalData =
    | { type: 'BEGIN_SELECTION'; payload: number }
-   | { type: 'SELECTOR_FOUND' }
-   | { type: 'START_SCRAPE' }
-   | { type: 'SELECT_NXT_BTN' }
+   | { type: 'START_SCRAPE' | 'START_COLLECTING' | 'SELECTOR_FOUND' }
 
-export type CrossData =
-   | { type: 'SAVE_MULTIPAGE'; payload: string }
-   | { type: 'RETRIEVE_DATA' }
+export type ChromeData =
+   | { type: 'SAVE_COLLECTION'; payload: TableData[] }
+   | { type: 'SCRAPE_COMPLETE' }
