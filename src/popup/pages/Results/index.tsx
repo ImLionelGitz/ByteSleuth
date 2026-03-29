@@ -1,9 +1,29 @@
 import SplitButton from '@/popup/components/SplitButton'
 import TableBit from '@/popup/components/Table'
 import { SleuthTheme } from '@/popup/Theme'
+import { TableData } from '@/Types'
+import { ResultsField } from '@/Vars'
 import { Paper, Stack } from '@mui/material'
+import { useEffect, useState } from 'react'
 
 export default function Results() {
+   const [tableData, setTable] = useState<TableData[]>([])
+
+   useEffect(() => {
+      chrome.storage.session.get(
+         ResultsField,
+         (res: Record<string, TableData[]>) => {
+            setTable(res[ResultsField])
+         }
+      )
+
+      chrome.storage.session.onChanged.addListener((change) => {
+         if (change[ResultsField]) {
+            setTable((change[ResultsField].newValue as TableData[]) || [])
+         }
+      })
+   }, [])
+
    return (
       <SleuthTheme>
          <Stack
@@ -28,12 +48,7 @@ export default function Results() {
                   marginBottom: 1,
                }}
             >
-               <TableBit
-                  data={[
-                     { title: 'names', data: ['broly', 'goku'] },
-                     { title: 'income', data: ['$100'] },
-                  ]}
-               />
+               <TableBit data={tableData} />
             </Paper>
 
             <Stack alignItems="center">

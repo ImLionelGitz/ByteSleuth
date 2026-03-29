@@ -2,7 +2,7 @@ import { EntryBit, TableData } from '@/Types'
 import getSmartSelector from './selector'
 
 export default function startScrape(entries: EntryBit[]) {
-   const test = entries.map((entry) => {
+   const tableData = entries.map((entry) => {
       const tableSlot: TableData = { title: entry.name, data: [] }
       const sampleEls = document.querySelector<HTMLElement>(entry.selector)
 
@@ -11,10 +11,10 @@ export default function startScrape(entries: EntryBit[]) {
       const container = findBestContainer(sampleEls)
       const txtArray = extractData(container, entry.selector)
 
-      console.log(txtArray)
-
-      return { ...tableSlot, data: [] }
+      return { ...tableSlot, data: txtArray }
    })
+
+   return tableData
 
    // const msg: CrossData = { type: 'RETRIEVE_DATA' }
    // const multiData: MultiLookData = await chrome.runtime.sendMessage(msg)

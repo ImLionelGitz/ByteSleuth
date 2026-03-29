@@ -1,5 +1,5 @@
 import { local } from '@/Messages'
-import { EntryBit, LocalData } from '@/Types'
+import { ChromeData, EntryBit, LocalData } from '@/Types'
 import type IframeManager from './classes/IframeManage'
 import SelectManager from './classes/SelectManage'
 import startScrape from '@/popup/helpers/scraper'
@@ -27,7 +27,20 @@ export default function window_communicator(
                iframeMGR.notify(local.OPEN_MENU)
                break
 
-            case 'START_SCRAPE':
+            case 'START_SCRAPE': {
+               const loaded = await chrome.storage.local.get(TableFields)
+               const entries = loaded[TableFields] as EntryBit[]
+               const list = startScrape(entries)
+
+               const msg: ChromeData = {
+                  type: 'SCRAPE_COMPLETE',
+                  payload: list,
+               }
+
+               chrome.runtime.sendMessage(msg)
+               break
+            }
+
             case 'START_COLLECTING': {
                const loaded = await chrome.storage.local.get(TableFields)
                const entries = loaded[TableFields] as EntryBit[]

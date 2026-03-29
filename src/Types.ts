@@ -18,6 +18,4 @@ export type LocalData =
    | { type: 'BEGIN_SELECTION'; payload: number }
    | { type: 'START_SCRAPE' | 'START_COLLECTING' | 'SELECTOR_FOUND' }
 
-export type ChromeData =
-   | { type: 'SAVE_COLLECTION'; payload: TableData[] }
-   | { type: 'SCRAPE_COMPLETE' }
+export type ChromeData = { type: 'SCRAPE_COMPLETE'; payload: TableData[] }

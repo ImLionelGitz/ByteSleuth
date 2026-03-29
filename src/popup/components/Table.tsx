@@ -81,7 +81,7 @@ export default function TableBit({ data }: TableSection) {
                   key={colIndex}
                   sx={{
                      color: textCol,
-                     maxWidth: 120,
+                     maxWidth: 70,
                      overflow: 'auto',
                      whiteSpace: 'nowrap',
                      fontFamily: 'monospace',
