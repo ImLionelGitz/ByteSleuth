@@ -1,3 +1,4 @@
+import Empty from '@/popup/components/Empty'
 import SplitButton from '@/popup/components/SplitButton'
 import TableBit from '@/popup/components/Table'
 import { SleuthTheme } from '@/popup/Theme'
@@ -13,7 +14,7 @@ export default function Results() {
       chrome.storage.session.get(
          ResultsField,
          (res: Record<string, TableData[]>) => {
-            setTable(res[ResultsField])
+            setTable(res[ResultsField] || [])
          }
       )
 
@@ -43,12 +44,17 @@ export default function Results() {
             </h1>
 
             <Paper
-               sx={{
+               sx={({ palette }) => ({
                   height: 350,
                   marginBottom: 1,
-               }}
+                  background: palette.error.main,
+               })}
             >
-               <TableBit data={tableData} />
+               {tableData.length > 0 ? (
+                  <TableBit data={tableData} />
+               ) : (
+                  <Empty text="No table exists" />
+               )}
             </Paper>
 
             <Stack alignItems="center">

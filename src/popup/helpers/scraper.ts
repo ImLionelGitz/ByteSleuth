@@ -66,7 +66,6 @@ function extractData(container: HTMLElement, selector: string) {
    const slots = document.querySelectorAll(conSelector)
 
    const items = Array.from(slots)
-   console.log(items)
 
    return items.map((item) => {
       const el = item.matches(selector) ? item : item.querySelector(selector)

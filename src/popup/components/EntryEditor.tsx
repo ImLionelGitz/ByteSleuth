@@ -11,18 +11,20 @@ import HoverButton from './HoverButton'
 
 interface EntryEditor {
    allEntries: EntryBit[]
+   entryBtnClicks: boolean
    entryChanged: (entry: EntryBit) => void
    entryRemoval: (entry: EntryBit) => void
 }
 
 interface Entry {
    token: EntryBit
+   enabled: boolean
    onNewValue: (e: EntryBit) => void
    onDelete: (e: EntryBit) => void
 }
 
 export default function EntryEditor(props: EntryEditor) {
-   const { allEntries, entryChanged, entryRemoval } = props
+   const { allEntries, entryBtnClicks, entryChanged, entryRemoval } = props
 
    return (
       <List>
@@ -30,6 +32,7 @@ export default function EntryEditor(props: EntryEditor) {
             <Entry
                key={entry.id}
                token={entry}
+               enabled={entryBtnClicks}
                onNewValue={entryChanged}
                onDelete={entryRemoval}
             />
@@ -38,11 +41,11 @@ export default function EntryEditor(props: EntryEditor) {
    )
 }
 
-function Entry({ token, onNewValue, onDelete }: Entry) {
+function Entry({ token, enabled, onNewValue, onDelete }: Entry) {
    return (
       <ListItem alignItems="flex-start">
          <ListItemAvatar>
-            <HoverButton onClick={() => onDelete(token)} />
+            <HoverButton enabled={enabled} onClick={() => onDelete(token)} />
          </ListItemAvatar>
 
          <ListItemText

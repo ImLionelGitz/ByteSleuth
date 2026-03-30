@@ -81,13 +81,15 @@ export default function TableBit({ data }: TableSection) {
                   key={colIndex}
                   sx={{
                      color: textCol,
-                     maxWidth: 70,
+                     width: 120,
                      overflow: 'auto',
-                     whiteSpace: 'nowrap',
+                     whiteSpace: 'normal',
+                     wordBreak: 'break-word',
                      fontFamily: 'monospace',
+                     border: '1px solid',
                   }}
                >
-                  {col.data[rowIndex] ?? ''}
+                  <div>{col.data[rowIndex] ?? ''}</div>
                </TableCell>
             ))}
          </>

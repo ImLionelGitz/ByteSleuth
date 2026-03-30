@@ -1,7 +1,7 @@
 import { Stack } from '@mui/material'
 import { IoSad } from 'react-icons/io5'
 
-export default function Empty() {
+export default function Empty({ text }: { text: string }) {
    return (
       <Stack
          sx={{ textAlign: 'center', justifyContent: 'center', height: '100%' }}
@@ -11,7 +11,7 @@ export default function Empty() {
                <IoSad fontSize={25} />
             </span>
             <br />
-            No entries defined
+            {text}
          </h3>
       </Stack>
    )

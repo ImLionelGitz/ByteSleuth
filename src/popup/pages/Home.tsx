@@ -103,16 +103,15 @@ export default function Home() {
             </Stack>
 
             <Stack direction="row" gap={2}>
-               {!multiSup.enabled && (
-                  <Button
-                     color="primary"
-                     variant="contained"
-                     sx={{ fontSize: 21 }}
-                     onClick={() => notifyWindow({ type: 'START_SCRAPE' })}
-                  >
-                     <FaPlay />
-                  </Button>
-               )}
+               <Button
+                  color="primary"
+                  variant="contained"
+                  disabled={multiSup.enabled}
+                  sx={{ fontSize: 21 }}
+                  onClick={() => notifyWindow({ type: 'START_SCRAPE' })}
+               >
+                  <FaPlay />
+               </Button>
 
                <Link
                   to="/settings"
@@ -137,7 +136,12 @@ export default function Home() {
             >
                <h3>Define Table Fields</h3>
 
-               <IconButton color="primary" disableRipple onClick={addEntry}>
+               <IconButton
+                  color="primary"
+                  disableRipple
+                  onClick={addEntry}
+                  disabled={multiSup.enabled}
+               >
                   <FaPlus />
                </IconButton>
             </Stack>
@@ -154,6 +158,7 @@ export default function Home() {
                {entries.length > 0 ? (
                   <EntryEditor
                      allEntries={entries}
+                     entryBtnClicks={multiSup.enabled}
                      entryChanged={(newEntry) => {
                         setEntry((list) => {
                            const newList = list.map((entry) =>
@@ -176,7 +181,7 @@ export default function Home() {
                      }}
                   />
                ) : (
-                  <Empty />
+                  <Empty text="No entries defined" />
                )}
             </Paper>
          </Stack>
@@ -191,7 +196,7 @@ export default function Home() {
                      setMultiData((old) => {
                         const newState = { ...old, enabled: checked }
 
-                        //chrome.storage.session.set({ [NxtFields]: newState })
+                        chrome.storage.session.set({ [NxtFields]: newState })
                         return newState
                      })
                   }}

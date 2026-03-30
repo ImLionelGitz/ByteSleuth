@@ -44,8 +44,14 @@ export default function window_communicator(
             case 'START_COLLECTING': {
                const loaded = await chrome.storage.local.get(TableFields)
                const entries = loaded[TableFields] as EntryBit[]
+               const list = startScrape(entries)
 
-               startScrape(entries)
+               const msg: ChromeData = {
+                  type: 'DIFF_SCRAPED',
+                  payload: list,
+               }
+
+               chrome.runtime.sendMessage(msg)
                break
             }
 

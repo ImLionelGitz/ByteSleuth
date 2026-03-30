@@ -3,7 +3,12 @@ import { useState } from 'react'
 import { BsClipboard2DataFill } from 'react-icons/bs'
 import { FaXmark } from 'react-icons/fa6'
 
-export default function HoverButton({ onClick }: { onClick: () => void }) {
+interface HoverButton {
+   enabled: boolean
+   onClick: () => void
+}
+
+export default function HoverButton({ enabled, onClick }: HoverButton) {
    const [hovered, setHovered] = useState(false)
 
    return (
@@ -11,6 +16,7 @@ export default function HoverButton({ onClick }: { onClick: () => void }) {
          onMouseEnter={() => setHovered(true)}
          onMouseLeave={() => setHovered(false)}
          onClick={onClick}
+         disabled={enabled}
          sx={({ palette }) => ({
             backgroundColor: '#bdbdbd',
             transition: 'all 0.3s ease',
