@@ -1,49 +1,29 @@
-export default function getSmartSelector(el: HTMLElement): string {
-   let current: HTMLElement | null = el
-   const path: string[] = []
+export default function getSmartSelector(el: Element | null): string {
+   const path = []
 
-   while (current && path.length < 3) {
-      let part = ''
+   while (el && el.nodeType === Node.ELEMENT_NODE) {
+      let selector = el.tagName.toLowerCase()
 
-      if (current.id) {
-         part = `#${cssEscape(current.id)}`
-         path.unshift(part)
+      if (el.className) {
+         selector += `[class="${el.classList.value}"]`
+         path.unshift(selector)
          break
       }
 
-      const classes = getUsefulClasses(current)
+      let sib: Element | null = el,
+         nth = 1
 
-      if (classes.length > 0) {
-         part = `${current.tagName.toLowerCase()}.${classes.join('.')}`
-      } else {
-         part = current.tagName.toLowerCase()
+      while ((sib = sib.previousElementSibling)) {
+         if (sib.nodeName.toLowerCase() === selector) nth++
       }
 
-      path.unshift(part)
+      if (nth !== 1) {
+         selector += `:nth-of-type(${nth})`
+      }
 
-      const selector = path.join(' ')
-      const matches = document.querySelectorAll(selector)
-
-      if (matches.length <= 10) break
-
-      current = current.parentElement
+      path.unshift(selector)
+      el = el.parentNode as Element
    }
 
-   return path.join(' ')
-}
-
-function cssEscape(str: string): string {
-   return str.replace(/([ #;?%&,.+*~':"!^$[\]()=>|/@])/g, '\\$1')
-}
-
-function getUsefulClasses(el: HTMLElement): string[] {
-   return Array.from(el.classList).filter((cls) => {
-      return (
-         cls.length < 30 && // avoid long hashed classes
-         !cls.match(/^\d/) && // avoid numeric classes
-         !cls.includes('active') && // dynamic states
-         !cls.includes('hover') &&
-         !cls.includes('selected')
-      )
-   })
+   return path.join(' > ')
 }
