@@ -2,6 +2,8 @@ export interface EntryBit {
    id: number
    name: string
    selector: string
+   urlOnly: boolean
+   regFilter: string
 }
 
 export interface TableData {

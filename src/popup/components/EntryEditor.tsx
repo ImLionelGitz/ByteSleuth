@@ -1,11 +1,14 @@
 import { EntryBit, LocalData } from '@/Types'
 import {
    Button,
+   Checkbox,
+   FormControlLabel,
    Input,
    List,
    ListItem,
    ListItemAvatar,
    ListItemText,
+   Stack,
 } from '@mui/material'
 import HoverButton from './HoverButton'
 
@@ -50,15 +53,48 @@ function Entry({ token, enabled, onNewValue, onDelete }: Entry) {
 
          <ListItemText
             primary={
-               <Input
-                  placeholder="Enter a name"
-                  value={token.name}
-                  disableUnderline
-                  sx={{ fontFamily: 'Bubbly', fontWeight: 900, width: '80%' }}
-                  onChange={(e) =>
-                     onNewValue({ ...token, name: e.target.value })
-                  }
-               />
+               <Stack>
+                  <Input
+                     placeholder="Enter a name"
+                     value={token.name}
+                     disableUnderline
+                     sx={{
+                        fontFamily: 'Bubbly',
+                        fontSize: 18,
+                        fontWeight: 900,
+                        width: '80%',
+                     }}
+                     onChange={(e) =>
+                        onNewValue({ ...token, name: e.target.value })
+                     }
+                  />
+
+                  <Input
+                     placeholder="Add a filter"
+                     value={token.regFilter}
+                     disableUnderline
+                     sx={{
+                        fontFamily: 'Bubbly',
+                        fontWeight: 100,
+                        width: '80%',
+                     }}
+                     onChange={(e) =>
+                        onNewValue({ ...token, regFilter: e.target.value })
+                     }
+                  />
+
+                  <FormControlLabel
+                     control={
+                        <Checkbox
+                           value={token.urlOnly}
+                           onChange={(_, checked) =>
+                              onNewValue({ ...token, urlOnly: checked })
+                           }
+                        />
+                     }
+                     label={<div>Extract URLs Only</div>}
+                  />
+               </Stack>
             }
             secondary={
                <Button
@@ -74,9 +110,7 @@ function Entry({ token, enabled, onNewValue, onDelete }: Entry) {
                      window.parent.postMessage(data, '*')
                   }}
                >
-                  {token.selector
-                     ? token.selector.substring(0, 14)
-                     : 'Pick an element'}
+                  {token.selector ? 'Element captured' : 'Pick an element'}
                </Button>
             }
          />
