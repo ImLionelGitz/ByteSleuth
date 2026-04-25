@@ -7,6 +7,6 @@ export default defineBackground(() => {
          type: 'popup',
       })
 
-      console.log('Hello background!', { id: browser.runtime.id })
+      console.log('lol', { id: browser.runtime.id })
    })
 })

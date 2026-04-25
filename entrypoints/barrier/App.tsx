@@ -1,6 +1,4 @@
 import { Stack } from '@mui/material'
-import TableFieldUI from './interfaces/GreenUI'
-import TablePanel from './interfaces/PurpleUI'
 
 function App() {
    return (
@@ -9,8 +7,7 @@ function App() {
             direction="row"
             sx={{ alignItems: 'center', justifyContent: 'center' }}
          >
-            <TablePanel scale={0.9} />
-            <TableFieldUI />
+            lol
          </Stack>
       </div>
    )

@@ -5,6 +5,12 @@ export default defineConfig({
   modules: ['@wxt-dev/module-react'],
 
   manifest: {
-    action: {}
+    action: {},
+    host_permissions: ["<all_urls>"],
+
+    web_accessible_resources: [{
+      resources: ['barrier.html'],
+      matches: ['<all_urls>']
+    }]
   }
 });

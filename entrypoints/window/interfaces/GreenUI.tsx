@@ -8,6 +8,11 @@ export default function TableFieldUI({ scale }: { scale?: number }) {
    const width = ORG_Size * (scale || 1)
    const height = ORG_Size * (scale || 1)
 
+   const [fieldUI, setFieldUI] = useState<SleuthInfo>({
+      main_selector: '',
+      fields: [],
+   })
+
    return (
       <Box sx={{ width: width, height: height, overflow: 'hidden' }}>
          <img
@@ -22,7 +27,12 @@ export default function TableFieldUI({ scale }: { scale?: number }) {
             alt=""
          />
 
-         <FieldList />
+         <FieldList
+            info={fieldUI}
+            onBaseAssign={() => {
+               console.log('lol')
+            }}
+         />
       </Box>
    )
 }

@@ -1,5 +1,11 @@
-interface TableSlot {
+interface SleuthInfo {
+   main_selector: string
+   fields: FieldByte[]
+}
+
+interface FieldByte {
    name: string
    selector: string
-   fields: string[]
 }
+
+type TableByte = Record<string, string>
