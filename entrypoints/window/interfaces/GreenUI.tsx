@@ -13,6 +13,18 @@ export default function TableFieldUI({ scale }: { scale?: number }) {
       fields: [],
    })
 
+   async function handleBasePick() {
+      const [tab] = await browser.tabs.query({
+         active: true,
+         currentWindow: false,
+      })
+
+      if (tab.id) {
+         const msg: Messages = { message: 'select a root' }
+         browser.tabs.sendMessage(tab.id, msg)
+      }
+   }
+
    return (
       <Box sx={{ width: width, height: height, overflow: 'hidden' }}>
          <img
@@ -27,12 +39,7 @@ export default function TableFieldUI({ scale }: { scale?: number }) {
             alt=""
          />
 
-         <FieldList
-            info={fieldUI}
-            onBaseAssign={() => {
-               console.log('lol')
-            }}
-         />
+         <FieldList info={fieldUI} onBaseAssign={handleBasePick} />
       </Box>
    )
 }

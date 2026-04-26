@@ -9,3 +9,5 @@ interface FieldByte {
 }
 
 type TableByte = Record<string, string>
+
+type Messages = { message: 'select a root' }
