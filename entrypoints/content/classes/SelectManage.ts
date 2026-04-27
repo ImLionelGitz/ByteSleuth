@@ -1,68 +1,100 @@
 import getSmartSelector from '@/entrypoints/content/helpers/selector'
 
 export default class SelectManager {
-   private lastEl: HTMLElement | null
-   private overlay: HTMLElement
-   private curFieldID: number | null
+   private hoverEl: HTMLElement | null
+   private mainEl: HTMLElement | null
+   private firstTime: boolean
 
    isSelecting: boolean
 
-   constructor(overlay: HTMLElement) {
-      this.overlay = overlay
-      this.lastEl = null
-      this.curFieldID = null
+   constructor() {
+      this.hoverEl = null
+      this.mainEl = null
       this.isSelecting = false
+      this.firstTime = true
 
-      this.overlay.style.display = 'none'
+      // this.overlay.style.display = 'none'
 
-      this.overlay.addEventListener('mousemove', this.handleOver)
-      this.overlay.addEventListener('click', this.handleClick)
+      // this.overlay.addEventListener('mousemove', this.handleOver)
+      // this.overlay.addEventListener('click', this.handleClick)
    }
 
-   enableSelection(fieldID: number) {
-      this.isSelecting = true
-      this.overlay.style.display = 'block'
-      this.overlay.style.cursor = 'crosshair'
-      this.curFieldID = fieldID
+   enableFirstSelection(overlay: HTMLElement) {
+      if (!this.firstTime) return
+
+      overlay.style.pointerEvents = 'all'
+      overlay.style.cursor = 'crosshair'
+
+      overlay.addEventListener('mousemove', this.handleOver)
+      overlay.addEventListener('click', this.handleClick)
+      this.mainEl = overlay
    }
 
-   disableSelection() {
-      this.overlay.style.display = 'none'
-      this.overlay.style.cursor = 'normal'
-      this.curFieldID = null
-      this.isSelecting = false
+   enableSelection() {
+      if (!this.mainEl) return
+
+      this.mainEl.style.pointerEvents = 'all'
+      this.mainEl.style.cursor = 'crosshair'
+   }
+
+   private disableSelection(first = false) {
+      if (!this.mainEl) return
+
+      if (first) {
+         this.mainEl.removeEventListener('mousemove', this.handleOver)
+         this.mainEl.removeEventListener('click', this.handleClick)
+         this.mainEl.style.cursor = 'default'
+         this.mainEl = null
+      }
    }
 
    private handleClick = () => {
-      if (this.lastEl) {
-         const selector = getSmartSelector(this.lastEl)
+      if (this.hoverEl) {
+         if (this.firstTime) {
+            this.firstTime = false
+            this.disableSelection(true)
+         } else {
+            this.disableSelection()
+         }
 
-         this.lastEl.style.outline = ''
-         this.lastEl = null
+         const selector = getSmartSelector(this.hoverEl)
+         const msg: Messages = {
+            message: 'core data found',
+            data: selector,
+         }
 
-         console.log(selector)
+         this.hoverEl.style.outline = ''
+         this.hoverEl.style.position = 'relative'
+         this.hoverEl.style.backgroundColor = 'aliceblue'
+         this.hoverEl.style.mixBlendMode = 'difference'
+
+         this.mainEl = this.hoverEl
+         this.hoverEl = null
+
+         browser.runtime.sendMessage(msg)
       }
    }
 
    private handleOver = (e: MouseEvent) => {
-      console.log('lolol')
-      this.overlay.style.pointerEvents = 'none'
+      if (!this.mainEl) return
+
+      this.mainEl.style.pointerEvents = 'none'
 
       const elementUnder = document.elementFromPoint(
          e.clientX,
          e.clientY
       ) as HTMLElement
 
-      this.overlay.style.pointerEvents = 'auto'
+      this.mainEl.style.pointerEvents = 'auto'
 
       if (
          elementUnder &&
-         elementUnder !== this.lastEl &&
+         elementUnder !== this.hoverEl &&
          elementUnder !== document.body
       ) {
-         if (this.lastEl) this.lastEl.style.outline = ''
+         if (this.hoverEl) this.hoverEl.style.outline = ''
 
-         this.lastEl = elementUnder
+         this.hoverEl = elementUnder
          elementUnder.style.outline = '2px solid #007bff'
          elementUnder.style.outlineOffset = '-2px'
       }

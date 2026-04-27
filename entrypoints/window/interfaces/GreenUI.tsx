@@ -8,7 +8,7 @@ export default function TableFieldUI({ scale }: { scale?: number }) {
    const width = ORG_Size * (scale || 1)
    const height = ORG_Size * (scale || 1)
 
-   const [fieldUI, setFieldUI] = useState<SleuthInfo>({
+   const [fieldUI, setField] = useState<SleuthInfo>({
       main_selector: '',
       fields: [],
    })
@@ -24,6 +24,14 @@ export default function TableFieldUI({ scale }: { scale?: number }) {
          browser.tabs.sendMessage(tab.id, msg)
       }
    }
+
+   useEffect(() => {
+      browser.runtime.onMessage.addListener((msg: Messages) => {
+         if (msg.message === 'core data found') {
+            setField({ main_selector: msg.data, fields: [] })
+         }
+      })
+   }, [])
 
    return (
       <Box sx={{ width: width, height: height, overflow: 'hidden' }}>
