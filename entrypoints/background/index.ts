@@ -1,3 +1,5 @@
+import { receiver } from '@/helpers/messager'
+
 export default defineBackground(() => {
    let windowID = 0
 
@@ -19,9 +21,9 @@ export default defineBackground(() => {
       console.log('lol', { id: browser.runtime.id })
    })
 
-   browser.runtime.onMessage.addListener((msg: Messages) => {
+   receiver((msg) => {
       switch (msg.message) {
-         case 'hide window':
+         case 'select a root':
             browser.windows.update(windowID, { state: 'minimized' })
             break
 

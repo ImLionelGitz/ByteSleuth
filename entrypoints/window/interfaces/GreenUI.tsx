@@ -1,6 +1,7 @@
 import GreenUI from '@/assets/GreenBox.png'
 import { Box } from '@mui/material'
 import FieldList from '../components/FieldList'
+import { sendToBackground, sendToContentJS } from '@/helpers/messager'
 
 const ORG_Size = 240
 
@@ -21,7 +22,9 @@ export default function TableFieldUI({ scale }: { scale?: number }) {
 
       if (tab.id) {
          const msg: Messages = { message: 'select a root' }
-         browser.tabs.sendMessage(tab.id, msg)
+
+         sendToContentJS(tab.id, msg)
+         sendToBackground(msg)
       }
    }
 
