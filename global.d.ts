@@ -10,6 +10,4 @@ interface FieldByte {
 
 type TableByte = Record<string, string>
 
-type Messages =
-   | { message: 'select a root' }
-   | { message: 'core data found' | 'data found'; data: string }
+type Messages = { message: 'select a root' }

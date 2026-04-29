@@ -22,19 +22,11 @@ export default function TableFieldUI({ scale }: { scale?: number }) {
 
       if (tab.id) {
          const msg: Messages = { message: 'select a root' }
+         const response = await sendToContentJS<string>(tab.id, msg)
 
-         sendToContentJS(tab.id, msg)
-         sendToBackground(msg)
+         setField({ main_selector: response, fields: [] })
       }
    }
-
-   useEffect(() => {
-      browser.runtime.onMessage.addListener((msg: Messages) => {
-         if (msg.message === 'core data found') {
-            setField({ main_selector: msg.data, fields: [] })
-         }
-      })
-   }, [])
 
    return (
       <Box sx={{ width: width, height: height, overflow: 'hidden' }}>

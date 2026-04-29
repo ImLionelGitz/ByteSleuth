@@ -4,14 +4,16 @@ export default class SelectManager {
    private hoverEl: HTMLElement | null
    private mainEl: HTMLElement | null
    private firstTime: boolean
+   private cb: (s: string) => void
 
    isSelecting: boolean
 
-   constructor() {
+   constructor(onFound: (s: string) => void) {
       this.hoverEl = null
       this.mainEl = null
       this.isSelecting = false
       this.firstTime = true
+      this.cb = onFound
 
       // this.overlay.style.display = 'none'
 
@@ -19,7 +21,7 @@ export default class SelectManager {
       // this.overlay.addEventListener('click', this.handleClick)
    }
 
-   enableFirstSelection(overlay: HTMLElement) {
+   firstSelection(overlay: HTMLElement) {
       if (!this.firstTime) return
 
       overlay.style.pointerEvents = 'all'
@@ -30,12 +32,12 @@ export default class SelectManager {
       this.mainEl = overlay
    }
 
-   enableSelection() {
-      if (!this.mainEl) return
+   // selection() {
+   //    if (!this.mainEl) return
 
-      this.mainEl.style.pointerEvents = 'all'
-      this.mainEl.style.cursor = 'crosshair'
-   }
+   //    this.mainEl.style.pointerEvents = 'all'
+   //    this.mainEl.style.cursor = 'crosshair'
+   // }
 
    private disableSelection(first = false) {
       if (!this.mainEl) return
@@ -58,10 +60,6 @@ export default class SelectManager {
          }
 
          const selector = getSmartSelector(this.hoverEl)
-         const msg: Messages = {
-            message: 'core data found',
-            data: selector,
-         }
 
          this.hoverEl.style.outline = ''
          this.hoverEl.style.position = 'relative'
@@ -70,8 +68,7 @@ export default class SelectManager {
 
          this.mainEl = this.hoverEl
          this.hoverEl = null
-
-         browser.runtime.sendMessage(msg)
+         this.cb(selector)
       }
    }
 

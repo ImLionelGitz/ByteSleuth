@@ -2,13 +2,12 @@ import { receiver } from '@/helpers/messager'
 import SelectManager from './classes/SelectManage'
 
 export default function setupListeners(iframe: HTMLElement) {
-   const selectMgr = new SelectManager()
-
-   receiver((msg) => {
+   receiver((msg, _, reply) => {
       switch (msg.message) {
          case 'select a root': {
-            selectMgr.enableFirstSelection(iframe)
-            break
+            const selectMgr = new SelectManager(reply)
+            selectMgr.firstSelection(iframe)
+            return true
          }
 
          default:
