@@ -23,12 +23,11 @@ export default defineBackground(() => {
 
    receiver((msg) => {
       switch (msg.message) {
-         case 'select a root':
+         case 'window minimize':
             browser.windows.update(windowID, { state: 'minimized' })
             break
 
-         case 'core data found':
-         case 'data found':
+         case 'window return':
             browser.windows.update(windowID, { state: 'normal' })
             break
 

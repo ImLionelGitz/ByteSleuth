@@ -10,4 +10,6 @@ interface FieldByte {
 
 type TableByte = Record<string, string>
 
-type Messages = { message: 'select a root' }
+type Messages = {
+   message: 'select a root' | 'window minimize' | 'window return'
+}

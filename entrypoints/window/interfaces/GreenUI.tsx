@@ -21,10 +21,13 @@ export default function TableFieldUI({ scale }: { scale?: number }) {
       })
 
       if (tab.id) {
+         sendToBackground({ message: 'window minimize' })
+
          const msg: Messages = { message: 'select a root' }
          const response = await sendToContentJS<string>(tab.id, msg)
 
          setField({ main_selector: response, fields: [] })
+         sendToBackground({ message: 'window return' })
       }
    }
 

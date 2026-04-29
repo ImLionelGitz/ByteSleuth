@@ -12,7 +12,11 @@
     "zip": "wxt zip",
     "zip:firefox": "wxt zip -b firefox",
     "compile": "tsc --noEmit",
-    "postinstall": "wxt prepare"
+    "postinstall": "wxt prepare",
+    "test": "vitest"
+  },
+  "overrides": {
+    "vite": "latest"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -31,9 +35,11 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
     "eslint-plugin-react": "^7.37.5",
+    "jsdom": "^27.0.1",
     "prettier": "^3.8.3",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.59.0",
+    "vitest": "^3.2.4",
     "wxt": "^0.20.25"
   }
 }
