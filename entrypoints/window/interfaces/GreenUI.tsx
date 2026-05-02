@@ -33,6 +33,8 @@ export default function TableFieldUI({ scale }: { scale?: number }) {
             return oldField
          })
       )
+
+      console.log(fieldUI)
    }
 
    function handleFieldDelete(id: number) {

@@ -135,6 +135,8 @@ function Field({ data, onDelete, onUpdate }: Field) {
             })
 
             onUpdate('selector', response)
+
+            transmit({ message: 'selection done' })
             sendToBackground({ message: 'window return' })
          } catch {
             transmit({ message: 'selection done' })

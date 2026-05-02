@@ -2,9 +2,23 @@ import { Box, Dialog, Stack } from '@mui/material'
 import TableFieldUI from './interfaces/GreenUI'
 import TablePanel from './interfaces/PurpleUI'
 import { pinger } from '@/helpers/pinger'
+import { sendToContentJS } from '@/helpers/messager'
 
 function App() {
    const [isDialogOpen, setDialogOpen] = useState(false)
+
+   async function handleClose() {
+      const [tab] = await browser.tabs.query({
+         active: true,
+         currentWindow: false,
+      })
+
+      if (tab.id) {
+         sendToContentJS(tab.id, { message: 'selection cancelled' })
+      }
+
+      setDialogOpen(false)
+   }
 
    useEffect(() => {
       pinger((msg) => {
@@ -33,7 +47,7 @@ function App() {
             <TableFieldUI />
          </Stack>
 
-         <Dialog open={isDialogOpen}>
+         <Dialog open={isDialogOpen} onClose={handleClose}>
             <Box>lol</Box>
          </Dialog>
       </div>

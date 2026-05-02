@@ -11,6 +11,7 @@ export default function initialize(ctx: ContentScriptContext) {
          wrapper.style.width = '100%'
          wrapper.style.height = '100%'
          wrapper.style.zIndex = '999'
+         wrapper.style.pointerEvents = 'none'
       },
    })
 

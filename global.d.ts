@@ -10,7 +10,11 @@ type TableByte = Record<string, string>
 type FieldTypes = 'TEXT' | 'IMAGE' | 'LINK' | 'EMAIL' | 'PHONE'
 
 type Messages = {
-   message: 'select an element' | 'window minimize' | 'window return'
+   message:
+      | 'select an element'
+      | 'selection cancelled'
+      | 'window minimize'
+      | 'window return'
 }
 
 type Events =
