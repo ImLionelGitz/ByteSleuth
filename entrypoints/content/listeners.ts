@@ -1,5 +1,6 @@
 import { receiver, sendToBackground } from '@/helpers/messager'
 import SelectManager from './classes/SelectManage'
+import scrape from './helpers/scraper'
 
 export default function setupListeners(iframe: HTMLElement) {
    receiver((msg, _, reply) => {
@@ -13,6 +14,10 @@ export default function setupListeners(iframe: HTMLElement) {
 
          case 'selection cancelled':
             selectMgr.disableSelection()
+            break
+
+         case 'begin scrape':
+            scrape(msg.list)
             break
 
          default:

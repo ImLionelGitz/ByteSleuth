@@ -10,6 +10,7 @@ import {
    Menu,
    MenuItem,
    Stack,
+   Tooltip,
 } from '@mui/material'
 import { JSX } from 'react'
 import { FaImage, FaPhone, FaPlus } from 'react-icons/fa'
@@ -139,7 +140,7 @@ function Field({ data, onDelete, onUpdate }: Field) {
             transmit({ message: 'selection done' })
             sendToBackground({ message: 'window return' })
          } catch {
-            transmit({ message: 'selection done' })
+            console.log('error')
          }
       }
    }
@@ -162,13 +163,15 @@ function Field({ data, onDelete, onUpdate }: Field) {
             />
          </ListItemText>
 
-         <IconButton size="small" onClick={handlePick}>
-            {selector ? (
-               <MdLink color="aliceblue" />
-            ) : (
-               <MdLinkOff color="aliceblue" />
-            )}
-         </IconButton>
+         <Tooltip title={selector}>
+            <IconButton size="small" onClick={handlePick}>
+               {selector ? (
+                  <MdLink color="aliceblue" />
+               ) : (
+                  <MdLinkOff color="aliceblue" />
+               )}
+            </IconButton>
+         </Tooltip>
 
          <IconButton size="small" onClick={() => onDelete(id)}>
             <IoClose color="aliceblue" />

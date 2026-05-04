@@ -4,45 +4,19 @@ import FieldList from '../components/FieldList'
 
 const ORG_Size = 240
 
-export default function TableFieldUI({ scale }: { scale?: number }) {
+interface TableFieldUI {
+   scale?: number
+   fieldList: FieldByte[]
+   fieldAdd: (type: FieldTypes) => void
+   fieldUpdate: (field: FieldByte) => void
+   fieldDelete: (id: number) => void
+}
+
+export default function TableFieldUI(props: TableFieldUI) {
+   const { scale, fieldList, fieldAdd, fieldDelete, fieldUpdate } = props
+
    const width = ORG_Size * (scale || 1)
    const height = ORG_Size * (scale || 1)
-
-   const [fieldUI, setField] = useState<FieldByte[]>([])
-
-   function handleFieldAdd(type: FieldTypes) {
-      setField((old) => {
-         const newField: FieldByte = {
-            id: old.length,
-            type: type,
-            name: 'New Field',
-            selector: '',
-         }
-
-         return [...old, newField]
-      })
-   }
-
-   function handleFieldUpdate(newField: FieldByte) {
-      setField((old) =>
-         old.map((oldField) => {
-            if (oldField.id === newField.id) {
-               return newField
-            }
-
-            return oldField
-         })
-      )
-
-      console.log(fieldUI)
-   }
-
-   function handleFieldDelete(id: number) {
-      setField((old) => {
-         const raw = old.filter((oldField) => oldField.id !== id)
-         return raw.map((field, i) => ({ ...field, id: i }))
-      })
-   }
 
    return (
       <Box sx={{ width: width, height: height, overflow: 'hidden' }}>
@@ -59,10 +33,10 @@ export default function TableFieldUI({ scale }: { scale?: number }) {
          />
 
          <FieldList
-            bytes={fieldUI}
-            onFieldAdd={handleFieldAdd}
-            onFieldUpdate={handleFieldUpdate}
-            onFieldDelete={handleFieldDelete}
+            bytes={fieldList}
+            onFieldAdd={fieldAdd}
+            onFieldUpdate={fieldUpdate}
+            onFieldDelete={fieldDelete}
          />
       </Box>
    )

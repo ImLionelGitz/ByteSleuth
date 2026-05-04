@@ -1,15 +1,15 @@
-import getSmartSelector from '@/entrypoints/content/helpers/selector'
+import { generateSelectors } from '@/entrypoints/content/helpers/selector'
 
 export default class SelectManager {
-   private hoverEl: HTMLElement | null
    private overlayEl: HTMLElement
+   private packedSelect: string
    private cb: (s: string) => void
 
    isSelecting: boolean
 
    constructor(overlay: HTMLElement, onFound: (s: string) => void) {
-      this.hoverEl = null
       this.isSelecting = false
+      this.packedSelect = ''
 
       this.overlayEl = overlay
       this.cb = onFound
@@ -29,15 +29,36 @@ export default class SelectManager {
       this.overlayEl.style.pointerEvents = 'none'
    }
 
+   private changeSelector(newSelector: string) {
+      if (this.packedSelect === newSelector) return
+
+      this.toggleHighligts(false)
+      this.packedSelect = newSelector
+      this.toggleHighligts(true)
+   }
+
+   private clearSelector() {
+      this.toggleHighligts(false)
+      this.packedSelect = ''
+   }
+
+   private toggleHighligts(highlight: boolean) {
+      if (!this.packedSelect) return
+
+      const [, mainSelector] = this.packedSelect.split(' >> ')
+      const allEls = document.querySelectorAll<HTMLElement>(mainSelector)
+
+      allEls.forEach((el) => {
+         el.style.outline = highlight ? '2px solid #007bff' : ''
+         el.style.outlineOffset = highlight ? '-2px' : ''
+      })
+   }
+
    private handleClick = () => {
-      if (this.hoverEl) {
-         const selector = getSmartSelector(this.hoverEl)
-
-         this.hoverEl.style.outline = ''
-         this.hoverEl = null
-
+      if (this.packedSelect) {
          this.disableSelection()
-         this.cb(selector)
+         this.cb(this.packedSelect)
+         this.clearSelector()
       }
    }
 
@@ -51,16 +72,9 @@ export default class SelectManager {
 
       this.overlayEl.style.pointerEvents = 'auto'
 
-      if (
-         elementUnder &&
-         elementUnder !== this.hoverEl &&
-         elementUnder !== document.body
-      ) {
-         if (this.hoverEl) this.hoverEl.style.outline = ''
-
-         this.hoverEl = elementUnder
-         elementUnder.style.outline = '2px solid #007bff'
-         elementUnder.style.outlineOffset = '-2px'
+      if (elementUnder && elementUnder !== document.body) {
+         const selector = generateSelectors(elementUnder)
+         this.changeSelector(selector)
       }
    }
 }
