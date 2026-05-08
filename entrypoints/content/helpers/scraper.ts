@@ -21,9 +21,7 @@ export default function scrape(list: FieldByte[]) {
 function getData(parent: string, ...others: string[]) {
    const container = document.querySelectorAll(parent)
 
-   return Array.from(container).filter((el) => {
-      return others.every((s) => el.querySelector(s) !== null)
-   })
+   return Array.from(container)
 
    //  const container = document.querySelectorAll('*')
 

@@ -45,8 +45,7 @@ export default class SelectManager {
    private toggleHighligts(highlight: boolean) {
       if (!this.packedSelect) return
 
-      const [, mainSelector] = this.packedSelect.split(' >> ')
-      const allEls = document.querySelectorAll<HTMLElement>(mainSelector)
+      const allEls = document.querySelectorAll<HTMLElement>(this.packedSelect)
 
       allEls.forEach((el) => {
          el.style.outline = highlight ? '2px solid #007bff' : ''
