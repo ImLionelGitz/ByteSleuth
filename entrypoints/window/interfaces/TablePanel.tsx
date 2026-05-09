@@ -1,10 +1,13 @@
-import Panel from '@/assets/Panel.png'
-import { Paper } from '@mui/material'
+import { Box, Paper } from '@mui/material'
 
-export default function TablePanel() {
+interface TablePanel {
+   size: number
+}
+
+export default function TablePanel({ size }: TablePanel) {
    return (
-      <div>
-         <Paper className="w-[200px]">lol</Paper>
-      </div>
+      <Paper variant="outlined" sx={{ width: size, height: size }}>
+         <Box>lol</Box>
+      </Paper>
    )
 }

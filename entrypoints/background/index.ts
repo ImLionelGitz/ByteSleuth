@@ -7,7 +7,7 @@ export default defineBackground(() => {
       browser.windows.create(
          {
             url: '/window.html',
-            width: 854,
+            width: 640,
             height: 480,
             type: 'popup',
          },

@@ -1,6 +1,11 @@
 // import { sendToContentJS } from '@/helpers/messager'
 // import { pinger } from '@/helpers/pinger'
+import { Stack } from '@mui/material'
 import TablePanel from './interfaces/TablePanel'
+import FieldsPanel from './interfaces/FieldsPanel'
+import ButtonPanel from './interfaces/ButtonPanel'
+
+const TABLE_SIZE = 410
 
 function App() {
    // const [isDialogOpen, setDialogOpen] = useState(false)
@@ -83,7 +88,22 @@ function App() {
 
    return (
       <div>
-         <TablePanel />
+         <Stack
+            direction="row"
+            sx={{
+               height: '100vh',
+               justifyContent: 'center',
+               alignItems: 'center',
+               gap: '8px',
+            }}
+         >
+            <TablePanel size={TABLE_SIZE} />
+
+            <Stack sx={{ gap: '12px', height: TABLE_SIZE }}>
+               <FieldsPanel />
+               <ButtonPanel />
+            </Stack>
+         </Stack>
       </div>
    )
 }
