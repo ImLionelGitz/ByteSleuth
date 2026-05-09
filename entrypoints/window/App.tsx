@@ -5,7 +5,7 @@ import TablePanel from './interfaces/TablePanel'
 import FieldsPanel from './interfaces/FieldsPanel'
 import ButtonPanel from './interfaces/ButtonPanel'
 
-const TABLE_SIZE = 410
+const TABLE_SIZE = 390
 
 function App() {
    // const [isDialogOpen, setDialogOpen] = useState(false)
