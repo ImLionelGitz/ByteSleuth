@@ -2,7 +2,10 @@ import { Button, Paper, Stack } from '@mui/material'
 
 export default function FieldsPanel() {
    return (
-      <Paper variant="outlined" sx={{ width: 200, height: '100%' }}>
+      <Paper
+         variant="outlined"
+         sx={{ width: 200, height: '100%', backgroundColor: '#181C30' }}
+      >
          <Stack
             direction="row"
             sx={{ justifyContent: 'space-between', margin: '8px' }}

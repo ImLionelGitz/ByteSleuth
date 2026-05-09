@@ -12,14 +12,15 @@
 
 body {
   margin: 0;
-  background-color: #3f5ab0;
+  background-color: #070B18;
 }
 
 h1, h2 {
   font-family: Space-Grotesk;
+  color: #CCD3E8;
 }
 
-p, button {
+p {
   font-family: Inter;
 }
 

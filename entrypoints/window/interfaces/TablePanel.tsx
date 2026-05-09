@@ -1,4 +1,4 @@
-import { Button, Paper, Stack } from '@mui/material'
+import { Button, Paper, Stack, useTheme } from '@mui/material'
 import { TiExport } from 'react-icons/ti'
 
 interface TablePanel {
@@ -6,10 +6,17 @@ interface TablePanel {
 }
 
 export default function TablePanel({ size }: TablePanel) {
+   const { palette } = useTheme()
+
    return (
       <Paper
          variant="outlined"
-         sx={{ width: size, height: size, borderTop: 'none' }}
+         sx={{
+            width: size,
+            height: size,
+            borderTop: 'none',
+            backgroundColor: '#181C30',
+         }}
       >
          <div
             className="bg-inherit border border-purple-500/20"
@@ -33,13 +40,21 @@ export default function TablePanel({ size }: TablePanel) {
             >
                <img src="/wxt.svg" alt="" width={32} height={32} />
                <h1>ByteSleuth</h1>
-               <p className="px-1 rounded-[14px] bg-amber-700">v1.0.0</p>
+               <p
+                  className="px-1 rounded-[14px]"
+                  style={{
+                     backgroundColor: palette.secondary.main,
+                     color: palette.secondary.contrastText,
+                  }}
+               >
+                  v1.0.0
+               </p>
             </Stack>
 
             <Stack
                sx={{
                   height: '100%',
-                  background: 'gray',
+                  background: '#101623',
                   borderRadius: '5px',
                   marginTop: '8px',
                }}
@@ -54,7 +69,15 @@ export default function TablePanel({ size }: TablePanel) {
                      sx={{ alignItems: 'center', gap: '12px' }}
                   >
                      <h2>3. Results</h2>
-                     <p className="p-1 rounded-lg bg-blue-800">12 Rows</p>
+                     <p
+                        className="p-1 rounded-lg"
+                        style={{
+                           backgroundColor: palette.secondary.main,
+                           color: palette.secondary.contrastText,
+                        }}
+                     >
+                        12 Rows
+                     </p>
                   </Stack>
 
                   <Button

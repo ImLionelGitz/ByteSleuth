@@ -4,7 +4,10 @@ import { FaGear } from 'react-icons/fa6'
 
 export default function ButtonPanel() {
    return (
-      <Paper variant="outlined" sx={{ height: '33%' }}>
+      <Paper
+         variant="outlined"
+         sx={{ height: '33%', backgroundColor: '#181C30' }}
+      >
          <h2 className="m-1.5">1. Controls</h2>
 
          <Stack direction="row" sx={{ justifyContent: 'space-evenly' }}>
