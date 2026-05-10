@@ -1,5 +1,6 @@
 import { Button, Paper, Stack, useTheme } from '@mui/material'
 import { TiExport } from 'react-icons/ti'
+import DaTable from '../components/Table'
 
 interface TablePanel {
    size: number
@@ -94,6 +95,8 @@ export default function TablePanel({ size }: TablePanel) {
                      Export CSV
                   </Button>
                </Stack>
+
+               <DaTable />
             </Stack>
          </Stack>
       </Paper>

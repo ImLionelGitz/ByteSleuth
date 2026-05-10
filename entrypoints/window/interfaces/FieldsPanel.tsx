@@ -1,10 +1,17 @@
-import { Button, Paper, Stack } from '@mui/material'
+import { Button, List, Paper, Stack } from '@mui/material'
+import EmptyMessage from '../components/EmptyMsg'
+import FieldSlot from '../components/FieldSlot'
 
 export default function FieldsPanel() {
    return (
       <Paper
          variant="outlined"
-         sx={{ width: 200, height: '100%', backgroundColor: '#181C30' }}
+         sx={{
+            width: 225,
+            height: '100%',
+            backgroundColor: '#181C30',
+            overflow: 'hidden auto',
+         }}
       >
          <Stack
             direction="row"
@@ -20,6 +27,14 @@ export default function FieldsPanel() {
                +
             </Button>
          </Stack>
+
+         {/* <EmptyMessage msg="No fields found!" /> */}
+
+         <List>
+            {new Array(3).fill(0).map((_, key) => (
+               <FieldSlot key={key} />
+            ))}
+         </List>
       </Paper>
    )
 }

@@ -10,11 +10,12 @@ export default function EmptyMessage({ msg }: { msg: string }) {
             justifyContent: 'center',
             alignItems: 'center',
             fontSize: 'xx-large',
+            gap: 1.4,
          }}
       >
          <IoSad />
 
-         <h2>{msg}</h2>
+         <p className="text-[14px]">{msg}</p>
       </Stack>
    )
 }
