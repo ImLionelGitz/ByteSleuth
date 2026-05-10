@@ -26,6 +26,7 @@ export default function ButtonPanel() {
 
             <Button
                variant="contained"
+               color="info"
                disableElevation
                sx={{
                   fontSize: 'x-large',
