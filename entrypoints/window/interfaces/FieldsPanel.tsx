@@ -1,10 +1,18 @@
-import { Button, List, Paper, Stack } from '@mui/material'
+import { Button, List, Paper, Stack, useTheme } from '@mui/material'
 import EmptyMessage from '../components/EmptyMsg'
 import FieldSlot from '../components/FieldSlot'
 import { closestCenter, DndContext } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { Scrollbars } from 'react-custom-scrollbars-2'
 
-export default function FieldsPanel() {
+interface FieldsPanel {
+   allFields: FieldByte[]
+   fieldAdd: () => void
+}
+
+export default function FieldsPanel({ allFields, fieldAdd }: FieldsPanel) {
+   const { palette } = useTheme()
+
    return (
       <DndContext
          collisionDetection={closestCenter}
@@ -17,7 +25,7 @@ export default function FieldsPanel() {
                width: 225,
                height: '100%',
                backgroundColor: '#181C30',
-               overflow: 'hidden auto',
+               //overflow: 'auto',
             }}
          >
             <Stack
@@ -30,23 +38,41 @@ export default function FieldsPanel() {
                   variant="contained"
                   disableElevation
                   sx={{ width: 24, height: 24, minWidth: 0, fontSize: 28 }}
+                  onClick={fieldAdd}
                >
                   +
                </Button>
             </Stack>
 
-            {/* <EmptyMessage msg="No fields found!" /> */}
-
-            <List>
-               <SortableContext
-                  items={[]}
-                  strategy={verticalListSortingStrategy}
-               >
-                  {new Array(3).fill(0).map((_, key) => (
-                     <FieldSlot key={key} id={key} />
-                  ))}
-               </SortableContext>
-            </List>
+            {allFields.length > 0 ? (
+               <List>
+                  <Scrollbars
+                     style={{ width: '100%', height: 222 }}
+                     renderThumbVertical={({ style, ...props }) => (
+                        <div
+                           {...props}
+                           style={{
+                              ...style,
+                              width: '50%',
+                              backgroundColor: palette.secondary.main,
+                              borderRadius: '4px',
+                           }}
+                        />
+                     )}
+                  >
+                     <SortableContext
+                        items={allFields}
+                        strategy={verticalListSortingStrategy}
+                     >
+                        {allFields.map((field) => (
+                           <FieldSlot key={field.id} {...field} />
+                        ))}
+                     </SortableContext>
+                  </Scrollbars>
+               </List>
+            ) : (
+               <EmptyMessage msg="No fields found!" />
+            )}
          </Paper>
       </DndContext>
    )

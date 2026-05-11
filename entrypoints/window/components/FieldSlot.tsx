@@ -12,7 +12,7 @@ import { FaTrash } from 'react-icons/fa'
 import { FaCircleNodes } from 'react-icons/fa6'
 import { RxDragHandleDots2 } from 'react-icons/rx'
 
-export default function FieldSlot({ id }: { id: number }) {
+export default function FieldSlot({ id, name, selector }: FieldByte) {
    const { attributes, listeners, transform, transition, setNodeRef } =
       useSortable({ id: id })
 
@@ -25,7 +25,7 @@ export default function FieldSlot({ id }: { id: number }) {
 
    return (
       <Paper ref={setNodeRef} style={style} sx={{ margin: 1 }}>
-         <ListItem disablePadding sx={{ gap: 1, paddingLeft: 1 }}>
+         <ListItem disablePadding sx={{ gap: '6px' }}>
             <IconButton
                edge="end"
                size="small"
@@ -40,7 +40,7 @@ export default function FieldSlot({ id }: { id: number }) {
             <Stack sx={{ alignItems: 'center' }}>
                <Input
                   placeholder="Enter a name"
-                  value={'lololoolololololololoololololo lololoololololo'}
+                  value={name}
                   disableUnderline
                   sx={{
                      width: '80%',
@@ -61,7 +61,7 @@ export default function FieldSlot({ id }: { id: number }) {
                   }}
                   color="secondary"
                >
-                  Link Element
+                  {selector ? 'Element Linked' : 'Link Element'}
                </Button>
             </Stack>
 

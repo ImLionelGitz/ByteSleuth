@@ -9,7 +9,7 @@ const TABLE_SIZE = 390
 
 function App() {
    // const [isDialogOpen, setDialogOpen] = useState(false)
-   // const [fieldUI, setField] = useState<FieldByte[]>([])
+   const [fields, setField] = useState<FieldByte[]>([])
 
    // async function handleClose() {
    //    const [tab] = await browser.tabs.query({
@@ -35,18 +35,17 @@ function App() {
    //    }
    // }
 
-   // function handleFieldAdd(type: FieldTypes) {
-   //    setField((old) => {
-   //       const newField: FieldByte = {
-   //          id: old.length,
-   //          type: type,
-   //          name: 'New Field',
-   //          selector: '',
-   //       }
+   function handleFieldAdd() {
+      setField((old) => {
+         const newField: FieldByte = {
+            id: old.length,
+            name: 'New Field',
+            selector: '',
+         }
 
-   //       return [...old, newField]
-   //    })
-   // }
+         return [...old, newField]
+      })
+   }
 
    // function handleFieldUpdate(newField: FieldByte) {
    //    setField((old) =>
@@ -100,7 +99,7 @@ function App() {
             <TablePanel size={TABLE_SIZE} />
 
             <Stack sx={{ gap: '12px', height: TABLE_SIZE }}>
-               <FieldsPanel />
+               <FieldsPanel allFields={fields} fieldAdd={handleFieldAdd} />
                <ButtonPanel />
             </Stack>
          </Stack>

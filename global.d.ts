@@ -2,12 +2,11 @@ interface FieldByte {
    id: number
    name: string
    selector: string
-   type: FieldTypes
 }
 
 type TableByte = Record<string, string>
 
-type FieldTypes = 'TEXT' | 'IMAGE' | 'LINK' | 'EMAIL' | 'PHONE'
+// Events
 
 type Messages =
    | {
