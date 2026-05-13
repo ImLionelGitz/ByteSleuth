@@ -1,9 +1,10 @@
 // import { sendToContentJS } from '@/helpers/messager'
 // import { pinger } from '@/helpers/pinger'
-import { Stack } from '@mui/material'
-import TablePanel from './interfaces/TablePanel'
-import FieldsPanel from './interfaces/FieldsPanel'
+import { Modal, Stack } from '@mui/material'
 import ButtonPanel from './interfaces/ButtonPanel'
+import FieldsPanel from './interfaces/FieldsPanel'
+import NodePanel from './interfaces/NodeEditor'
+import TablePanel from './interfaces/TablePanel'
 
 const TABLE_SIZE = 390
 
@@ -103,6 +104,10 @@ function App() {
                <ButtonPanel />
             </Stack>
          </Stack>
+
+         <Modal open>
+            <NodePanel />
+         </Modal>
       </div>
    )
 }

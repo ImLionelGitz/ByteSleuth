@@ -48,28 +48,26 @@ export default function DaTable() {
       </TableRow>
    )
 
-   const renderRow = (rowIndex: number) => {
-      return (
-         <>
-            {arr.map(() => (
-               <TableCell
-                  key={rowIndex}
-                  sx={{
-                     color: 'aliceblue',
-                     width: '100vw',
-                     overflow: 'auto',
-                     whiteSpace: 'normal',
-                     wordBreak: 'break-word',
-                     fontFamily: 'monospace',
-                     border: '1px solid',
-                  }}
-               >
-                  <div>{rowIndex}</div>
-               </TableCell>
-            ))}
-         </>
-      )
-   }
+   const renderRow = (rowIndex: number) => (
+      <>
+         {arr.map(() => (
+            <TableCell
+               key={rowIndex}
+               sx={{
+                  color: 'aliceblue',
+                  width: '100vw',
+                  overflow: 'auto',
+                  whiteSpace: 'normal',
+                  wordBreak: 'break-word',
+                  fontFamily: 'monospace',
+                  border: '1px solid',
+               }}
+            >
+               <div>{rowIndex}</div>
+            </TableCell>
+         ))}
+      </>
+   )
 
    return (
       <TableVirtuoso
