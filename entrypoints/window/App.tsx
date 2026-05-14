@@ -3,7 +3,6 @@
 import { Modal, Stack } from '@mui/material'
 import ButtonPanel from './interfaces/ButtonPanel'
 import FieldsPanel from './interfaces/FieldsPanel'
-import NodePanel from './interfaces/NodeEditor'
 import TablePanel from './interfaces/TablePanel'
 
 const TABLE_SIZE = 390
@@ -106,7 +105,7 @@ function App() {
          </Stack>
 
          <Modal open>
-            <NodePanel />
+            <div>lol</div>
          </Modal>
       </div>
    )
