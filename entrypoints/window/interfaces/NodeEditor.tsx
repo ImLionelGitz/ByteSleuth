@@ -1,15 +1,14 @@
 import { Paper } from '@mui/material'
 import ReactFlow, { Background, Controls } from 'reactflow'
 import TopBar from '../components/TopBar'
-import nodeTypes from '../components/reactFlow/main'
-import { DefaultNodeType } from '../components/reactFlow/DefaultNode'
+import nodeTypes, { type myNodeType } from '../components/reactFlow'
 
 export default function NodeEditor() {
-   const nodes: DefaultNodeType[] = [
+   const nodes: myNodeType[] = [
       {
          id: '1',
-         type: 'textNode',
-         data: { title: 'lol', info: 'goku goku goku' },
+         type: 'ioNode',
+         data: { title: 'Goku', content: 'lolol', inputs: 1, outputs: 0 },
          position: { x: 0, y: 50 },
       },
    ]

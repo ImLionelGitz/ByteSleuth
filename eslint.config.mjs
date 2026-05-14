@@ -24,6 +24,17 @@ export default defineConfig(
     },
     rules: {
       'prettier/prettier': 'error',
+      "no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "group": ["**/components/reactFlow/*"],
+            "message": "Direct imports from components/reactFlow are restricted"
+          }
+        ]
+      }
+    ],
       ...reactPlugin.configs.flat.recommended.rules,
       ...reactPlugin.configs.flat['jsx-runtime'].rules, // For React 17+
     },

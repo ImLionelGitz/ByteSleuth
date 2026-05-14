@@ -1,13 +1,17 @@
-import { Card, Tooltip, Typography, useTheme } from '@mui/material'
+import { Card, Typography, useTheme } from '@mui/material'
+import { JSX } from 'react'
 import { Handle, NodeProps, Position } from 'reactflow'
 
-export interface TextData {
+export interface IOData {
    title: string
-   info: string
+   content: string | JSX.Element
+   inputs: number
+   outputs: number
 }
 
-export function DefaultNode({ data, isConnectable }: NodeProps<TextData>) {
+export function IONode({ data, isConnectable }: NodeProps<IOData>) {
    const { palette } = useTheme()
+   const inps = Array(data.inputs).fill('')
 
    return (
       <Card variant="elevation" elevation={1.4} sx={{ minWidth: 120 }}>
@@ -24,20 +28,23 @@ export function DefaultNode({ data, isConnectable }: NodeProps<TextData>) {
          </Typography>
 
          <div style={{ textAlign: 'center', padding: 4, fontFamily: 'Inter' }}>
-            {data.info}
+            {data.content}
          </div>
 
-         <Tooltip title="Output">
+         {inps.map((_, i) => (
             <Handle
+               key={i}
                type="source"
+               id={`source ${i}`}
                position={Position.Right}
                isConnectable={isConnectable}
                style={{
                   backgroundColor: palette.primary.main,
                   borderColor: palette.primary.dark,
+                  top: `${12 * i}%`,
                }}
             />
-         </Tooltip>
+         ))}
       </Card>
    )
 }
