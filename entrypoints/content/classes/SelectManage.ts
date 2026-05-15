@@ -4,18 +4,25 @@ export default class SelectManager {
    private overlayEl: HTMLElement
    private packedSelect: string
    private cb: (s: string) => void
+   // New callback to send bounding rectangles back to React
+   private onHighlightChange: (boxes: BoxCoords[]) => void
 
    isSelecting: boolean
 
-   constructor(overlay: HTMLElement, onFound: (s: string) => void) {
+   constructor(
+      overlay: HTMLElement,
+      onFound: (s: string) => void,
+      onHighlightChange: (boxes: BoxCoords[]) => void
+   ) {
       this.isSelecting = false
       this.packedSelect = ''
-
       this.overlayEl = overlay
       this.cb = onFound
+      this.onHighlightChange = onHighlightChange
    }
 
    enableSelection() {
+      this.isSelecting = true
       this.overlayEl.style.pointerEvents = 'all'
       this.overlayEl.style.cursor = 'crosshair'
       this.overlayEl.addEventListener('mousemove', this.handleOver)
@@ -23,41 +30,53 @@ export default class SelectManager {
    }
 
    disableSelection() {
+      this.isSelecting = false
       this.overlayEl.removeEventListener('mousemove', this.handleOver)
       this.overlayEl.removeEventListener('click', this.handleClick)
       this.overlayEl.style.cursor = 'default'
       this.overlayEl.style.pointerEvents = 'none'
+      this.clearSelector()
    }
 
    private changeSelector(newSelector: string) {
       if (this.packedSelect === newSelector) return
-
-      this.toggleHighligts(false)
       this.packedSelect = newSelector
-      this.toggleHighligts(true)
+      this.updateHighlights()
    }
 
    private clearSelector() {
-      this.toggleHighligts(false)
       this.packedSelect = ''
+      this.onHighlightChange([]) // Clear boxes in React
    }
 
-   private toggleHighligts(highlight: boolean) {
-      if (!this.packedSelect) return
+   // Calculates page-relative dimensions for Konva
+   private updateHighlights() {
+      if (!this.packedSelect) {
+         this.onHighlightChange([])
+         return
+      }
 
       const allEls = document.querySelectorAll<HTMLElement>(this.packedSelect)
+      const boxes: BoxCoords[] = []
 
       allEls.forEach((el) => {
-         el.style.outline = highlight ? '2px solid #007bff' : ''
-         el.style.outlineOffset = highlight ? '-2px' : ''
+         const rect = el.getBoundingClientRect()
+         boxes.push({
+            x: rect.left + window.scrollX,
+            y: rect.top + window.scrollY,
+            width: rect.width,
+            height: rect.height,
+         })
       })
+
+      this.onHighlightChange(boxes)
    }
 
    private handleClick = () => {
       if (this.packedSelect) {
+         const selection = this.packedSelect
          this.disableSelection()
-         this.cb(this.packedSelect)
-         this.clearSelector()
+         this.cb(selection)
       }
    }
 
@@ -71,7 +90,11 @@ export default class SelectManager {
 
       this.overlayEl.style.pointerEvents = 'auto'
 
-      if (elementUnder && elementUnder !== document.body) {
+      if (
+         elementUnder &&
+         elementUnder !== document.body &&
+         elementUnder !== document.documentElement
+      ) {
          const selector = generateSelectors(elementUnder)
          this.changeSelector(selector)
       }

@@ -1,48 +1,60 @@
-import Canvas from './Canvas'
+import React, { useState, useEffect, useRef } from 'react'
+import SelectManager from '../classes/SelectManage'
+import Canvas from './Canvas' // Your Konva canvas layer wrapper
 
-export interface BoxCoords {
-   x: number
-   y: number
-   width: number
-   height: number
-}
-
-export default function Hud() {
+export default function App() {
    const [boxes, setBoxes] = useState<BoxCoords[]>([])
    const [size, setSize] = useState({
       width: window.innerWidth,
       height: window.innerHeight,
    })
+   const containerRef = useRef<HTMLDivElement>(null)
+   const managerRef = useRef<SelectManager | null>(null)
 
+   // Keep track of window size updates
    useEffect(() => {
-      // Handle window resizing
-      const handleResize = () => {
+      const handleResize = () =>
          setSize({ width: window.innerWidth, height: window.innerHeight })
-      }
       window.addEventListener('resize', handleResize)
       return () => window.removeEventListener('resize', handleResize)
    }, [])
 
-   // Example: Target specific elements to box on click
+   // Initialize the manager once the overlay container mounts
    useEffect(() => {
-      const handlePageClick = (e: MouseEvent) => {
-         const target = e.target as HTMLElement
-         if (target.closest('#konva-element-overlay')) return // Ignore clicks on the canvas itself
+      if (!containerRef.current) return
 
-         const rect = target.getBoundingClientRect()
-         const newBox: BoxCoords = {
-            x: rect.left + window.scrollX,
-            y: rect.top + window.scrollY,
-            width: rect.width,
-            height: rect.height,
+      const manager = new SelectManager(
+         containerRef.current,
+         (finalSelector) => {
+            console.log('Selected element query:', finalSelector)
+            // Handle your business logic with the finalized selector here
+         },
+         (newBoxes) => {
+            setBoxes(newBoxes) // Syncs DOM element coordinates to Konva
          }
+      )
 
-         setBoxes((prev) => [...prev, newBox])
+      managerRef.current = manager
+      manager.enableSelection() // Turn on selection instantly or bind to a button
+
+      return () => {
+         manager.disableSelection()
       }
-
-      window.addEventListener('click', handlePageClick)
-      return () => window.removeEventListener('click', handlePageClick)
    }, [])
 
-   return <Canvas boxes={boxes} size={size} />
+   return (
+      <div
+         ref={containerRef}
+         style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            zIndex: 99999,
+         }}
+      >
+         <Canvas boxes={boxes} size={size} />
+      </div>
+   )
 }

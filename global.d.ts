@@ -6,6 +6,13 @@ interface FieldByte {
 
 type TableByte = Record<string, string>
 
+interface BoxCoords {
+   x: number
+   y: number
+   width: number
+   height: number
+}
+
 // Events
 
 type Messages =

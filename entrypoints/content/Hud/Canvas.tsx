@@ -1,5 +1,4 @@
 import { Layer, Rect, Stage } from 'react-konva'
-import { BoxCoords } from './index'
 
 interface CanvasProps {
    boxes: BoxCoords[]
@@ -15,32 +14,22 @@ export default function Canvas({ boxes, size }: CanvasProps) {
    const pageWidth = Math.max(document.documentElement.scrollWidth, size.width)
 
    return (
-      <div
-         style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            pointerEvents: 'none', // Allows user interaction with underlying page
-            zIndex: 99999,
-         }}
-      >
-         <Stage width={pageWidth} height={pageHeight}>
-            <Layer>
-               {boxes.map((box, index) => (
-                  <Rect
-                     key={index}
-                     x={box.x}
-                     y={box.y}
-                     width={box.width}
-                     height={box.height}
-                     stroke="red"
-                     strokeWidth={2}
-                     fill="rgba(255, 0, 0, 0.1)"
-                     pointerEvents="auto" // Allows interaction with drawn boxes if needed
-                  />
-               ))}
-            </Layer>
-         </Stage>
-      </div>
+      <Stage width={pageWidth} height={pageHeight}>
+         <Layer>
+            {boxes.map((box, index) => (
+               <Rect
+                  key={index}
+                  x={box.x}
+                  y={box.y}
+                  width={box.width}
+                  height={box.height}
+                  stroke="red"
+                  strokeWidth={2}
+                  fill="rgba(255, 0, 0, 0.1)"
+                  pointerEvents="auto" // Allows interaction with drawn boxes if needed
+               />
+            ))}
+         </Layer>
+      </Stage>
    )
 }
