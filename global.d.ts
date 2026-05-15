@@ -24,7 +24,6 @@ type Messages =
            | 'window return'
      }
    | { message: 'begin scrape'; list: FieldByte[] }
-
-type Events =
-   | { message: 'selection ongoing' | 'selection done' }
    | { message: 'error occured'; err: string }
+
+type Events = { message: 'selection ongoing' | 'selection done' }

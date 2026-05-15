@@ -1,24 +1,67 @@
 import { Button, List, Paper, Stack, useTheme } from '@mui/material'
 import EmptyMessage from '../components/EmptyMsg'
 import FieldSlot from '../components/FieldSlot'
-import { closestCenter, DndContext } from '@dnd-kit/core'
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { closestCenter, DndContext, DragEndEvent } from '@dnd-kit/core'
+import {
+   arrayMove,
+   SortableContext,
+   verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
 import { Scrollbars } from 'react-custom-scrollbars-2'
+import { getCurrentTabID, sendToContentJS } from '@/helpers/messager'
 
 interface FieldsPanel {
    allFields: FieldByte[]
+   disableInteract: (v: boolean) => void
    fieldAdd: () => void
+   fieldUpdate: (f: FieldByte) => void
+   fieldReorder: (a: FieldByte[]) => void
+   fieldDelete: (id: number) => void
 }
 
-export default function FieldsPanel({ allFields, fieldAdd }: FieldsPanel) {
+export default function FieldsPanel(props: FieldsPanel) {
+   const {
+      allFields,
+      fieldAdd,
+      fieldUpdate,
+      fieldReorder,
+      fieldDelete,
+      disableInteract,
+   } = props
    const { palette } = useTheme()
 
+   const handleLink = async (oldField: FieldByte) => {
+      const tabID = await getCurrentTabID()
+
+      if (tabID) {
+         disableInteract(true)
+
+         const select = await sendToContentJS<string>(tabID, {
+            message: 'select an element',
+         })
+
+         fieldUpdate({ ...oldField, selector: select })
+         disableInteract(false)
+      }
+   }
+
+   const handleDragEnd = (event: DragEndEvent) => {
+      const { active, over } = event
+      if (over && active.id !== over.id) {
+         const oldIndex = allFields.findIndex((item) => item.id === active.id)
+         const newIndex = allFields.findIndex((item) => item.id === over.id)
+         const newArray = arrayMove(allFields, oldIndex, newIndex)
+
+         fieldReorder(newArray)
+      }
+   }
+
+   const handleRename = (oldField: FieldByte, newName: string) => {
+      fieldUpdate({ ...oldField, name: newName })
+   }
+
    return (
-      <DndContext
-         collisionDetection={closestCenter}
-         onDragOver={(e) => console.log(e.active.id)}
-         onDragEnd={(e) => console.log(e)}
-      >
+      <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
          <Paper
             variant="outlined"
             sx={{
@@ -65,7 +108,13 @@ export default function FieldsPanel({ allFields, fieldAdd }: FieldsPanel) {
                         strategy={verticalListSortingStrategy}
                      >
                         {allFields.map((field) => (
-                           <FieldSlot key={field.id} {...field} />
+                           <FieldSlot
+                              key={field.id}
+                              {...field}
+                              linkElem={() => handleLink(field)}
+                              updateName={(name) => handleRename(field, name)}
+                              deleteItem={(id) => fieldDelete(id)}
+                           />
                         ))}
                      </SortableContext>
                   </Scrollbars>

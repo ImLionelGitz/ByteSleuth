@@ -7,12 +7,20 @@ import {
    ListItem,
    Paper,
    Stack,
+   Tooltip,
 } from '@mui/material'
 import { FaTrash } from 'react-icons/fa'
 import { FaCircleNodes } from 'react-icons/fa6'
 import { RxDragHandleDots2 } from 'react-icons/rx'
 
-export default function FieldSlot({ id, name, selector }: FieldByte) {
+interface FieldSlot extends FieldByte {
+   linkElem: () => void
+   updateName: (s: string) => void
+   deleteItem: (id: number) => void
+}
+
+export default function FieldSlot(props: FieldSlot) {
+   const { id, name, selector, linkElem, updateName, deleteItem } = props
    const { attributes, listeners, transform, transition, setNodeRef } =
       useSortable({ id: id })
 
@@ -47,22 +55,30 @@ export default function FieldSlot({ id, name, selector }: FieldByte) {
                      color: 'aliceblue',
                      fontSize: 14,
                   }}
-                  onChange={() => {}}
+                  onChange={(e) => updateName(e.target.value)}
+                  onKeyUp={(e) => {
+                     if (e.key === 'Enter') {
+                        e.currentTarget.blur()
+                     }
+                  }}
                />
 
-               <Button
-                  sx={{
-                     fontSize: 12,
-                     fontFamily: 'Inter',
-                     padding: 0,
-                     width: 110,
-                     minWidth: 0,
-                     overflow: 'hidden',
-                  }}
-                  color="secondary"
-               >
-                  {selector ? 'Element Linked' : 'Link Element'}
-               </Button>
+               <Tooltip title={selector}>
+                  <Button
+                     sx={({ palette }) => ({
+                        fontSize: 12,
+                        fontFamily: 'Inter',
+                        padding: 0,
+                        width: 110,
+                        minWidth: 0,
+                        overflow: 'hidden',
+                        color: selector ? '#bc0a0e' : palette.secondary.main,
+                     })}
+                     onClick={linkElem}
+                  >
+                     {selector ? 'Element Linked' : 'Link Element'}
+                  </Button>
+               </Tooltip>
             </Stack>
 
             <Stack direction="row">
@@ -70,7 +86,7 @@ export default function FieldSlot({ id, name, selector }: FieldByte) {
                   <FaCircleNodes color="aliceblue" />
                </IconButton>
 
-               <IconButton size="small">
+               <IconButton size="small" onClick={() => deleteItem(id)}>
                   <FaTrash color="aliceblue" />
                </IconButton>
             </Stack>

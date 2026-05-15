@@ -18,4 +18,13 @@ function sendToContentJS<T>(tabID: number, msg: Messages): Promise<T> {
    return browser.tabs.sendMessage(tabID, msg)
 }
 
-export { receiver, sendToBackground, sendToContentJS }
+async function getCurrentTabID() {
+   const [tab] = await browser.tabs.query({
+      active: true,
+      currentWindow: false,
+   })
+
+   return tab.id
+}
+
+export { receiver, sendToBackground, sendToContentJS, getCurrentTabID }

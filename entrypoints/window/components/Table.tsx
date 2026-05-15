@@ -33,7 +33,7 @@ const compos: TableComponents<number> = {
 }
 
 export default function DaTable() {
-   const arr = new Array(15).fill('')
+   const arr = new Array(0).fill('')
 
    const renderHeader = () => (
       <TableRow sx={{ background: '#000' }}>

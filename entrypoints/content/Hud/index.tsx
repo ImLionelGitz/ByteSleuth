@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react'
-import SelectManager from '../classes/SelectManage'
+import { useEffect, useRef, useState } from 'react'
+import setupListeners from '../listeners'
 import Canvas from './Canvas' // Your Konva canvas layer wrapper
 
 export default function App() {
@@ -9,7 +9,6 @@ export default function App() {
       height: window.innerHeight,
    })
    const containerRef = useRef<HTMLDivElement>(null)
-   const managerRef = useRef<SelectManager | null>(null)
 
    // Keep track of window size updates
    useEffect(() => {
@@ -23,23 +22,10 @@ export default function App() {
    useEffect(() => {
       if (!containerRef.current) return
 
-      const manager = new SelectManager(
-         containerRef.current,
-         (finalSelector) => {
-            console.log('Selected element query:', finalSelector)
-            // Handle your business logic with the finalized selector here
-         },
-         (newBoxes) => {
-            setBoxes(newBoxes) // Syncs DOM element coordinates to Konva
-         }
-      )
+      const handleHighlight = (boxes: BoxCoords[]) => setBoxes(boxes)
 
-      managerRef.current = manager
-      manager.enableSelection() // Turn on selection instantly or bind to a button
-
-      return () => {
-         manager.disableSelection()
-      }
+      setupListeners(containerRef.current, handleHighlight)
+      return () => {}
    }, [])
 
    return (

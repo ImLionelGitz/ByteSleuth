@@ -5,25 +5,14 @@ import ButtonPanel from './interfaces/ButtonPanel'
 import CodeEditor from './interfaces/CodeEditor'
 import FieldsPanel from './interfaces/FieldsPanel'
 import TablePanel from './interfaces/TablePanel'
+import InfoPanel from './interfaces/popups/InfoPanel'
+import { getCurrentTabID, sendToContentJS } from '@/helpers/messager'
 
 const TABLE_SIZE = 390
 
 function App() {
-   // const [isDialogOpen, setDialogOpen] = useState(false)
    const [fields, setField] = useState<FieldByte[]>([])
-
-   // async function handleClose() {
-   //    const [tab] = await browser.tabs.query({
-   //       active: true,
-   //       currentWindow: false,
-   //    })
-
-   //    if (tab.id) {
-   //       sendToContentJS(tab.id, { message: 'selection cancelled' })
-   //    }
-
-   //    setDialogOpen(false)
-   // }
+   const [selecting, setSelecting] = useState(false)
 
    // async function handlePlay() {
    //    const [tab] = await browser.tabs.query({
@@ -35,6 +24,18 @@ function App() {
    //       sendToContentJS(tab.id, { message: 'begin scrape', list: fieldUI })
    //    }
    // }
+
+   async function handleClose() {
+      const tabID = await getCurrentTabID()
+
+      if (tabID) {
+         sendToContentJS<string>(tabID, {
+            message: 'selection cancelled',
+         })
+      }
+
+      setSelecting(false)
+   }
 
    function handleFieldAdd() {
       setField((old) => {
@@ -48,43 +49,24 @@ function App() {
       })
    }
 
-   // function handleFieldUpdate(newField: FieldByte) {
-   //    setField((old) =>
-   //       old.map((oldField) => {
-   //          if (oldField.id === newField.id) {
-   //             return newField
-   //          }
+   function handleFieldUpdate(newField: FieldByte) {
+      setField((old) =>
+         old.map((oldField) => {
+            if (oldField.id === newField.id) {
+               return newField
+            }
 
-   //          return oldField
-   //       })
-   //    )
+            return oldField
+         })
+      )
+   }
 
-   //    console.log(fieldUI)
-   // }
-
-   // function handleFieldDelete(id: number) {
-   //    setField((old) => {
-   //       const raw = old.filter((oldField) => oldField.id !== id)
-   //       return raw.map((field, i) => ({ ...field, id: i }))
-   //    })
-   // }
-
-   // useEffect(() => {
-   //    pinger((msg) => {
-   //       switch (msg.message) {
-   //          case 'selection ongoing':
-   //             setDialogOpen(true)
-   //             break
-
-   //          case 'selection done':
-   //             setDialogOpen(false)
-   //             break
-
-   //          default:
-   //             break
-   //       }
-   //    })
-   // }, [])
+   function handleFieldDelete(id: number) {
+      setField((old) => {
+         const raw = old.filter((oldField) => oldField.id !== id)
+         return raw.map((field, i) => ({ ...field, id: i }))
+      })
+   }
 
    return (
       <div>
@@ -100,18 +82,33 @@ function App() {
             <TablePanel size={TABLE_SIZE} />
 
             <Stack sx={{ gap: '12px', height: TABLE_SIZE }}>
-               <FieldsPanel allFields={fields} fieldAdd={handleFieldAdd} />
+               <FieldsPanel
+                  allFields={fields}
+                  fieldAdd={handleFieldAdd}
+                  fieldUpdate={handleFieldUpdate}
+                  fieldDelete={handleFieldDelete}
+                  fieldReorder={(n) => setField(n)}
+                  disableInteract={(status) => setSelecting(status)}
+               />
                <ButtonPanel />
             </Stack>
          </Stack>
 
          <Dialog
-            open
+            open={false}
             slotProps={{
                paper: { sx: { backgroundColor: 'transparent' } },
             }}
          >
             <CodeEditor />
+         </Dialog>
+
+         <Dialog open={selecting} onClose={handleClose}>
+            <InfoPanel
+               title="Selecting"
+               msg="Click outside to cancel"
+               type={'INFO'}
+            />
          </Dialog>
       </div>
    )

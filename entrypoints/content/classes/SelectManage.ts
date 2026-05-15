@@ -1,4 +1,5 @@
 import { generateSelectors } from '@/entrypoints/content/helpers/selector'
+import { sendToBackground } from '@/helpers/messager'
 
 export default class SelectManager {
    private overlayEl: HTMLElement
@@ -7,14 +8,11 @@ export default class SelectManager {
    // New callback to send bounding rectangles back to React
    private onHighlightChange: (boxes: BoxCoords[]) => void
 
-   isSelecting: boolean
-
    constructor(
       overlay: HTMLElement,
       onFound: (s: string) => void,
       onHighlightChange: (boxes: BoxCoords[]) => void
    ) {
-      this.isSelecting = false
       this.packedSelect = ''
       this.overlayEl = overlay
       this.cb = onFound
@@ -22,7 +20,6 @@ export default class SelectManager {
    }
 
    enableSelection() {
-      this.isSelecting = true
       this.overlayEl.style.pointerEvents = 'all'
       this.overlayEl.style.cursor = 'crosshair'
       this.overlayEl.addEventListener('mousemove', this.handleOver)
@@ -30,7 +27,6 @@ export default class SelectManager {
    }
 
    disableSelection() {
-      this.isSelecting = false
       this.overlayEl.removeEventListener('mousemove', this.handleOver)
       this.overlayEl.removeEventListener('click', this.handleClick)
       this.overlayEl.style.cursor = 'default'
@@ -46,7 +42,7 @@ export default class SelectManager {
 
    private clearSelector() {
       this.packedSelect = ''
-      this.onHighlightChange([]) // Clear boxes in React
+      this.onHighlightChange?.([]) // Clear boxes in React
    }
 
    // Calculates page-relative dimensions for Konva
@@ -77,6 +73,7 @@ export default class SelectManager {
          const selection = this.packedSelect
          this.disableSelection()
          this.cb(selection)
+         sendToBackground({ message: 'window return' })
       }
    }
 
