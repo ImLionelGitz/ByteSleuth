@@ -1,11 +1,14 @@
-import { AppBar, Button } from '@mui/material'
+import { AppBar, Button, Stack } from '@mui/material'
 import { IoLink } from 'react-icons/io5'
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
-import AddMenu from './AddMenu'
 import { MouseEvent } from 'react'
 import FieldMenu from './FieldMenu'
 
-export default function TopBar() {
+interface TopBar {
+   bgColor: string
+}
+
+export default function TopBar({ bgColor }: TopBar) {
    const [fieldsAnchor, setFieldsAnchor] = useState<HTMLElement | null>(null)
 
    const buttons: Record<string, (e: MouseEvent<HTMLElement>) => void> = {
@@ -18,25 +21,43 @@ export default function TopBar() {
 
    return (
       <AppBar
-         color="transparent"
          elevation={0}
          sx={{
             flexDirection: 'row',
             alignItems: 'center',
-            padding: 1,
-            gap: 1.2,
+            justifyContent: 'space-between',
+            position: 'relative',
+            backgroundColor: bgColor,
          }}
       >
+         <Stack direction="row" sx={{ gap: 1.2 }}>
+            {Object.keys(buttons).map((name) => (
+               <Button
+                  key={name}
+                  sx={{
+                     minWidth: 0,
+                     color: 'aliceblue',
+                     textTransform: 'capitalize',
+                     fontFamily: 'Space-Grotesk',
+                  }}
+                  onClick={buttons[name]}
+               >
+                  {name}
+               </Button>
+            ))}
+         </Stack>
+
          <Button
             variant="text"
+            size="small"
             startIcon={<IoLink />}
             endIcon={<MdOutlineKeyboardArrowDown />}
             sx={({ palette }) => ({
                color: 'aliceblue',
-               outline: '2px solid aliceblue',
                textTransform: 'capitalize',
                fontFamily: 'Space-Grotesk',
                transition: 'none',
+               padding: 0.5,
                backgroundColor: fieldsAnchor
                   ? palette.primary.main
                   : 'transparent',
@@ -45,23 +66,6 @@ export default function TopBar() {
          >
             Link To Fields
          </Button>
-
-         {Object.keys(buttons).map((name) => (
-            <Button
-               key={name}
-               sx={{
-                  minWidth: 0,
-                  color: 'aliceblue',
-                  textTransform: 'capitalize',
-                  fontFamily: 'Space-Grotesk',
-               }}
-               onClick={buttons[name]}
-            >
-               {name}
-            </Button>
-         ))}
-
-         <AddMenu />
 
          <FieldMenu
             open={fieldsAnchor !== null}

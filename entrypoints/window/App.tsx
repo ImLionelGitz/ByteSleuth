@@ -1,7 +1,8 @@
 // import { sendToContentJS } from '@/helpers/messager'
 // import { pinger } from '@/helpers/pinger'
-import { Modal, Stack } from '@mui/material'
+import { Dialog, Stack } from '@mui/material'
 import ButtonPanel from './interfaces/ButtonPanel'
+import CodeEditor from './interfaces/CodeEditor'
 import FieldsPanel from './interfaces/FieldsPanel'
 import TablePanel from './interfaces/TablePanel'
 
@@ -104,9 +105,14 @@ function App() {
             </Stack>
          </Stack>
 
-         <Modal open>
-            <div>lol</div>
-         </Modal>
+         <Dialog
+            open
+            slotProps={{
+               paper: { sx: { backgroundColor: 'transparent' } },
+            }}
+         >
+            <CodeEditor />
+         </Dialog>
       </div>
    )
 }

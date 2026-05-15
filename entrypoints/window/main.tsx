@@ -5,7 +5,6 @@ import App from './App.tsx'
 import theme from './theme.ts'
 
 import './style.css'
-import 'reactflow/dist/style.css'
 // @ts-expect-error ts sucks
 import 'react-color-palette/css'
 
