@@ -22,8 +22,9 @@ type Messages =
            | 'selection cancelled'
            | 'window minimize'
            | 'window return'
+           | 'give data'
      }
-   | { message: 'begin scrape'; list: FieldByte[] }
+   | { message: 'begin scrape' | 'save data'; list: FieldByte[] }
    | { message: 'error occured'; err: string }
 
 type Events = { message: 'selection ongoing' | 'selection done' }

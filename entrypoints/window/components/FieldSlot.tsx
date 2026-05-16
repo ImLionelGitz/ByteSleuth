@@ -17,10 +17,12 @@ interface FieldSlot extends FieldByte {
    linkElem: () => void
    updateName: (s: string) => void
    deleteItem: (id: number) => void
+   openEditor: (id: number) => void
 }
 
 export default function FieldSlot(props: FieldSlot) {
-   const { id, name, selector, linkElem, updateName, deleteItem } = props
+   const { id, name, selector, linkElem, updateName, deleteItem, openEditor } =
+      props
    const { attributes, listeners, transform, transition, setNodeRef } =
       useSortable({ id: id })
 
@@ -82,7 +84,7 @@ export default function FieldSlot(props: FieldSlot) {
             </Stack>
 
             <Stack direction="row">
-               <IconButton size="small">
+               <IconButton size="small" onClick={() => openEditor(id)}>
                   <FaCircleNodes color="aliceblue" />
                </IconButton>
 

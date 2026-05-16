@@ -13,6 +13,7 @@ import { getCurrentTabID, sendToContentJS } from '@/helpers/messager'
 interface FieldsPanel {
    allFields: FieldByte[]
    disableInteract: (v: boolean) => void
+   openEditor: (id: number) => void
    fieldAdd: () => void
    fieldUpdate: (f: FieldByte) => void
    fieldReorder: (a: FieldByte[]) => void
@@ -27,6 +28,7 @@ export default function FieldsPanel(props: FieldsPanel) {
       fieldReorder,
       fieldDelete,
       disableInteract,
+      openEditor,
    } = props
    const { palette } = useTheme()
 
@@ -114,6 +116,7 @@ export default function FieldsPanel(props: FieldsPanel) {
                               linkElem={() => handleLink(field)}
                               updateName={(name) => handleRename(field, name)}
                               deleteItem={(id) => fieldDelete(id)}
+                              openEditor={openEditor}
                            />
                         ))}
                      </SortableContext>

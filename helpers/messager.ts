@@ -1,9 +1,7 @@
-type Respond = string | number | boolean
-
 type MsgEvent = (
    msg: Messages,
    sender: Browser.runtime.MessageSender,
-   reply: (msg: Respond) => void
+   reply: (msg: unknown) => void
 ) => void
 
 const receiver = (cb: MsgEvent) => {

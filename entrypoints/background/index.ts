@@ -1,4 +1,5 @@
 import { receiver } from '@/helpers/messager'
+import handleData from './data_operator'
 
 export default defineBackground(() => {
    let windowID = 0
@@ -21,7 +22,7 @@ export default defineBackground(() => {
       console.log('lol', { id: browser.runtime.id })
    })
 
-   receiver((msg) => {
+   receiver((msg, _, reply) => {
       switch (msg.message) {
          case 'window minimize':
             browser.windows.update(windowID, { state: 'minimized' })
@@ -30,6 +31,14 @@ export default defineBackground(() => {
          case 'window return':
             browser.windows.update(windowID, { state: 'normal' })
             break
+
+         case 'save data':
+            handleData(msg, reply)
+            break
+
+         case 'give data':
+            handleData(msg, reply)
+            return true
 
          default:
             break

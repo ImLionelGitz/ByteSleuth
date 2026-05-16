@@ -7,12 +7,17 @@ import FieldsPanel from './interfaces/FieldsPanel'
 import TablePanel from './interfaces/TablePanel'
 import InfoPanel from './interfaces/popups/InfoPanel'
 import { getCurrentTabID, sendToContentJS } from '@/helpers/messager'
+import SettingsPanel from './interfaces/popups/SettingsPanel'
+import reducer from '@/entrypoints/window/myReducer'
+import { checkMemoryFull, getFields } from '@/helpers/datastores/fieldDatabase'
 
 const TABLE_SIZE = 390
 
 function App() {
-   const [fields, setField] = useState<FieldByte[]>([])
+   const [fields, dispatch] = useReducer(reducer, [])
    const [selecting, setSelecting] = useState(false)
+   const [editorID, setEditorID] = useState(NaN)
+   const [settingVisible, setSettingVisible] = useState(false)
 
    // async function handlePlay() {
    //    const [tab] = await browser.tabs.query({
@@ -25,7 +30,7 @@ function App() {
    //    }
    // }
 
-   async function handleClose() {
+   async function handleInfoClose() {
       const tabID = await getCurrentTabID()
 
       if (tabID) {
@@ -37,36 +42,41 @@ function App() {
       setSelecting(false)
    }
 
-   function handleFieldAdd() {
-      setField((old) => {
-         const newField: FieldByte = {
-            id: old.length,
-            name: 'New Field',
-            selector: '',
-         }
+   async function handleFieldAdd() {
+      const full = await checkMemoryFull()
 
-         return [...old, newField]
-      })
+      if (!full) {
+         dispatch({
+            type: 'ADD',
+            payload: {
+               id: fields.length,
+               name: 'New Field',
+               selector: '',
+            },
+         })
+      }
    }
 
    function handleFieldUpdate(newField: FieldByte) {
-      setField((old) =>
-         old.map((oldField) => {
-            if (oldField.id === newField.id) {
-               return newField
-            }
-
-            return oldField
-         })
-      )
+      dispatch({ type: 'UPDATE', payload: newField })
    }
 
    function handleFieldDelete(id: number) {
-      setField((old) => {
-         const raw = old.filter((oldField) => oldField.id !== id)
-         return raw.map((field, i) => ({ ...field, id: i }))
-      })
+      dispatch({ type: 'DELETE', payload: id })
    }
+
+   function handleFieldReorder(newList: FieldByte[]) {
+      dispatch({ type: 'LOAD', payload: newList })
+   }
+
+   useEffect(() => {
+      const fetchList = async () => {
+         const data = await getFields()
+         dispatch({ type: 'LOAD', payload: data })
+      }
+
+      fetchList()
+   }, [])
 
    return (
       <div>
@@ -87,15 +97,25 @@ function App() {
                   fieldAdd={handleFieldAdd}
                   fieldUpdate={handleFieldUpdate}
                   fieldDelete={handleFieldDelete}
-                  fieldReorder={(n) => setField(n)}
+                  fieldReorder={handleFieldReorder}
                   disableInteract={(status) => setSelecting(status)}
+                  openEditor={(id) => setEditorID(id)}
                />
-               <ButtonPanel />
+
+               <ButtonPanel
+                  onPlay={() => {}}
+                  onSetting={() => setSettingVisible(true)}
+               />
             </Stack>
          </Stack>
 
+         <Dialog open={settingVisible} onClose={() => setSettingVisible(false)}>
+            <SettingsPanel openEditor={() => setEditorID(Math.PI)} />
+         </Dialog>
+
          <Dialog
-            open={false}
+            open={!Number.isNaN(editorID)}
+            onClose={() => setEditorID(NaN)}
             slotProps={{
                paper: { sx: { backgroundColor: 'transparent' } },
             }}
@@ -103,7 +123,7 @@ function App() {
             <CodeEditor />
          </Dialog>
 
-         <Dialog open={selecting} onClose={handleClose}>
+         <Dialog open={selecting} onClose={handleInfoClose}>
             <InfoPanel
                title="Selecting"
                msg="Click outside to cancel"

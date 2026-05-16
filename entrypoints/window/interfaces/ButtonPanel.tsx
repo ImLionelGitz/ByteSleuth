@@ -2,7 +2,12 @@ import { Button, Paper, Stack } from '@mui/material'
 import { FaPlay } from 'react-icons/fa'
 import { FaGear } from 'react-icons/fa6'
 
-export default function ButtonPanel() {
+interface ButtonPanel {
+   onPlay: () => void
+   onSetting: () => void
+}
+
+export default function ButtonPanel({ onPlay, onSetting }: ButtonPanel) {
    return (
       <Paper
          variant="outlined"
@@ -14,6 +19,7 @@ export default function ButtonPanel() {
             <Button
                variant="contained"
                disableElevation
+               onClick={onPlay}
                sx={{
                   fontSize: 'x-large',
                   borderRadius: '100%',
@@ -28,6 +34,7 @@ export default function ButtonPanel() {
                variant="contained"
                color="info"
                disableElevation
+               onClick={onSetting}
                sx={{
                   fontSize: 'x-large',
                   borderRadius: '100%',

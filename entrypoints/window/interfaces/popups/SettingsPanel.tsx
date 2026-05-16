@@ -1,5 +1,10 @@
-import { Button, Divider, Paper, Stack } from '@mui/material'
-import { useColor } from 'react-color-palette'
+import {
+   getDefaultUserData,
+   getUserData,
+   saveUserData,
+} from '@/helpers/datastores/userDatabase'
+import { Button, Divider, Paper, Popover, Stack } from '@mui/material'
+import { ColorPicker, ColorService, useColor } from 'react-color-palette'
 import tiny from 'tinycolor2'
 
 type colorData = {
@@ -7,8 +12,27 @@ type colorData = {
    onClick: (anchor: HTMLElement) => void
 }
 
-export default function SettingsPanel() {
-   const [color] = useColor('#dbdbdb')
+interface SettingsPanel {
+   openEditor: () => void
+}
+
+export default function SettingsPanel({ openEditor }: SettingsPanel) {
+   const [color, setColor] = useColor(getDefaultUserData().color)
+   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
+
+   const handlePopClose = () => {
+      saveUserData('color', color.hex)
+      setAnchorEl(null)
+   }
+
+   useEffect(() => {
+      const fetchSettings = async () => {
+         const data = await getUserData()
+         setColor(ColorService.convert('hex', data.color))
+      }
+
+      fetchSettings()
+   }, [])
 
    return (
       <Paper
@@ -24,31 +48,35 @@ export default function SettingsPanel() {
             <Divider sx={{ backgroundColor: 'aliceblue' }} />
 
             <Stack sx={{ marginTop: 0.8, gap: 1 }}>
-               <ColorSetting color={color.hex} onClick={() => {}} />
-               <ScrapeSysEdit />
+               <ColorSetting
+                  color={color.hex}
+                  onClick={(el) => setAnchorEl(el)}
+               />
+
+               <ScrapeSysEdit onClick={openEditor} />
             </Stack>
          </Stack>
 
-         {/* <Popover
-            open
+         <Popover
+            open={anchorEl !== null}
+            anchorEl={anchorEl}
+            onClose={handlePopClose}
             slotProps={{
                paper: { sx: { borderRadius: '12px' } },
             }}
          >
             <ColorPicker
                hideInput={['rgb', 'hsv']}
-               hideAlpha
                color={color}
-               onChange={() => {}}
-               onChangeComplete={() => {}}
+               onChange={(color) => setColor(color)}
             />
-         </Popover> */}
+         </Popover>
       </Paper>
    )
 }
 
 function ColorSetting({ color, onClick }: colorData) {
-   const modifier = useMemo(() => tiny(color), [])
+   const modifier = useMemo(() => tiny(color), [color])
 
    return (
       <Stack
@@ -65,7 +93,7 @@ function ColorSetting({ color, onClick }: colorData) {
                minWidth: 0,
                width: 24,
                height: 24,
-               border: `2px solid ${modifier.darken(15)}`,
+               border: `2px solid ${modifier.darken(4)}`,
             }}
             onClick={(e) => onClick(e.currentTarget)}
          ></Button>
@@ -73,7 +101,7 @@ function ColorSetting({ color, onClick }: colorData) {
    )
 }
 
-function ScrapeSysEdit() {
+function ScrapeSysEdit({ onClick }: { onClick: () => void }) {
    return (
       <Stack
          direction="row"
@@ -93,6 +121,7 @@ function ScrapeSysEdit() {
             color="secondary"
             disableElevation
             sx={{ minWidth: 0, fontSize: 10, fontFamily: 'Inter' }}
+            onClick={onClick}
          >
             Open Editor
          </Button>

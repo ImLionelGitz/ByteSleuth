@@ -1,3 +1,8 @@
+import {
+   getDefaultUserData,
+   getUserData,
+   userSettings,
+} from '@/helpers/datastores/userDatabase'
 import { Layer, Rect, Stage } from 'react-konva'
 
 interface CanvasProps {
@@ -13,6 +18,24 @@ export default function Canvas({ boxes, size }: CanvasProps) {
    )
    const pageWidth = Math.max(document.documentElement.scrollWidth, size.width)
 
+   const [color, setColor] = useState<string>(getDefaultUserData().color)
+
+   useEffect(() => {
+      const fetchColor = async () => {
+         const { color } = await getUserData()
+         console.log(color)
+         setColor(color)
+      }
+
+      userSettings.watch((newVal, oldval) => {
+         if (newVal.color !== oldval.color) {
+            setColor(newVal.color)
+         }
+      })
+
+      fetchColor()
+   }, [])
+
    return (
       <Stage width={pageWidth} height={pageHeight}>
          <Layer>
@@ -23,10 +46,7 @@ export default function Canvas({ boxes, size }: CanvasProps) {
                   y={box.y}
                   width={box.width}
                   height={box.height}
-                  stroke="red"
-                  strokeWidth={2}
-                  fill="rgba(255, 0, 0, 0.1)"
-                  pointerEvents="auto" // Allows interaction with drawn boxes if needed
+                  fill={color}
                />
             ))}
          </Layer>
