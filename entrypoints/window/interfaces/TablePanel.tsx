@@ -48,7 +48,7 @@ export default function TablePanel({ size }: TablePanel) {
                      color: palette.secondary.contrastText,
                   }}
                >
-                  v1.0.0
+                  {browser.runtime.getVersion()}
                </p>
             </Stack>
 

@@ -1,6 +1,6 @@
 import { saveFields } from '@/helpers/datastores/fieldDatabase'
 
-type Action =
+export type Action =
    | { type: 'LOAD'; payload: FieldByte[] }
    | { type: 'ADD' | 'UPDATE'; payload: FieldByte }
    | { type: 'DELETE'; payload: number }

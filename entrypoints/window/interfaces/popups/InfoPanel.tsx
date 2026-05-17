@@ -1,19 +1,32 @@
-import { Divider, Paper, Stack } from '@mui/material'
+import { Button, Divider, Paper, Stack } from '@mui/material'
+import { TbReload } from 'react-icons/tb'
 
-interface InfoPanel {
+type PanelType = 'INFO' | 'ERROR' | 'UI BROKEN'
+
+export interface Panel {
    title: string
    msg: string
-   type: 'INFO' | 'ERROR'
+   type: PanelType
 }
 
-export default function InfoPanel({ title, msg, type }: InfoPanel) {
+export default function InfoPanel({ title, msg, type }: Panel) {
    return (
       <Paper
          sx={({ palette }) => ({
             padding: 2,
             maxWidth: 250,
-            backgroundColor:
-               type === 'ERROR' ? palette.error.main : palette.secondary.main,
+            backgroundColor: (() => {
+               switch (type) {
+                  case 'INFO':
+                     return palette.secondary.main
+
+                  case 'ERROR':
+                     return palette.error.main
+
+                  case 'UI BROKEN':
+                     return palette.info.main
+               }
+            })(),
          })}
       >
          <Stack sx={{ textAlign: 'center', gap: 1 }}>
@@ -23,7 +36,25 @@ export default function InfoPanel({ title, msg, type }: InfoPanel) {
 
             <p style={{ color: 'aliceblue' }}>{msg}</p>
 
-            {/* <em>{'(Click outside to exit the popup.)'}</em> */}
+            {type === 'UI BROKEN' && (
+               <Stack sx={{ alignItems: 'center' }}>
+                  <Button
+                     variant="contained"
+                     disableElevation
+                     color="secondary"
+                     size="small"
+                     sx={{
+                        fontFamily: 'Space-Grotesk',
+                        gap: 0.7,
+                        alignItems: 'center',
+                     }}
+                     onClick={() => window.location.reload()}
+                  >
+                     <TbReload />
+                     Reload UI
+                  </Button>
+               </Stack>
+            )}
          </Stack>
       </Paper>
    )

@@ -1,72 +1,33 @@
 // import { sendToContentJS } from '@/helpers/messager'
 // import { pinger } from '@/helpers/pinger'
-import { Dialog, Stack } from '@mui/material'
-import ButtonPanel from './interfaces/ButtonPanel'
-import CodeEditor from './interfaces/CodeEditor'
-import FieldsPanel from './interfaces/FieldsPanel'
-import TablePanel from './interfaces/TablePanel'
-import InfoPanel from './interfaces/popups/InfoPanel'
-import { getCurrentTabID, sendToContentJS } from '@/helpers/messager'
-import SettingsPanel from './interfaces/popups/SettingsPanel'
 import reducer from '@/entrypoints/window/myReducer'
-import { checkMemoryFull, getFields } from '@/helpers/datastores/fieldDatabase'
-
-const TABLE_SIZE = 390
+import { getFields } from '@/helpers/datastores/fieldDatabase'
+import { getCurrentTabID, sendToContentJS } from '@/helpers/messager'
+import { Dialog } from '@mui/material'
+import { GlobalErrorBoundary } from './components/GlobalErrorBoundary'
+import CodeEditor from './interfaces/CodeEditor'
+import MainScreen from './interfaces/MainScreen'
+import InfoPanel, { type Panel } from './interfaces/popups/InfoPanel'
+import SettingsPanel from './interfaces/popups/SettingsPanel'
 
 function App() {
    const [fields, dispatch] = useReducer(reducer, [])
-   const [selecting, setSelecting] = useState(false)
    const [editorID, setEditorID] = useState(NaN)
    const [settingVisible, setSettingVisible] = useState(false)
-
-   // async function handlePlay() {
-   //    const [tab] = await browser.tabs.query({
-   //       active: true,
-   //       currentWindow: false,
-   //    })
-
-   //    if (tab.id) {
-   //       sendToContentJS(tab.id, { message: 'begin scrape', list: fieldUI })
-   //    }
-   // }
+   const [dialogState, setDialogState] = useState<Panel | null>(null)
 
    async function handleInfoClose() {
-      const tabID = await getCurrentTabID()
+      if (dialogState?.type == 'INFO') {
+         const tabID = await getCurrentTabID()
 
-      if (tabID) {
-         sendToContentJS<string>(tabID, {
-            message: 'selection cancelled',
-         })
+         if (tabID) {
+            sendToContentJS<string>(tabID, {
+               message: 'selection cancelled',
+            })
+         }
       }
 
-      setSelecting(false)
-   }
-
-   async function handleFieldAdd() {
-      const full = await checkMemoryFull()
-
-      if (!full) {
-         dispatch({
-            type: 'ADD',
-            payload: {
-               id: fields.length,
-               name: 'New Field',
-               selector: '',
-            },
-         })
-      }
-   }
-
-   function handleFieldUpdate(newField: FieldByte) {
-      dispatch({ type: 'UPDATE', payload: newField })
-   }
-
-   function handleFieldDelete(id: number) {
-      dispatch({ type: 'DELETE', payload: id })
-   }
-
-   function handleFieldReorder(newList: FieldByte[]) {
-      dispatch({ type: 'LOAD', payload: newList })
+      setDialogState(null)
    }
 
    useEffect(() => {
@@ -78,36 +39,62 @@ function App() {
       fetchList()
    }, [])
 
+   useEffect(() => {
+      const handleWindowError = (event: ErrorEvent) => {
+         setDialogState({
+            title: 'An Error Occurred',
+            msg: event.message,
+            type: 'ERROR',
+         })
+      }
+
+      const handleRejection = (event: PromiseRejectionEvent) => {
+         setDialogState({
+            title: 'An Async Error Occurred',
+            msg: event.reason?.message || String(event.reason),
+            type: 'ERROR',
+         })
+      }
+
+      // 2. Catch errors sent from Background or Content scripts via WXT/WebExtension API
+      const handleExtensionMessage = (msg: Messages) => {
+         if (msg.message === 'error occured') {
+            setDialogState({
+               title: 'An External Error Occurred',
+               msg: msg.err,
+               type: 'ERROR',
+            })
+         }
+      }
+
+      window.addEventListener('error', handleWindowError)
+      window.addEventListener('unhandledrejection', handleRejection)
+      browser.runtime.onMessage.addListener(handleExtensionMessage)
+
+      return () => {
+         window.removeEventListener('error', handleWindowError)
+         window.removeEventListener('unhandledrejection', handleRejection)
+         browser.runtime.onMessage.removeListener(handleExtensionMessage)
+      }
+   }, [])
+
    return (
-      <div>
-         <Stack
-            direction="row"
-            sx={{
-               height: '100vh',
-               justifyContent: 'center',
-               alignItems: 'center',
-               gap: '8px',
+      <GlobalErrorBoundary>
+         <MainScreen
+            allFields={fields}
+            updater={dispatch}
+            openEditor={setEditorID}
+            showDialog={(show) => {
+               if (show) {
+                  setDialogState({
+                     title: 'Selecting',
+                     msg: 'Click anywhere outside of this dialog within the window to exit',
+                     type: 'INFO',
+                  })
+               } else setDialogState(null)
             }}
-         >
-            <TablePanel size={TABLE_SIZE} />
-
-            <Stack sx={{ gap: '12px', height: TABLE_SIZE }}>
-               <FieldsPanel
-                  allFields={fields}
-                  fieldAdd={handleFieldAdd}
-                  fieldUpdate={handleFieldUpdate}
-                  fieldDelete={handleFieldDelete}
-                  fieldReorder={handleFieldReorder}
-                  disableInteract={(status) => setSelecting(status)}
-                  openEditor={(id) => setEditorID(id)}
-               />
-
-               <ButtonPanel
-                  onPlay={() => {}}
-                  onSetting={() => setSettingVisible(true)}
-               />
-            </Stack>
-         </Stack>
+            openSettings={() => setSettingVisible(true)}
+         />
 
          <Dialog open={settingVisible} onClose={() => setSettingVisible(false)}>
             <SettingsPanel openEditor={() => setEditorID(Math.PI)} />
@@ -123,14 +110,16 @@ function App() {
             <CodeEditor />
          </Dialog>
 
-         <Dialog open={selecting} onClose={handleInfoClose}>
-            <InfoPanel
-               title="Selecting"
-               msg="Click outside to cancel"
-               type={'INFO'}
-            />
+         <Dialog open={dialogState !== null} onClose={handleInfoClose}>
+            {dialogState && (
+               <InfoPanel
+                  title={dialogState.title}
+                  msg={dialogState.msg}
+                  type={dialogState.type}
+               />
+            )}
          </Dialog>
-      </div>
+      </GlobalErrorBoundary>
    )
 }
 
