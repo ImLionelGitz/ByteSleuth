@@ -1,12 +1,19 @@
+import sample from '@/templates/code.template.ts?raw'
 import { Editor, loader } from '@monaco-editor/react'
 import { Paper } from '@mui/material'
 import * as monaco from 'monaco-editor'
 import TopBar from '../components/TopBar'
+import types from '@/templates/types.template.d.ts?raw'
 
 const COLOR_BG = '#252526'
 
 export default function CodeEditor() {
    loader.config({ monaco: monaco })
+
+   const handleEditorDidMount = () => {
+      const fileUri = 'file:///node_modules/@types/global/index.d.ts'
+      monaco.typescript.typescriptDefaults.addExtraLib(types, fileUri)
+   }
 
    return (
       <Paper
@@ -25,8 +32,8 @@ export default function CodeEditor() {
          <div
             style={{
                height: '90%',
-               borderRadius: 'inherit',
-               overflow: 'hidden',
+               //borderRadius: 'inherit',
+               //overflow: 'hidden',
                border: '2px solid #3E3E42',
             }}
          >
@@ -34,7 +41,7 @@ export default function CodeEditor() {
                height="100%"
                width="100%"
                defaultLanguage="typescript"
-               defaultValue="function lol() {}"
+               defaultValue={sample}
                theme="vs-dark"
                options={{
                   minimap: {
@@ -44,6 +51,7 @@ export default function CodeEditor() {
                   scrollBeyondLastLine: false,
                   automaticLayout: true,
                }}
+               onMount={handleEditorDidMount}
             />
          </div>
       </Paper>
