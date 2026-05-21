@@ -4,6 +4,11 @@ interface FieldByte {
    selector: string
 }
 
+interface Script {
+   linkedIDs: number[]
+   code: string
+}
+
 type TableByte = Record<string, string>
 
 interface BoxCoords {
