@@ -3,7 +3,7 @@ import ButtonPanel from './ButtonPanel'
 import FieldsPanel from './FieldsPanel'
 import TablePanel from './TablePanel'
 import { checkMemoryFull } from '@/helpers/datastores/fieldDatabase'
-import { Action } from '../myReducer'
+import { Action } from '../reducers/fieldReducer'
 
 const TABLE_SIZE = 390
 

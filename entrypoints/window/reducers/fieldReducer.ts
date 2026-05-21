@@ -5,7 +5,7 @@ export type Action =
    | { type: 'ADD' | 'UPDATE'; payload: FieldByte }
    | { type: 'DELETE'; payload: number }
 
-export default function reducer(state: FieldByte[], action: Action) {
+export default function fieldReducer(state: FieldByte[], action: Action) {
    switch (action.type) {
       case 'UPDATE': {
          const arr = state.map((field) => {

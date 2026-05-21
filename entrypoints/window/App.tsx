@@ -1,6 +1,6 @@
 // import { sendToContentJS } from '@/helpers/messager'
 // import { pinger } from '@/helpers/pinger'
-import reducer from '@/entrypoints/window/myReducer'
+import reducer from '@/entrypoints/window/reducers/fieldReducer'
 import { getFields } from '@/helpers/datastores/fieldDatabase'
 import { getCurrentTabID, sendToContentJS } from '@/helpers/messager'
 import { Dialog } from '@mui/material'

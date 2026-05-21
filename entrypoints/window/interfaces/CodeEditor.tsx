@@ -4,16 +4,45 @@ import { Paper } from '@mui/material'
 import * as monaco from 'monaco-editor'
 import TopBar from '../components/TopBar'
 import types from '@/templates/types.template.d.ts?raw'
+import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
+import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
+
+interface CodeEditor {
+   
+}
 
 const COLOR_BG = '#252526'
+
+self.MonacoEnvironment = {
+   getWorker(_, label) {
+      if (label === 'typescript') {
+         return new tsWorker()
+      }
+
+      return new editorWorker()
+   },
+}
 
 export default function CodeEditor() {
    loader.config({ monaco: monaco })
 
+   const monacoDef = useRef<monaco.IDisposable>(null)
+
    const handleEditorDidMount = () => {
-      const fileUri = 'file:///node_modules/@types/global/index.d.ts'
-      monaco.typescript.typescriptDefaults.addExtraLib(types, fileUri)
+      if (curScriptID === Math.PI) {
+         const fileUri = 'file:///node_modules/@types/global/index.d.ts'
+         monacoDef.current = monaco.typescript.typescriptDefaults.addExtraLib(
+            types,
+            fileUri
+         )
+      }
    }
+
+   useEffect(() => {
+      return () => {
+         monacoDef.current?.dispose()
+      }
+   }, [])
 
    return (
       <Paper
