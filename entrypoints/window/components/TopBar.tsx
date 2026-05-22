@@ -1,12 +1,13 @@
 import { AppBar, Button, Checkbox, ListItem, Stack } from '@mui/material'
 import { IoLink } from 'react-icons/io5'
 import { MdOutlineKeyboardArrowDown } from 'react-icons/md'
-import { MouseEvent } from 'react'
+import { MouseEvent, useState } from 'react'
 import FieldMenu from './FieldMenu'
 
 interface TopBar {
    bgColor: string
    fields: FieldByte[]
+   listOfLinked: number[]
    curEditingField: number
    onFieldCheck: (id: number, checked: boolean) => void
 }
@@ -82,7 +83,7 @@ export default function TopBar(props: TopBar) {
                         key={field.id}
                         secondaryAction={
                            <Checkbox
-                              checked={props.curEditingField === field.id}
+                              checked={props.listOfLinked.includes(field.id)}
                               onChange={(_, checked) =>
                                  props.onFieldCheck(field.id, checked)
                               }

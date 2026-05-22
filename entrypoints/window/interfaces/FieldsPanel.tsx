@@ -12,6 +12,7 @@ import { getCurrentTabID, sendToContentJS } from '@/helpers/messager'
 
 interface FieldsPanel {
    allFields: FieldByte[]
+   allScripts: Script[]
    disableInteract: (v: boolean) => void
    openEditor: (id: number) => void
    fieldAdd: () => void
@@ -23,6 +24,7 @@ interface FieldsPanel {
 export default function FieldsPanel(props: FieldsPanel) {
    const {
       allFields,
+      allScripts,
       fieldAdd,
       fieldUpdate,
       fieldReorder,
@@ -33,16 +35,18 @@ export default function FieldsPanel(props: FieldsPanel) {
    const { palette } = useTheme()
 
    const handleLink = async (oldField: FieldByte) => {
-      const tabID = await getCurrentTabID()
-
-      if (tabID) {
+      try {
          disableInteract(true)
+         const tabID = await getCurrentTabID()
 
-         const select = await sendToContentJS<string>(tabID, {
-            message: 'select an element',
-         })
+         if (tabID) {
+            const select = await sendToContentJS<string>(tabID, {
+               message: 'select an element',
+            })
 
-         fieldUpdate({ ...oldField, selector: select })
+            fieldUpdate({ ...oldField, selector: select })
+         }
+      } finally {
          disableInteract(false)
       }
    }
@@ -113,6 +117,9 @@ export default function FieldsPanel(props: FieldsPanel) {
                            <FieldSlot
                               key={field.id}
                               {...field}
+                              isLinked={allScripts.some((script) =>
+                                 script.linkedIDs.includes(field.id)
+                              )}
                               linkElem={() => handleLink(field)}
                               updateName={(name) => handleRename(field, name)}
                               deleteItem={(id) => fieldDelete(id)}

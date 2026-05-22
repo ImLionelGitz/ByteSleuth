@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import sample from '@/templates/code.template.ts?raw'
 import { Editor, loader } from '@monaco-editor/react'
 import { Paper } from '@mui/material'
@@ -8,7 +9,11 @@ import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
 
 interface CodeEditor {
-   
+   fields: FieldByte[]
+   curEditingId: number
+   curScript: Script | null
+   onCodeWrite: (code: string | undefined) => void
+   onFieldLink: (id: number, tick: boolean) => void
 }
 
 const COLOR_BG = '#252526'
@@ -23,13 +28,14 @@ self.MonacoEnvironment = {
    },
 }
 
-export default function CodeEditor() {
-   loader.config({ monaco: monaco })
+loader.config({ monaco: monaco })
 
+export default function CodeEditor(prop: CodeEditor) {
+   const firstScriptId = prop.curScript?.linkedIDs[0] || prop.curEditingId
    const monacoDef = useRef<monaco.IDisposable>(null)
 
    const handleEditorDidMount = () => {
-      if (curScriptID === Math.PI) {
+      if (firstScriptId === Math.PI) {
          const fileUri = 'file:///node_modules/@types/global/index.d.ts'
          monacoDef.current = monaco.typescript.typescriptDefaults.addExtraLib(
             types,
@@ -56,7 +62,13 @@ export default function CodeEditor() {
             backgroundColor: COLOR_BG,
          }}
       >
-         <TopBar bgColor={COLOR_BG} />
+         <TopBar
+            bgColor={COLOR_BG}
+            fields={prop.fields}
+            curEditingField={prop.curEditingId}
+            listOfLinked={prop.curScript?.linkedIDs || []}
+            onFieldCheck={prop.onFieldLink}
+         />
 
          <div
             style={{
@@ -70,7 +82,7 @@ export default function CodeEditor() {
                height="100%"
                width="100%"
                defaultLanguage="typescript"
-               defaultValue={sample}
+               value={prop.curScript?.code || sample}
                theme="vs-dark"
                options={{
                   minimap: {
@@ -81,6 +93,7 @@ export default function CodeEditor() {
                   automaticLayout: true,
                }}
                onMount={handleEditorDidMount}
+               onChange={prop.onCodeWrite}
             />
          </div>
       </Paper>

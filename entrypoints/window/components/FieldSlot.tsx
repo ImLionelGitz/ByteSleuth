@@ -10,10 +10,11 @@ import {
    Tooltip,
 } from '@mui/material'
 import { FaTrash } from 'react-icons/fa'
-import { FaCircleNodes } from 'react-icons/fa6'
+import { FaFileCircleCheck, FaFileCircleXmark } from 'react-icons/fa6'
 import { RxDragHandleDots2 } from 'react-icons/rx'
 
 interface FieldSlot extends FieldByte {
+   isLinked: boolean
    linkElem: () => void
    updateName: (s: string) => void
    deleteItem: (id: number) => void
@@ -85,7 +86,11 @@ export default function FieldSlot(props: FieldSlot) {
 
             <Stack direction="row">
                <IconButton size="small" onClick={() => openEditor(id)}>
-                  <FaCircleNodes color="aliceblue" />
+                  {props.isLinked ? (
+                     <FaFileCircleCheck color="aliceblue" />
+                  ) : (
+                     <FaFileCircleXmark color="#bc0a0e" />
+                  )}
                </IconButton>
 
                <IconButton size="small" onClick={() => deleteItem(id)}>

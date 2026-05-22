@@ -9,6 +9,7 @@ const TABLE_SIZE = 390
 
 interface MainScreen {
    allFields: FieldByte[]
+   allScripts: Script[]
    updater: (a: Action) => void
    openEditor: (id: number) => void
    showDialog: (s: boolean) => void
@@ -16,7 +17,14 @@ interface MainScreen {
 }
 
 export default function MainScreen(props: MainScreen) {
-   const { updater, openEditor, showDialog, openSettings, allFields } = props
+   const {
+      updater,
+      openEditor,
+      showDialog,
+      openSettings,
+      allFields,
+      allScripts,
+   } = props
 
    async function handleFieldAdd() {
       const full = await checkMemoryFull()
@@ -25,7 +33,10 @@ export default function MainScreen(props: MainScreen) {
          updater({
             type: 'ADD',
             payload: {
-               id: allFields.length,
+               id:
+                  allFields.length > 0
+                     ? Math.max(...allFields.map((f) => f.id)) + 1
+                     : 0,
                name: 'New Field',
                selector: '',
             },
@@ -61,6 +72,7 @@ export default function MainScreen(props: MainScreen) {
             <Stack sx={{ gap: '12px', height: TABLE_SIZE }}>
                <FieldsPanel
                   allFields={allFields}
+                  allScripts={allScripts}
                   fieldAdd={handleFieldAdd}
                   fieldUpdate={handleFieldUpdate}
                   fieldDelete={handleFieldDelete}

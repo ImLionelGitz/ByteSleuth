@@ -33,7 +33,7 @@ const compos: TableComponents<number> = {
 }
 
 export default function DaTable() {
-   const arr = new Array(0).fill('')
+   const arr = new Array(12).fill('') // Placeholder data
 
    const renderHeader = () => (
       <TableRow sx={{ background: '#000' }}>
@@ -50,12 +50,12 @@ export default function DaTable() {
 
    const renderRow = (rowIndex: number) => (
       <>
-         {arr.map(() => (
+         {arr.map((_, colIndex) => (
             <TableCell
-               key={rowIndex}
+               key={colIndex}
                sx={{
                   color: 'aliceblue',
-                  width: '100vw',
+                  width: 150,
                   overflow: 'auto',
                   whiteSpace: 'normal',
                   wordBreak: 'break-word',

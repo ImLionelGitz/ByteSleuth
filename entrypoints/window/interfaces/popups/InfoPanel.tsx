@@ -14,7 +14,7 @@ export default function InfoPanel({ title, msg, type }: Panel) {
       <Paper
          sx={({ palette }) => ({
             padding: 2,
-            maxWidth: 250,
+            //maxWidth: 250,
             backgroundColor: (() => {
                switch (type) {
                   case 'INFO':

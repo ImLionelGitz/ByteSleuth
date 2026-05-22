@@ -1,18 +1,27 @@
-// import { sendToContentJS } from '@/helpers/messager'
-// import { pinger } from '@/helpers/pinger'
-import reducer from '@/entrypoints/window/reducers/fieldReducer'
 import { getFields } from '@/helpers/datastores/fieldDatabase'
 import { getCurrentTabID, sendToContentJS } from '@/helpers/messager'
 import { Dialog } from '@mui/material'
+import { useEffect, useMemo, useReducer, useState } from 'react'
 import { GlobalErrorBoundary } from './components/GlobalErrorBoundary'
 import CodeEditor from './interfaces/CodeEditor'
 import MainScreen from './interfaces/MainScreen'
 import InfoPanel, { type Panel } from './interfaces/popups/InfoPanel'
 import SettingsPanel from './interfaces/popups/SettingsPanel'
+import fieldReducer from './reducers/fieldReducer'
+import scriptReducer from './reducers/scriptReducer'
 
 function App() {
-   const [fields, dispatch] = useReducer(reducer, [])
-   const [editorID, setEditorID] = useState(NaN)
+   const [fields, fieldAction] = useReducer(fieldReducer, [])
+   const [scripts, scriptAction] = useReducer(scriptReducer, [])
+
+   const [fieldID, setFieldID] = useState(NaN)
+
+   const curScript = useMemo(() => {
+      if (Number.isNaN(fieldID)) return null
+
+      return scripts.find((f) => f.linkedIDs.includes(fieldID)) || null
+   }, [scripts, fieldID])
+
    const [settingVisible, setSettingVisible] = useState(false)
    const [dialogState, setDialogState] = useState<Panel | null>(null)
 
@@ -30,15 +39,64 @@ function App() {
       setDialogState(null)
    }
 
+   const handleCodeWrite = (code: string | undefined) => {
+      if (code === undefined) return
+
+      if (curScript)
+         scriptAction({
+            type: 'UPDATE',
+            id: fieldID,
+            payload: { ...curScript, code: code },
+         })
+      else
+         scriptAction({
+            type: 'ADD',
+            payload: { linkedIDs: [fieldID], code: code },
+         })
+   }
+
+   const handleCodeLink = (id: number, checked: boolean) => {
+      if (curScript) {
+         const nextIDs = checked
+            ? [...curScript.linkedIDs, id]
+            : curScript.linkedIDs.filter((linkedId) => linkedId !== id)
+
+         scriptAction({
+            type: 'UPDATE',
+            id: fieldID,
+            payload: { ...curScript, linkedIDs: nextIDs },
+         })
+      } else if (checked) {
+         scriptAction({
+            type: 'ADD',
+            payload: {
+               linkedIDs: id === fieldID ? [fieldID] : [fieldID, id],
+               code: '',
+            },
+         })
+      }
+   }
+
+   function displayNormalDialog(show: boolean) {
+      if (show) {
+         setDialogState({
+            title: 'Selecting',
+            msg: 'Click anywhere outside of this dialog within the window to exit',
+            type: 'INFO',
+         })
+      } else setDialogState(null)
+   }
+
    useEffect(() => {
       const fetchList = async () => {
          const data = await getFields()
-         dispatch({ type: 'LOAD', payload: data })
+         fieldAction({ type: 'LOAD', payload: data })
       }
 
       fetchList()
    }, [])
 
+   // Error handlers (central)
    useEffect(() => {
       const handleWindowError = (event: ErrorEvent) => {
          setDialogState({
@@ -82,32 +140,31 @@ function App() {
       <GlobalErrorBoundary>
          <MainScreen
             allFields={fields}
-            updater={dispatch}
-            openEditor={setEditorID}
-            showDialog={(show) => {
-               if (show) {
-                  setDialogState({
-                     title: 'Selecting',
-                     msg: 'Click anywhere outside of this dialog within the window to exit',
-                     type: 'INFO',
-                  })
-               } else setDialogState(null)
-            }}
+            allScripts={scripts}
+            updater={fieldAction}
+            openEditor={setFieldID}
+            showDialog={displayNormalDialog}
             openSettings={() => setSettingVisible(true)}
          />
 
          <Dialog open={settingVisible} onClose={() => setSettingVisible(false)}>
-            <SettingsPanel openEditor={() => setEditorID(Math.PI)} />
+            <SettingsPanel openEditor={() => setFieldID(Math.PI)} />
          </Dialog>
 
          <Dialog
-            open={!Number.isNaN(editorID)}
-            onClose={() => setEditorID(NaN)}
+            open={!Number.isNaN(fieldID)}
+            onClose={() => setFieldID(NaN)}
             slotProps={{
                paper: { sx: { backgroundColor: 'transparent' } },
             }}
          >
-            <CodeEditor />
+            <CodeEditor
+               fields={fields}
+               curEditingId={fieldID}
+               curScript={curScript}
+               onCodeWrite={handleCodeWrite}
+               onFieldLink={handleCodeLink}
+            />
          </Dialog>
 
          <Dialog open={dialogState !== null} onClose={handleInfoClose}>
