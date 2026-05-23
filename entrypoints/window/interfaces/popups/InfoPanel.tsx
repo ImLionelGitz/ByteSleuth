@@ -1,15 +1,16 @@
 import { Button, Divider, Paper, Stack } from '@mui/material'
 import { TbReload } from 'react-icons/tb'
 
-type PanelType = 'INFO' | 'ERROR' | 'UI BROKEN'
+type PanelType = 'INFO' | 'ERROR' | 'UI BROKEN' | 'WARNING'
 
 export interface Panel {
    title: string
    msg: string
    type: PanelType
+   onConfirm?: () => void
 }
 
-export default function InfoPanel({ title, msg, type }: Panel) {
+export default function InfoPanel({ title, msg, type, onConfirm }: Panel) {
    return (
       <Paper
          sx={({ palette }) => ({
@@ -25,6 +26,9 @@ export default function InfoPanel({ title, msg, type }: Panel) {
 
                   case 'UI BROKEN':
                      return palette.info.main
+
+                  case 'WARNING':
+                     return palette.warning.dark
                }
             })(),
          })}
@@ -52,6 +56,24 @@ export default function InfoPanel({ title, msg, type }: Panel) {
                   >
                      <TbReload />
                      Reload UI
+                  </Button>
+               </Stack>
+            )}
+
+            {type === 'WARNING' && onConfirm && (
+               <Stack
+                  direction="row"
+                  sx={{ justifyContent: 'center', marginTop: 1 }}
+               >
+                  <Button
+                     variant="contained"
+                     disableElevation
+                     color="secondary"
+                     size="small"
+                     sx={{ fontFamily: 'Space-Grotesk' }}
+                     onClick={onConfirm}
+                  >
+                     Confirm
                   </Button>
                </Stack>
             )}

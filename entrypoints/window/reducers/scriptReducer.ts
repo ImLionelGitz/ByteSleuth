@@ -1,30 +1,35 @@
 type Action =
-   | { type: 'ADD'; payload: Script }
-   | { type: 'UPDATE'; id: number; payload: Script }
+   | { type: 'SAVE'; id: number; payload: Script }
    | { type: 'LOAD'; payload: Script[] }
    | { type: 'DELETE'; payload: number }
 
 export default function scriptReducer(state: Script[], action: Action) {
    switch (action.type) {
-      case 'ADD': {
-         const arr = [...state, action.payload]
-         //saveScripts(arr) --don't do this now
-         console.log(arr)
-         return arr
-      }
+      case 'SAVE': {
+         const { linkedIDs, code } = action.payload
+         const hasInstance = state.some((src) =>
+            src.linkedIDs.includes(action.id)
+         )
 
-      case 'UPDATE': {
-         const arr = state.map((script) => {
-            if (script.linkedIDs.includes(action.id)) {
-               return action.payload
+         console.log(state)
+
+         if (!linkedIDs.length || !code) {
+            if (hasInstance) {
+               return state.filter((src) => !src.linkedIDs.includes(action.id))
             }
 
-            return script
-         })
+            return state
+         }
 
-         //saveScripts(arr) --don't do this now
-         console.log(arr)
-         return arr
+         return !hasInstance
+            ? [...state, action.payload]
+            : state.map((src) => {
+                 if (src.linkedIDs.includes(action.id)) {
+                    return action.payload
+                 }
+
+                 return src
+              })
       }
 
       case 'LOAD': {

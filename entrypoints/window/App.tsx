@@ -1,7 +1,7 @@
 import { getFields } from '@/helpers/datastores/fieldDatabase'
 import { getCurrentTabID, sendToContentJS } from '@/helpers/messager'
 import { Dialog } from '@mui/material'
-import { useEffect, useMemo, useReducer, useState } from 'react'
+import { useEffect, useReducer, useState } from 'react'
 import { GlobalErrorBoundary } from './components/GlobalErrorBoundary'
 import CodeEditor from './interfaces/CodeEditor'
 import MainScreen from './interfaces/MainScreen'
@@ -16,16 +16,13 @@ function App() {
 
    const [fieldID, setFieldID] = useState(NaN)
 
-   const curScript = useMemo(() => {
-      if (Number.isNaN(fieldID)) return null
-
-      return scripts.find((f) => f.linkedIDs.includes(fieldID)) || null
-   }, [scripts, fieldID])
+   const [curLinkeds, setCurLinked] = useState<number[]>([])
+   const curCodeDraft = useRef('')
 
    const [settingVisible, setSettingVisible] = useState(false)
    const [dialogState, setDialogState] = useState<Panel | null>(null)
 
-   async function handleInfoClose() {
+   const handleInfoClose = async () => {
       if (dialogState?.type == 'INFO') {
          const tabID = await getCurrentTabID()
 
@@ -39,45 +36,7 @@ function App() {
       setDialogState(null)
    }
 
-   const handleCodeWrite = (code: string | undefined) => {
-      if (code === undefined) return
-
-      if (curScript)
-         scriptAction({
-            type: 'UPDATE',
-            id: fieldID,
-            payload: { ...curScript, code: code },
-         })
-      else
-         scriptAction({
-            type: 'ADD',
-            payload: { linkedIDs: [fieldID], code: code },
-         })
-   }
-
-   const handleCodeLink = (id: number, checked: boolean) => {
-      if (curScript) {
-         const nextIDs = checked
-            ? [...curScript.linkedIDs, id]
-            : curScript.linkedIDs.filter((linkedId) => linkedId !== id)
-
-         scriptAction({
-            type: 'UPDATE',
-            id: fieldID,
-            payload: { ...curScript, linkedIDs: nextIDs },
-         })
-      } else if (checked) {
-         scriptAction({
-            type: 'ADD',
-            payload: {
-               linkedIDs: id === fieldID ? [fieldID] : [fieldID, id],
-               code: '',
-            },
-         })
-      }
-   }
-
-   function displayNormalDialog(show: boolean) {
+   const displayNormalDialog = (show: boolean) => {
       if (show) {
          setDialogState({
             title: 'Selecting',
@@ -86,6 +45,56 @@ function App() {
          })
       } else setDialogState(null)
    }
+
+   const handleCodeWrite = (code: string | undefined) => {
+      if (code === undefined) return
+      curCodeDraft.current = code
+   }
+
+   const handleCodeLink = (id: number, checked: boolean) => {
+      if (checked && !curLinkeds.includes(id)) {
+         const already = scripts.some((script) => script.linkedIDs.includes(id))
+
+         if (already) return
+
+         setCurLinked([...curLinkeds, id])
+      } else if (!checked) {
+         if (curLinkeds.length === 1) {
+            setDialogState({
+               title: 'Warning',
+               msg: 'Unlinking the last field will delete the associated script. Do you want to proceed?',
+               type: 'WARNING',
+               onConfirm: () => {
+                  setCurLinked(curLinkeds.filter((linkedId) => linkedId !== id))
+                  setDialogState(null)
+               },
+            })
+         } else setCurLinked(curLinkeds.filter((linkedId) => linkedId !== id))
+      }
+   }
+
+   const handleEditorClose = () => {
+      scriptAction({
+         type: 'SAVE',
+         id: fieldID,
+         payload: { linkedIDs: curLinkeds, code: curCodeDraft.current },
+      })
+
+      setFieldID(NaN)
+      setCurLinked([])
+      curCodeDraft.current = ''
+   }
+
+   useEffect(() => {
+      if (!Number.isNaN(fieldID)) {
+         const curScript = scripts.find((script) =>
+            script.linkedIDs.includes(fieldID)
+         )
+
+         setCurLinked(curScript?.linkedIDs || [fieldID])
+         curCodeDraft.current = curScript?.code || ''
+      }
+   }, [fieldID])
 
    useEffect(() => {
       const fetchList = async () => {
@@ -153,7 +162,7 @@ function App() {
 
          <Dialog
             open={!Number.isNaN(fieldID)}
-            onClose={() => setFieldID(NaN)}
+            onClose={handleEditorClose}
             slotProps={{
                paper: { sx: { backgroundColor: 'transparent' } },
             }}
@@ -161,7 +170,8 @@ function App() {
             <CodeEditor
                fields={fields}
                curEditingId={fieldID}
-               curScript={curScript}
+               linkedIDs={curLinkeds}
+               code={curCodeDraft.current}
                onCodeWrite={handleCodeWrite}
                onFieldLink={handleCodeLink}
             />
@@ -173,6 +183,7 @@ function App() {
                   title={dialogState.title}
                   msg={dialogState.msg}
                   type={dialogState.type}
+                  onConfirm={dialogState.onConfirm}
                />
             )}
          </Dialog>

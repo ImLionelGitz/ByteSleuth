@@ -8,6 +8,7 @@ import {
    Paper,
    Stack,
    Tooltip,
+   useTheme,
 } from '@mui/material'
 import { FaTrash } from 'react-icons/fa'
 import { FaFileCircleCheck, FaFileCircleXmark } from 'react-icons/fa6'
@@ -26,6 +27,8 @@ export default function FieldSlot(props: FieldSlot) {
       props
    const { attributes, listeners, transform, transition, setNodeRef } =
       useSortable({ id: id })
+
+   const { palette } = useTheme()
 
    const style = {
       transform: CSS.Transform.toString(transform),
@@ -87,9 +90,9 @@ export default function FieldSlot(props: FieldSlot) {
             <Stack direction="row">
                <IconButton size="small" onClick={() => openEditor(id)}>
                   {props.isLinked ? (
-                     <FaFileCircleCheck color="aliceblue" />
+                     <FaFileCircleCheck color={palette.secondary.main} />
                   ) : (
-                     <FaFileCircleXmark color="#bc0a0e" />
+                     <FaFileCircleXmark color={palette.error.main} />
                   )}
                </IconButton>
 

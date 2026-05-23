@@ -1,17 +1,17 @@
-import { useEffect, useRef } from 'react'
+import { minifyCode, unminifyCode } from '@/helpers/formatter'
 import sample from '@/templates/code.template.ts?raw'
+import types from '@/templates/types.template.d.ts?raw'
 import { Editor, loader } from '@monaco-editor/react'
 import { Paper } from '@mui/material'
 import * as monaco from 'monaco-editor'
-import TopBar from '../components/TopBar'
-import types from '@/templates/types.template.d.ts?raw'
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
+import { useEffect, useRef } from 'react'
+import TopBar from '../components/TopBar'
 
-interface CodeEditor {
+interface CodeEditor extends Script {
    fields: FieldByte[]
    curEditingId: number
-   curScript: Script | null
    onCodeWrite: (code: string | undefined) => void
    onFieldLink: (id: number, tick: boolean) => void
 }
@@ -31,8 +31,9 @@ self.MonacoEnvironment = {
 loader.config({ monaco: monaco })
 
 export default function CodeEditor(prop: CodeEditor) {
-   const firstScriptId = prop.curScript?.linkedIDs[0] || prop.curEditingId
+   const firstScriptId = prop.linkedIDs[0] || prop.curEditingId
    const monacoDef = useRef<monaco.IDisposable>(null)
+   const [defaultCode, setDefaultCode] = useState(prop.code)
 
    const handleEditorDidMount = () => {
       if (firstScriptId === Math.PI) {
@@ -44,7 +45,27 @@ export default function CodeEditor(prop: CodeEditor) {
       }
    }
 
+   const checkoutForDef = async (test: string | undefined) => {
+      if (test === undefined) return
+
+      const testStr = await minifyCode(sample)
+      const miniStr = await minifyCode(test)
+
+      if (miniStr !== testStr) {
+         prop.onCodeWrite(miniStr)
+      }
+   }
+
    useEffect(() => {
+      const cleanUp = async () => {
+         if (!defaultCode) return
+
+         const formatted = await unminifyCode(defaultCode)
+         setDefaultCode(formatted)
+      }
+
+      cleanUp()
+
       return () => {
          monacoDef.current?.dispose()
       }
@@ -66,7 +87,7 @@ export default function CodeEditor(prop: CodeEditor) {
             bgColor={COLOR_BG}
             fields={prop.fields}
             curEditingField={prop.curEditingId}
-            listOfLinked={prop.curScript?.linkedIDs || []}
+            listOfLinked={prop.linkedIDs}
             onFieldCheck={prop.onFieldLink}
          />
 
@@ -82,7 +103,7 @@ export default function CodeEditor(prop: CodeEditor) {
                height="100%"
                width="100%"
                defaultLanguage="typescript"
-               value={prop.curScript?.code || sample}
+               value={defaultCode || sample}
                theme="vs-dark"
                options={{
                   minimap: {
@@ -93,7 +114,7 @@ export default function CodeEditor(prop: CodeEditor) {
                   automaticLayout: true,
                }}
                onMount={handleEditorDidMount}
-               onChange={prop.onCodeWrite}
+               onChange={checkoutForDef}
             />
          </div>
       </Paper>
