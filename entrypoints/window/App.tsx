@@ -1,4 +1,10 @@
 import { getFields } from '@/helpers/datastores/fieldDatabase'
+import {
+   checkStandard,
+   isCodeDefault,
+   minifyCode,
+   unminifyCode,
+} from '@/helpers/formatter'
 import { getCurrentTabID, sendToContentJS } from '@/helpers/messager'
 import { Dialog, Modal } from '@mui/material'
 import { useEffect, useReducer, useState } from 'react'
@@ -17,6 +23,7 @@ function App() {
    const [fieldID, setFieldID] = useState(NaN)
 
    const [curLinkeds, setCurLinked] = useState<number[]>([])
+   const [curCode, setCurCode] = useState('')
    const curCodeDraft = useRef('')
 
    const [settingVisible, setSettingVisible] = useState(false)
@@ -73,27 +80,89 @@ function App() {
       }
    }
 
-   const handleEditorClose = () => {
-      scriptAction({
-         type: 'SAVE',
-         id: fieldID,
-         payload: { linkedIDs: curLinkeds, code: curCodeDraft.current },
-      })
+   const handleEditorClose = async () => {
+      const proceed = async (discard: boolean = false) => {
+         if (!discard) {
+            const minified = await minifyCode(curCodeDraft.current || curCode)
 
-      setFieldID(NaN)
-      setCurLinked([])
-      curCodeDraft.current = ''
+            scriptAction({
+               type: 'SAVE',
+               id: fieldID,
+               payload: {
+                  linkedIDs: curLinkeds,
+                  code: minified,
+               },
+            })
+         }
+
+         setFieldID(NaN)
+         setCurLinked([])
+         setCurCode('')
+         curCodeDraft.current = ''
+      }
+
+      try {
+         const looksDefault = await isCodeDefault(curCodeDraft.current)
+
+         if (curCodeDraft.current && looksDefault) {
+            setDialogState({
+               title: 'Code Not Changed',
+               msg: 'Your code was not changed! It would be discarded if you choose to proceed.',
+               type: 'WARNING',
+               onConfirm() {
+                  proceed(true)
+                  setDialogState(null)
+               },
+            })
+
+            return
+         }
+
+         const isFormatted = await checkStandard(curCodeDraft.current)
+
+         if (!isFormatted) {
+            console.log(isFormatted, curCodeDraft.current)
+            setDialogState({
+               title: 'Format Issue Detected',
+               msg: 'Your code appears to not follow our format! It may be formatted accordingly if you choose to proceed.',
+               type: 'WARNING',
+               onConfirm() {
+                  proceed()
+                  setDialogState(null)
+               },
+            })
+
+            return
+         }
+
+         proceed()
+      } catch {
+         setDialogState({
+            title: 'Code Contains JS Breaking Syntax',
+            msg: 'Your code appears to not follow javascript standards! It may be discarded if you choose to proceed.',
+            type: 'WARNING',
+            onConfirm() {
+               proceed(true)
+               setDialogState(null)
+            },
+         })
+      }
    }
 
    useEffect(() => {
-      if (!Number.isNaN(fieldID)) {
-         const curScript = scripts.find((script) =>
-            script.linkedIDs.includes(fieldID)
-         )
+      const fetchScript = async () => {
+         if (!Number.isNaN(fieldID)) {
+            const curScript = scripts.find((script) =>
+               script.linkedIDs.includes(fieldID)
+            )
+            const code = await unminifyCode(curScript?.code || '')
 
-         setCurLinked(curScript?.linkedIDs || [fieldID])
-         curCodeDraft.current = curScript?.code || ''
+            setCurLinked(curScript?.linkedIDs || [fieldID])
+            setCurCode(code)
+         }
       }
+
+      fetchScript()
    }, [fieldID])
 
    useEffect(() => {
@@ -173,7 +242,7 @@ function App() {
                fields={fields}
                curEditingId={fieldID}
                linkedIDs={curLinkeds}
-               code={curCodeDraft.current}
+               code={curCode}
                onCodeWrite={handleCodeWrite}
                onFieldLink={handleCodeLink}
             />

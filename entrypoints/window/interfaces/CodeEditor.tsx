@@ -1,4 +1,4 @@
-import { minifyCode, unminifyCode } from '@/helpers/formatter'
+import { unminifyCode, validateCode } from '@/helpers/formatter'
 import sample from '@/templates/code.template.ts?raw'
 import types from '@/templates/types.template.d.ts?raw'
 import { Editor, loader } from '@monaco-editor/react'
@@ -34,7 +34,6 @@ export default function CodeEditor(prop: CodeEditorProps) {
    const firstScriptId = useRef(prop.curEditingId)
    const monacoDef = useRef<monaco.IDisposable | null>(null)
    const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null)
-   const [defaultCode, setDefaultCode] = useState(prop.code)
 
    // --- MUI Menu States ---
    const [menuPosition, setMenuPosition] = useState<{
@@ -75,36 +74,89 @@ export default function CodeEditor(prop: CodeEditorProps) {
       setMenuPosition(null)
    }
 
-   const checkoutForDef = async (test: string | undefined) => {
-      if (test === undefined) return
+   const handleItemSelect = (id: number) => {
+      prop.onFieldLink(id, !prop.linkedIDs.includes(id))
+   }
+
+   const handleCodeWrite = (code: string | undefined) => {
+      if (!editorRef.current) return
 
       try {
-         // Assuming 'minifyCode' and 'sample' are imported or defined elsewhere
-         const testStr = await minifyCode(sample)
-         const miniStr = await minifyCode(test)
+         if (code) {
+            const isValid = validateCode(code)
+            const model = editorRef.current.getModel()
+            if (!model) return
 
-         if (miniStr !== testStr) {
-            prop.onCodeWrite(miniStr)
+            if (isValid.length > 0) {
+               monaco.editor.setModelMarkers(model, 'signature-lint', isValid)
+            } else {
+               monaco.editor.setModelMarkers(model, 'signature-lint', [])
+               prop.onCodeWrite(code)
+            }
          }
       } catch {
          prop.onCodeWrite(undefined)
       }
    }
 
-   const handleItemSelect = (id: number) => {
-      prop.onFieldLink(id, !prop.linkedIDs.includes(id))
+   const handleContext = async (action: CtxAction) => {
+      if (!editorRef.current) return
+
+      const editor = editorRef.current
+
+      switch (action) {
+         case 'CUT': {
+            editor.focus()
+            editor.trigger('source', 'editor.action.clipboardCutAction', null)
+            break
+         }
+
+         case 'COPY': {
+            editor.focus()
+            editor.trigger('source', 'editor.action.clipboardCopyAction', null)
+            break
+         }
+
+         case 'PASTE': {
+            try {
+               // Fallback to browser Clipboard API since Monaco paste trigger can be restricted
+               const text = await navigator.clipboard.readText()
+               const selection = editor.getSelection()
+               if (!selection) return
+
+               const op = {
+                  range: selection,
+                  text: text,
+                  forceMoveMarkers: true,
+               }
+
+               editor.executeEdits('my-source', [op])
+            } catch {
+               // Fallback trigger if navigator.clipboard is blocked by permissions
+               editor.trigger(
+                  'source',
+                  'editor.action.clipboardPasteAction',
+                  null
+               )
+            }
+
+            break
+         }
+
+         case 'FORMAT': {
+            const formatted = await unminifyCode(editor.getValue())
+            editor.setValue(formatted)
+            break
+         }
+
+         default:
+            break
+      }
+
+      handleClose()
    }
 
    useEffect(() => {
-      const cleanUp = async () => {
-         if (!defaultCode) return
-         // Assuming 'unminifyCode' is imported or defined elsewhere
-         const formatted = await unminifyCode(defaultCode)
-         setDefaultCode(formatted)
-      }
-
-      cleanUp()
-
       return () => {
          monacoDef.current?.dispose()
       }
@@ -130,7 +182,7 @@ export default function CodeEditor(prop: CodeEditorProps) {
                height="100%"
                width="100%"
                defaultLanguage="typescript"
-               value={defaultCode || sample} // Assuming sample is imported/defined
+               value={prop.code || sample} // Assuming sample is imported/defined
                theme="vs-dark"
                options={{
                   minimap: { enabled: false },
@@ -142,7 +194,7 @@ export default function CodeEditor(prop: CodeEditorProps) {
                   automaticLayout: true,
                }}
                onMount={handleEditorDidMount}
-               onChange={checkoutForDef}
+               onChange={handleCodeWrite}
             />
          </div>
 
@@ -152,6 +204,7 @@ export default function CodeEditor(prop: CodeEditorProps) {
             fields={prop.fields}
             linkedIds={prop.linkedIDs}
             itemSelect={handleItemSelect}
+            ctxAction={handleContext}
             onClose={handleClose}
             anchorReference="anchorPosition"
             anchorPosition={

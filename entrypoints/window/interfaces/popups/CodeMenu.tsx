@@ -5,7 +5,8 @@ import { FaCheck } from 'react-icons/fa'
 function generateMenu(
    fields: FieldByte[],
    linked: number[],
-   onSelect: (id: number) => void
+   onSelect: (id: number) => void,
+   onCtxAction: (action: CtxAction) => void
 ) {
    const items: CtxAction[] = ['COPY', 'CUT', 'PASTE', 'FORMAT', 'LINK']
 
@@ -40,6 +41,8 @@ function generateMenu(
 
             return data
          })
+      } else if (item !== 'LINK') {
+         data.callback = () => onCtxAction(item)
       }
 
       return data
@@ -50,6 +53,7 @@ interface CodeMenuProps extends MenuProps {
    fields: FieldByte[]
    linkedIds: number[]
    itemSelect: (id: number) => void
+   ctxAction: (action: CtxAction) => void
 }
 
 export default function CodeMenu(props: CodeMenuProps) {
@@ -59,7 +63,8 @@ export default function CodeMenu(props: CodeMenuProps) {
             menuItemsData: generateMenu(
                props.fields,
                props.linkedIds,
-               props.itemSelect
+               props.itemSelect,
+               props.ctxAction
             ),
             isOpen: true,
             handleClose: () => {},
