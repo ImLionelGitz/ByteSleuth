@@ -7,9 +7,9 @@ import * as monaco from 'monaco-editor'
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
 import { useEffect, useRef } from 'react'
-import TopBar from '../components/TopBar'
+import CodeMenu from './popups/CodeMenu'
 
-interface CodeEditor extends Script {
+interface CodeEditorProps extends Script {
    fields: FieldByte[]
    curEditingId: number
    onCodeWrite: (code: string | undefined) => void
@@ -30,36 +30,75 @@ self.MonacoEnvironment = {
 
 loader.config({ monaco: monaco })
 
-export default function CodeEditor(prop: CodeEditor) {
-   const firstScriptId = prop.linkedIDs[0] || prop.curEditingId
-   const monacoDef = useRef<monaco.IDisposable>(null)
+export default function CodeEditor(prop: CodeEditorProps) {
+   const firstScriptId = useRef(prop.curEditingId)
+   const monacoDef = useRef<monaco.IDisposable | null>(null)
+   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null)
    const [defaultCode, setDefaultCode] = useState(prop.code)
 
-   const handleEditorDidMount = () => {
-      if (firstScriptId === Math.PI) {
+   // --- MUI Menu States ---
+   const [menuPosition, setMenuPosition] = useState<{
+      mouseX: number
+      mouseY: number
+   } | null>(null)
+
+   const handleEditorDidMount = (
+      editor: monaco.editor.IStandaloneCodeEditor,
+      vscode: typeof import('monaco-editor')
+   ) => {
+      editorRef.current = editor
+
+      if (firstScriptId.current === Math.PI) {
          const fileUri = 'file:///node_modules/@types/global/index.d.ts'
-         monacoDef.current = monaco.typescript.typescriptDefaults.addExtraLib(
+         // Assuming 'types' is defined globally or imported elsewhere in your file
+         monacoDef.current = vscode.typescript.typescriptDefaults.addExtraLib(
             types,
             fileUri
          )
       }
+
+      // Handle Right Click Event inside Monaco
+      editor.onContextMenu(({ event }) => {
+         event.preventDefault()
+         event.stopPropagation()
+
+         // Capture exact client cursor coordinates
+         setMenuPosition({
+            mouseX: event.browserEvent.clientX,
+            mouseY: event.browserEvent.clientY,
+         })
+      })
+   }
+
+   // --- MUI Menu Action Helpers ---
+   const handleClose = () => {
+      setMenuPosition(null)
    }
 
    const checkoutForDef = async (test: string | undefined) => {
       if (test === undefined) return
 
-      const testStr = await minifyCode(sample)
-      const miniStr = await minifyCode(test)
+      try {
+         // Assuming 'minifyCode' and 'sample' are imported or defined elsewhere
+         const testStr = await minifyCode(sample)
+         const miniStr = await minifyCode(test)
 
-      if (miniStr !== testStr) {
-         prop.onCodeWrite(miniStr)
+         if (miniStr !== testStr) {
+            prop.onCodeWrite(miniStr)
+         }
+      } catch {
+         prop.onCodeWrite(undefined)
       }
+   }
+
+   const handleItemSelect = (id: number) => {
+      prop.onFieldLink(id, !prop.linkedIDs.includes(id))
    }
 
    useEffect(() => {
       const cleanUp = async () => {
          if (!defaultCode) return
-
+         // Assuming 'unminifyCode' is imported or defined elsewhere
          const formatted = await unminifyCode(defaultCode)
          setDefaultCode(formatted)
       }
@@ -74,28 +113,16 @@ export default function CodeEditor(prop: CodeEditor) {
    return (
       <Paper
          sx={{
-            width: 512,
-            height: 512,
+            width: '80%',
+            height: '80%',
             padding: 1,
-            paddingTop: 0,
             borderRadius: 2,
-            overflow: 'hidden',
-            backgroundColor: COLOR_BG,
+            backgroundColor: COLOR_BG, // Assuming COLOR_BG is imported/defined
          }}
       >
-         <TopBar
-            bgColor={COLOR_BG}
-            fields={prop.fields}
-            curEditingField={prop.curEditingId}
-            listOfLinked={prop.linkedIDs}
-            onFieldCheck={prop.onFieldLink}
-         />
-
          <div
             style={{
-               height: '90%',
-               //borderRadius: 'inherit',
-               //overflow: 'hidden',
+               height: '100%',
                border: '2px solid #3E3E42',
             }}
          >
@@ -103,13 +130,14 @@ export default function CodeEditor(prop: CodeEditor) {
                height="100%"
                width="100%"
                defaultLanguage="typescript"
-               value={defaultCode || sample}
+               value={defaultCode || sample} // Assuming sample is imported/defined
                theme="vs-dark"
                options={{
-                  minimap: {
-                     enabled: false,
-                  },
-
+                  minimap: { enabled: false },
+                  lightbulb: {
+                     enabled: monaco.editor.ShowLightbulbIconMode.Off,
+                  }, // Adjusted fallback typing
+                  contextmenu: false,
                   scrollBeyondLastLine: false,
                   automaticLayout: true,
                }}
@@ -117,6 +145,21 @@ export default function CodeEditor(prop: CodeEditor) {
                onChange={checkoutForDef}
             />
          </div>
+
+         {/* --- Primary MUI Context Menu --- */}
+         <CodeMenu
+            open={menuPosition !== null}
+            fields={prop.fields}
+            linkedIds={prop.linkedIDs}
+            itemSelect={handleItemSelect}
+            onClose={handleClose}
+            anchorReference="anchorPosition"
+            anchorPosition={
+               menuPosition !== null
+                  ? { top: menuPosition.mouseY, left: menuPosition.mouseX }
+                  : undefined
+            }
+         />
       </Paper>
    )
 }

@@ -28,6 +28,7 @@
     "@mui/material": "^9.0.0",
     "konva": "^10.3.0",
     "monaco-editor": "^0.55.1",
+    "mui-nested-menu": "^4.0.3",
     "prettier": "^3.8.3",
     "react": "^19.2.4",
     "react-color-palette": "^7.3.1",

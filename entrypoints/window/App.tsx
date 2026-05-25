@@ -1,6 +1,6 @@
 import { getFields } from '@/helpers/datastores/fieldDatabase'
 import { getCurrentTabID, sendToContentJS } from '@/helpers/messager'
-import { Dialog } from '@mui/material'
+import { Dialog, Modal } from '@mui/material'
 import { useEffect, useReducer, useState } from 'react'
 import { GlobalErrorBoundary } from './components/GlobalErrorBoundary'
 import CodeEditor from './interfaces/CodeEditor'
@@ -160,11 +160,13 @@ function App() {
             <SettingsPanel openEditor={() => setFieldID(Math.PI)} />
          </Dialog>
 
-         <Dialog
+         <Modal
             open={!Number.isNaN(fieldID)}
             onClose={handleEditorClose}
-            slotProps={{
-               paper: { sx: { backgroundColor: 'transparent' } },
+            sx={{
+               display: 'flex',
+               justifyContent: 'center',
+               alignItems: 'center',
             }}
          >
             <CodeEditor
@@ -175,7 +177,7 @@ function App() {
                onCodeWrite={handleCodeWrite}
                onFieldLink={handleCodeLink}
             />
-         </Dialog>
+         </Modal>
 
          <Dialog open={dialogState !== null} onClose={handleInfoClose}>
             {dialogState && (

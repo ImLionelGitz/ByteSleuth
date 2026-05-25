@@ -9,14 +9,15 @@ interface Script {
    code: string
 }
 
-type TableByte = Record<string, string>
-
 interface BoxCoords {
    x: number
    y: number
    width: number
    height: number
 }
+
+type TableByte = Record<string, string>
+type CtxAction = 'COPY' | 'CUT' | 'PASTE' | 'FORMAT' | 'LINK'
 
 // Events
 
@@ -32,4 +33,6 @@ type Messages =
    | { message: 'begin scrape' | 'save data'; list: FieldByte[] }
    | { message: 'error occured'; err: string }
 
-type Events = { message: 'selection ongoing' | 'selection done' }
+type Events =
+   | { message: 'selection ongoing' | 'selection done' }
+   | { message: 'context action'; action: CtxAction }
