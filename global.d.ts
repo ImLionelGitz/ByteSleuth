@@ -16,22 +16,25 @@ interface BoxCoords {
    height: number
 }
 
+interface MouseCoords {
+   cursorX: number
+   cursorY: number
+}
+
 type TableByte = Record<string, string>
 type CtxAction = 'COPY' | 'CUT' | 'PASTE' | 'FORMAT' | 'LINK'
 
 // Events
 
-type Messages =
-   | {
-        message:
-           | 'select an element'
-           | 'selection cancelled'
-           | 'window minimize'
-           | 'window return'
-           | 'give data'
-     }
-   | { message: 'begin scrape' | 'save data'; list: FieldByte[] }
+type ContentMessages =
+   | { message: 'selection cancelled' }
+   | { message: 'run user script'; coords: MouseCoords; code: string }
    | { message: 'error occured'; err: string }
+
+type BGMessages =
+   | { message: 'window minimize' | 'window return' | 'give data' }
+   | { message: 'begin scrape' | 'save data'; list: FieldByte[] }
+   | { message: 'select an element'; fieldId: number }
 
 type Events =
    | { message: 'selection ongoing' | 'selection done' }

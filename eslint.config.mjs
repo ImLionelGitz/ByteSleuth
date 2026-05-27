@@ -9,6 +9,9 @@ export default defineConfig(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
+    ignores: ['templates/**']
+  },
+  {
     // Explicitly target TSX and JSX files
     files: ['**/*.{ts,tsx,js,jsx}'], 
     plugins: {
