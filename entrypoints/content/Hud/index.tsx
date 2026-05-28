@@ -38,6 +38,7 @@ export default function App() {
             width: '100%',
             height: '100%',
             zIndex: 99999,
+            pointerEvents: 'none',
          }}
       >
          <Canvas boxes={boxes} size={size} />

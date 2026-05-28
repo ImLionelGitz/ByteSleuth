@@ -1,14 +1,14 @@
-import { Button, List, Paper, Stack, useTheme } from '@mui/material'
-import EmptyMessage from '../components/EmptyMsg'
-import FieldSlot from '../components/FieldSlot'
+import { sendToBackground } from '@/helpers/messager'
 import { closestCenter, DndContext, DragEndEvent } from '@dnd-kit/core'
 import {
    arrayMove,
    SortableContext,
    verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
+import { Button, List, Paper, Stack, useTheme } from '@mui/material'
 import { Scrollbars } from 'react-custom-scrollbars-2'
-import { getCurrentTabID, sendToContentJS } from '@/helpers/messager'
+import EmptyMessage from '../components/EmptyMsg'
+import FieldSlot from '../components/FieldSlot'
 
 interface FieldsPanel {
    allFields: FieldByte[]
@@ -37,14 +37,16 @@ export default function FieldsPanel(props: FieldsPanel) {
    const handleLink = async (oldField: FieldByte) => {
       try {
          disableInteract(true)
-         const tabID = await getCurrentTabID()
 
-         if (tabID) {
-            const select = await sendToContentJS<string>(tabID, {
-               message: 'select an element',
-            })
+         //await new Promise((resolve) => setTimeout(resolve, 1000))
 
-            fieldUpdate({ ...oldField, selector: select })
+         const selector = await sendToBackground<string>({
+            message: 'select an element',
+            fieldId: oldField.id,
+         })
+
+         if (selector) {
+            fieldUpdate({ ...oldField, selector: selector })
          }
       } finally {
          disableInteract(false)

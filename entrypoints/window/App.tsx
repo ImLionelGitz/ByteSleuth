@@ -45,6 +45,7 @@ function App() {
 
    const displayNormalDialog = (show: boolean) => {
       if (show) {
+         console.log('show')
          setDialogState({
             title: 'Selecting',
             msg: 'Click anywhere outside of this dialog within the window to exit',
@@ -193,7 +194,7 @@ function App() {
       }
 
       // 2. Catch errors sent from Background or Content scripts via WXT/WebExtension API
-      const handleExtensionMessage = (msg: Messages) => {
+      const handleExtensionMessage = (msg: ContentMessages) => {
          if (msg.message === 'error occured') {
             setDialogState({
                title: 'An External Error Occurred',

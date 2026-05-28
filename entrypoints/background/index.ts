@@ -1,10 +1,16 @@
 import { receiver } from '@/helpers/messager'
 import handleData from './data_operator'
+import executeFieldCode from './code_operator'
 
 export default defineBackground(() => {
    let windowID = 0
 
    browser.action.onClicked.addListener(() => {
+      if (windowID) {
+         browser.windows.update(windowID, { focused: true })
+         return
+      }
+
       browser.windows.create(
          {
             url: '/window.html',
@@ -18,20 +24,16 @@ export default defineBackground(() => {
             }
          }
       )
-
-      console.log('lol', { id: browser.runtime.id })
    })
 
-   receiver((msg, _, reply) => {
+   browser.windows.onRemoved.addListener((id) => {
+      if (id === windowID) {
+         windowID = 0
+      }
+   })
+
+   receiver<'BG'>((msg, _, reply) => {
       switch (msg.message) {
-         case 'window minimize':
-            browser.windows.update(windowID, { state: 'minimized' })
-            break
-
-         case 'window return':
-            browser.windows.update(windowID, { state: 'normal' })
-            break
-
          case 'save data':
             handleData(msg, reply)
             break
@@ -39,6 +41,11 @@ export default defineBackground(() => {
          case 'give data':
             handleData(msg, reply)
             return true
+
+         case 'select an element': {
+            executeFieldCode(msg.fieldId).then((res) => reply(res))
+            return true
+         }
 
          default:
             break

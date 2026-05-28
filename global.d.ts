@@ -28,14 +28,13 @@ type CtxAction = 'COPY' | 'CUT' | 'PASTE' | 'FORMAT' | 'LINK'
 
 type ContentMessages =
    | { message: 'selection cancelled' }
-   | { message: 'run user script'; coords: MouseCoords; code: string }
    | { message: 'error occured'; err: string }
 
 type BGMessages =
-   | { message: 'window minimize' | 'window return' | 'give data' }
+   | { message: 'give data' }
    | { message: 'begin scrape' | 'save data'; list: FieldByte[] }
    | { message: 'select an element'; fieldId: number }
 
 type Events =
-   | { message: 'selection ongoing' | 'selection done' }
-   | { message: 'context action'; action: CtxAction }
+   | { message: 'box delivery'; boxes: BoxCoords[] }
+   | { message: 'block clicks' | 'unblock clicks' | 'terminate' }

@@ -1,5 +1,4 @@
 import { createRoot } from 'react-dom/client'
-import setupListeners from './listeners'
 import Hud from './Hud'
 
 export default defineContentScript({
@@ -30,6 +29,6 @@ export default defineContentScript({
 
       ui.mount()
 
-      setupListeners(ui.uiContainer)
+      //setupListeners(ui.uiContainer)
    },
 })

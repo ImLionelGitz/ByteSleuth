@@ -1,26 +1,33 @@
-import { receiver, sendToBackground } from '@/helpers/messager'
-import SelectManager from './classes/SelectManage'
-import scrape from './helpers/scraper'
+import { receiver } from '@/helpers/messager'
+import { pinger, transmit } from '@/helpers/pinger'
 
 export default function setupListeners(
    iframe: HTMLElement,
-   highlight: (b: BoxCoords[]) => void
+   boxUpdate: (b: BoxCoords[]) => void
 ) {
-   receiver((msg, _, reply) => {
-      const selectMgr = new SelectManager(iframe, reply, highlight)
-
+   pinger((msg) => {
       switch (msg.message) {
-         case 'select an element':
-            selectMgr.enableSelection()
-            sendToBackground({ message: 'window minimize' })
-            return true
-
-         case 'selection cancelled':
-            selectMgr.disableSelection()
+         case 'box delivery':
+            boxUpdate(msg.boxes)
             break
 
-         case 'begin scrape':
-            scrape(msg.list)
+         case 'block clicks':
+            iframe.style.pointerEvents = 'all'
+            iframe.style.cursor = 'crosshair'
+            break
+
+         case 'unblock clicks':
+            iframe.style.cursor = 'default'
+            iframe.style.pointerEvents = 'none'
+            boxUpdate([])
+            break
+      }
+   })
+
+   receiver((msg) => {
+      switch (msg.message) {
+         case 'selection cancelled':
+            transmit({ message: 'terminate' })
             break
 
          default:
