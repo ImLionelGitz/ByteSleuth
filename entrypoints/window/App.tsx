@@ -15,6 +15,7 @@ import InfoPanel, { type Panel } from './interfaces/popups/InfoPanel'
 import SettingsPanel from './interfaces/popups/SettingsPanel'
 import fieldReducer from './reducers/fieldReducer'
 import scriptReducer from './reducers/scriptReducer'
+import { getAllScripts } from '@/helpers/datastores/scriptDatabase'
 
 function App() {
    const [fields, fieldAction] = useReducer(fieldReducer, [])
@@ -41,17 +42,6 @@ function App() {
       }
 
       setDialogState(null)
-   }
-
-   const displayNormalDialog = (show: boolean) => {
-      if (show) {
-         console.log('show')
-         setDialogState({
-            title: 'Selecting',
-            msg: 'Click anywhere outside of this dialog within the window to exit',
-            type: 'INFO',
-         })
-      } else setDialogState(null)
    }
 
    const handleCodeWrite = (code: string | undefined) => {
@@ -168,8 +158,11 @@ function App() {
 
    useEffect(() => {
       const fetchList = async () => {
-         const data = await getFields()
-         fieldAction({ type: 'LOAD', payload: data })
+         const fieldData = await getFields()
+         fieldAction({ type: 'LOAD', payload: fieldData })
+
+         const scriptData = await getAllScripts()
+         scriptAction({ type: 'LOAD', payload: scriptData })
       }
 
       fetchList()
@@ -222,7 +215,7 @@ function App() {
             allScripts={scripts}
             updater={fieldAction}
             openEditor={setFieldID}
-            showDialog={displayNormalDialog}
+            showDialog={setDialogState}
             openSettings={() => setSettingVisible(true)}
          />
 

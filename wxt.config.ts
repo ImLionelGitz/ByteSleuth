@@ -28,7 +28,7 @@ export default defineConfig({
   manifest: {
     action: {},
     host_permissions: ["<all_urls>"],
-    permissions: ['storage', 'userScripts'],
+    permissions: ['storage', 'userScripts', 'unlimitedStorage'],
 
     web_accessible_resources: [{
       resources: ['barrier.html'],

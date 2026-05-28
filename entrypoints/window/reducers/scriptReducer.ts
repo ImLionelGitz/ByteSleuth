@@ -1,3 +1,5 @@
+import { saveScripts } from '@/helpers/datastores/scriptDatabase'
+
 type Action =
    | { type: 'SAVE'; id: number; payload: Script }
    | { type: 'LOAD'; payload: Script[] }
@@ -11,17 +13,20 @@ export default function scriptReducer(state: Script[], action: Action) {
             src.linkedIDs.includes(action.id)
          )
 
-         console.log(state)
-
          if (!linkedIDs.length || !code) {
             if (hasInstance) {
-               return state.filter((src) => !src.linkedIDs.includes(action.id))
+               const modify = state.filter(
+                  (src) => !src.linkedIDs.includes(action.id)
+               )
+
+               saveScripts(modify)
+               return modify
             }
 
             return state
          }
 
-         return !hasInstance
+         const arr = !hasInstance
             ? [...state, action.payload]
             : state.map((src) => {
                  if (src.linkedIDs.includes(action.id)) {
@@ -30,11 +35,9 @@ export default function scriptReducer(state: Script[], action: Action) {
 
                  return src
               })
-      }
 
-      case 'LOAD': {
-         //saveScripts(action.payload) --don't do this now
-         return action.payload
+         saveScripts(arr)
+         return arr
       }
 
       case 'DELETE': {
@@ -44,9 +47,12 @@ export default function scriptReducer(state: Script[], action: Action) {
                script.linkedIDs.length === 1
          )
 
-         //saveScripts(arr)
+         saveScripts(arr)
          return arr
       }
+
+      case 'LOAD':
+         return action.payload
 
       default:
          return state
