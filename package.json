@@ -27,6 +27,8 @@
     "@emotion/styled": "^11.14.1",
     "@monaco-editor/react": "^4.7.0",
     "@mui/material": "^9.0.0",
+    "dexie": "^4.4.3",
+    "dexie-react-hooks": "^4.4.0",
     "konva": "^10.3.0",
     "monaco-editor": "^0.55.1",
     "mui-nested-menu": "^4.0.3",

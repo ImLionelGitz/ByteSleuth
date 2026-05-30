@@ -1,18 +1,11 @@
-const scriptDB = storage.defineItem<Script[]>('local:scripts', {
-   fallback: [],
-})
+import { sendToBackground } from '../messager'
 
-function getAllScripts() {
-   return scriptDB.getValue()
+async function saveScript(script: Script) {
+   sendToBackground({ message: 'save script', script })
 }
 
-async function getScript(id: number) {
-   const scripts = await scriptDB.getValue()
-   return scripts.find((script) => script.linkedIDs.includes(id))
+async function giveScript(id: number) {
+   sendToBackground({ message: 'give script', id })
 }
 
-function saveScripts(list: Script[]) {
-   scriptDB.setValue(list)
-}
-
-export { getAllScripts, getScript, saveScripts }
+export { saveScript, giveScript }

@@ -1,76 +1,53 @@
+import {
+   directSaveFields,
+   checkMemoryFull,
+   deleteField,
+   addField,
+   updateField,
+} from '@/helpers/datastores/fieldDatabase'
 import { Stack } from '@mui/material'
 import ButtonPanel from './ButtonPanel'
 import FieldsPanel from './FieldsPanel'
-import TablePanel from './TablePanel'
-import { checkMemoryFull } from '@/helpers/datastores/fieldDatabase'
-import { Action } from '../reducers/fieldReducer'
 import { Panel } from './popups/InfoPanel'
+import TablePanel from './TablePanel'
 
 const TABLE_SIZE = 390
 
 interface MainScreen {
    allFields: FieldByte[]
-   allScripts: Script[]
-   updater: (a: Action) => void
+   allScripts: never[]
    openEditor: (id: number) => void
    showDialog: (p: Panel | null) => void
    openSettings: () => void
 }
 
 export default function MainScreen(props: MainScreen) {
-   const {
-      updater,
-      openEditor,
-      showDialog,
-      openSettings,
-      allFields,
-      allScripts,
-   } = props
+   const { openEditor, showDialog, openSettings, allFields, allScripts } = props
 
    async function handleFieldAdd() {
       const full = await checkMemoryFull()
-
-      if (!full) {
-         updater({
-            type: 'ADD',
-            payload: {
-               id:
-                  allFields.length > 0
-                     ? Math.max(...allFields.map((f) => f.id)) + 1
-                     : 0,
-               name: 'New Field',
-               selector: '',
-            },
-         })
-      }
-   }
-
-   function handleFieldUpdate(newField: FieldByte) {
-      updater({ type: 'UPDATE', payload: newField })
+      if (!full) addField()
    }
 
    function handleFieldDelete(id: number) {
-      const hasScript = allScripts.some((script) =>
-         script.linkedIDs.includes(id)
-      )
+      deleteField(id)
 
-      if (hasScript) {
-         showDialog({
-            title: 'This Field Has Scripts',
-            msg: 'Are you sure you want to delete this field?',
-            type: 'WARNING',
-            onConfirm() {
-               updater({ type: 'DELETE', payload: id })
-               showDialog(null)
-            },
-         })
-      } else {
-         updater({ type: 'DELETE', payload: id })
-      }
-   }
-
-   function handleFieldReorder(newList: FieldByte[]) {
-      updater({ type: 'LOAD', payload: newList })
+      // const hasScript = allScripts.some((script) =>
+      //    script.linkedIDs.includes(id)
+      // )
+      // if (hasScript) {
+      //    showDialog({
+      //       title: 'This Field Has Scripts',
+      //       msg: 'Are you sure you want to delete this field?',
+      //       type: 'WARNING',
+      //       onConfirm() {
+      //          updater({ type: 'DELETE', payload: id })
+      //          showDialog(null)
+      //       },
+      //    })
+      // } else {
+      //    updater({ type: 'DELETE', payload: id })
+      // }
    }
 
    function handleDialog(show: boolean) {
@@ -103,9 +80,9 @@ export default function MainScreen(props: MainScreen) {
                   allFields={allFields}
                   allScripts={allScripts}
                   fieldAdd={handleFieldAdd}
-                  fieldUpdate={handleFieldUpdate}
+                  fieldUpdate={updateField}
                   fieldDelete={handleFieldDelete}
-                  fieldReorder={handleFieldReorder}
+                  fieldReorder={directSaveFields}
                   openEditor={openEditor}
                   disableInteract={handleDialog}
                />

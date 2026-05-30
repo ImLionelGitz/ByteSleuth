@@ -5,6 +5,7 @@ interface FieldByte {
 }
 
 interface Script {
+   id: number
    linkedIDs: number[]
    code: string
 }
@@ -31,8 +32,9 @@ type ContentMessages =
    | { message: 'error occured'; err: string }
 
 type BGMessages =
-   | { message: 'give data' }
-   | { message: 'begin scrape' | 'save data'; list: FieldByte[] }
+   | { message: 'give script'; id: number }
+   | { message: 'save script'; script: Script }
+   | { message: 'begin scrape' }
    | { message: 'select an element'; fieldId: number }
 
 type Events =

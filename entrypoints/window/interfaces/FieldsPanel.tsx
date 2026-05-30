@@ -38,8 +38,6 @@ export default function FieldsPanel(props: FieldsPanel) {
       try {
          disableInteract(true)
 
-         //await new Promise((resolve) => setTimeout(resolve, 1000))
-
          const selector = await sendToBackground<string>({
             message: 'select an element',
             fieldId: oldField.id,
@@ -66,6 +64,14 @@ export default function FieldsPanel(props: FieldsPanel) {
 
    const handleRename = (oldField: FieldByte, newName: string) => {
       fieldUpdate({ ...oldField, name: newName })
+   }
+
+   const nameExists = (name: string) => {
+      const cleaned = name.replace(/\s/g, '')
+
+      return allFields.some(
+         (field) => field.name.replace(/\s/g, '') === cleaned
+      )
    }
 
    return (
@@ -112,12 +118,12 @@ export default function FieldsPanel(props: FieldsPanel) {
                      )}
                   >
                      <SortableContext
-                        items={allFields}
+                        items={allFields.map((field) => field.id)}
                         strategy={verticalListSortingStrategy}
                      >
                         {allFields.map((field) => (
                            <FieldSlot
-                              key={field.id}
+                              key={field.name}
                               {...field}
                               isLinked={allScripts.some((script) =>
                                  script.linkedIDs.includes(field.id)
@@ -126,6 +132,7 @@ export default function FieldsPanel(props: FieldsPanel) {
                               updateName={(name) => handleRename(field, name)}
                               deleteItem={(id) => fieldDelete(id)}
                               openEditor={openEditor}
+                              existence={nameExists}
                            />
                         ))}
                      </SortableContext>

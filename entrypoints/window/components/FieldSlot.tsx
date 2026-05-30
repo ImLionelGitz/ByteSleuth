@@ -10,6 +10,7 @@ import {
    Tooltip,
    useTheme,
 } from '@mui/material'
+import type { FocusEvent } from 'react'
 import { FaTrash } from 'react-icons/fa'
 import { FaFileCircleCheck, FaFileCircleXmark } from 'react-icons/fa6'
 import { RxDragHandleDots2 } from 'react-icons/rx'
@@ -20,14 +21,14 @@ interface FieldSlot extends FieldByte {
    updateName: (s: string) => void
    deleteItem: (id: number) => void
    openEditor: (id: number) => void
+   existence: (name: string) => boolean
 }
 
 export default function FieldSlot(props: FieldSlot) {
-   const { id, name, selector, linkElem, updateName, deleteItem, openEditor } =
-      props
    const { attributes, listeners, transform, transition, setNodeRef } =
-      useSortable({ id: id })
+      useSortable({ id: props.id })
 
+   const [input, setInput] = useState(props.name)
    const { palette } = useTheme()
 
    const style = {
@@ -35,6 +36,15 @@ export default function FieldSlot(props: FieldSlot) {
       transition,
       zIndex: transform ? 999 : 'auto',
       backgroundColor: '#2c3549',
+   }
+
+   const onChange = (e: FocusEvent<HTMLInputElement>) => {
+      const newVal = e.target.value
+
+      if (!props.existence(newVal)) {
+         props.updateName(newVal)
+         setInput(newVal)
+      } else setInput(props.name)
    }
 
    return (
@@ -54,22 +64,23 @@ export default function FieldSlot(props: FieldSlot) {
             <Stack sx={{ alignItems: 'center' }}>
                <Input
                   placeholder="Enter a name"
-                  value={name}
+                  value={input}
                   disableUnderline
                   sx={{
                      width: '80%',
                      color: 'aliceblue',
                      fontSize: 14,
                   }}
-                  onChange={(e) => updateName(e.target.value)}
                   onKeyUp={(e) => {
                      if (e.key === 'Enter') {
                         e.currentTarget.blur()
                      }
                   }}
+                  onChange={(e) => setInput(e.target.value)}
+                  onBlur={onChange}
                />
 
-               <Tooltip title={selector}>
+               <Tooltip title={props.selector}>
                   <Button
                      sx={({ palette }) => ({
                         fontSize: 12,
@@ -78,17 +89,22 @@ export default function FieldSlot(props: FieldSlot) {
                         width: 110,
                         minWidth: 0,
                         overflow: 'hidden',
-                        color: selector ? '#bc0a0e' : palette.secondary.main,
+                        color: props.selector
+                           ? '#bc0a0e'
+                           : palette.secondary.main,
                      })}
-                     onClick={linkElem}
+                     onClick={props.linkElem}
                   >
-                     {selector ? 'Element Linked' : 'Link Element'}
+                     {props.selector ? 'Element Linked' : 'Link Element'}
                   </Button>
                </Tooltip>
             </Stack>
 
             <Stack direction="row">
-               <IconButton size="small" onClick={() => openEditor(id)}>
+               <IconButton
+                  size="small"
+                  onClick={() => props.openEditor(props.id)}
+               >
                   {props.isLinked ? (
                      <FaFileCircleCheck color={palette.secondary.main} />
                   ) : (
@@ -96,7 +112,10 @@ export default function FieldSlot(props: FieldSlot) {
                   )}
                </IconButton>
 
-               <IconButton size="small" onClick={() => deleteItem(id)}>
+               <IconButton
+                  size="small"
+                  onClick={() => props.deleteItem(props.id)}
+               >
                   <FaTrash color="aliceblue" />
                </IconButton>
             </Stack>

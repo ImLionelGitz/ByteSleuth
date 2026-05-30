@@ -1,4 +1,4 @@
-import { getFields } from '@/helpers/datastores/fieldDatabase'
+import { useFields } from '@/helpers/datastores/fieldDatabase'
 import {
    checkStandard,
    isCodeDefault,
@@ -7,19 +7,17 @@ import {
 } from '@/helpers/formatter'
 import { getCurrentTabID, sendToContentJS } from '@/helpers/messager'
 import { Dialog, Modal } from '@mui/material'
-import { useEffect, useReducer, useState } from 'react'
+import { useLiveQuery } from 'dexie-react-hooks'
+import { useEffect, useState } from 'react'
 import { GlobalErrorBoundary } from './components/GlobalErrorBoundary'
 import CodeEditor from './interfaces/CodeEditor'
 import MainScreen from './interfaces/MainScreen'
 import InfoPanel, { type Panel } from './interfaces/popups/InfoPanel'
 import SettingsPanel from './interfaces/popups/SettingsPanel'
-import fieldReducer from './reducers/fieldReducer'
-import scriptReducer from './reducers/scriptReducer'
-import { getAllScripts } from '@/helpers/datastores/scriptDatabase'
 
 function App() {
-   const [fields, fieldAction] = useReducer(fieldReducer, [])
-   const [scripts, scriptAction] = useReducer(scriptReducer, [])
+   const fields = useFields()
+   const scripts = useLiveQuery(() => '')
 
    const [fieldID, setFieldID] = useState(NaN)
 
@@ -156,18 +154,6 @@ function App() {
       fetchScript()
    }, [fieldID])
 
-   useEffect(() => {
-      const fetchList = async () => {
-         const fieldData = await getFields()
-         fieldAction({ type: 'LOAD', payload: fieldData })
-
-         const scriptData = await getAllScripts()
-         scriptAction({ type: 'LOAD', payload: scriptData })
-      }
-
-      fetchList()
-   }, [])
-
    // Error handlers (central)
    useEffect(() => {
       const handleWindowError = (event: ErrorEvent) => {
@@ -211,9 +197,8 @@ function App() {
    return (
       <GlobalErrorBoundary>
          <MainScreen
-            allFields={fields}
-            allScripts={scripts}
-            updater={fieldAction}
+            allFields={fields || []}
+            allScripts={scripts || []}
             openEditor={setFieldID}
             showDialog={setDialogState}
             openSettings={() => setSettingVisible(true)}

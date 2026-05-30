@@ -32,8 +32,8 @@ export default defineConfig(
       {
         "patterns": [
           {
-            "group": ["**/components/reactFlow/*"],
-            "message": "Direct imports from components/reactFlow are restricted"
+            "group": ["**/helper/hooks/*"],
+            "message": "Direct imports from my helper hooks are restricted"
           }
         ]
       }

@@ -1,6 +1,6 @@
 import { receiver } from '@/helpers/messager'
-import handleData from './data_operator'
 import executeFieldCode from './code_operator'
+import { getScriptByID, saveScript } from './data_operator'
 
 export default defineBackground(() => {
    let windowID = 0
@@ -34,13 +34,19 @@ export default defineBackground(() => {
 
    receiver<'BG'>((msg, _, reply) => {
       switch (msg.message) {
-         case 'save data':
-            handleData(msg, reply)
-            break
+         case 'give script': {
+            const fetcher = async () => {
+               const script = await getScriptByID(msg.id)
+               reply(script)
+            }
 
-         case 'give data':
-            handleData(msg, reply)
+            fetcher()
             return true
+         }
+
+         case 'save script':
+            saveScript(msg.script)
+            break
 
          case 'select an element': {
             executeFieldCode(msg.fieldId).then((res) => reply(res))

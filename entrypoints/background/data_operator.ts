@@ -1,23 +1,23 @@
-const fieldBase = storage.defineItem<FieldByte[]>('session:fields', {
-   fallback: [],
-})
+import ScriptDatabase from '@/helpers/classes/ScriptDatabase'
 
-export default async function handleData(
-   msg: Messages,
-   respond: (s: unknown) => void
-) {
-   switch (msg.message) {
-      case 'give data': {
-         const data = await fieldBase.getValue()
-         respond(data)
-         break
-      }
+const db = new ScriptDatabase()
 
-      case 'save data':
-         fieldBase.setValue(msg.list)
-         break
-
-      default:
-         break
-   }
+async function getScriptByID(id: number) {
+   return await db.scripts.where('linkedIDs').equals(id).first()
 }
+
+async function saveScript(script: Script) {
+   const { id, linkedIDs, code } = script
+
+   if (!linkedIDs.length || !code) {
+      await db.scripts.delete(id)
+      return
+   }
+
+   const exists = await db.scripts.where('linkedIDs').equals(id).first()
+
+   if (exists) await db.scripts.update(id, { linkedIDs, code })
+   else await db.scripts.add(script)
+}
+
+export { getScriptByID, saveScript }
