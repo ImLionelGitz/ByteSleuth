@@ -15,7 +15,7 @@ const TABLE_SIZE = 390
 
 interface MainScreen {
    allFields: FieldByte[]
-   allScripts: never[]
+   allScripts: Script[]
    openEditor: (id: number) => void
    showDialog: (p: Panel | null) => void
    openSettings: () => void

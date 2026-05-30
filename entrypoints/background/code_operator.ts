@@ -1,11 +1,11 @@
+import { giveScript } from '@/helpers/datastores/scriptDatabase'
 import { getCurrentTabID } from '@/helpers/messager'
 import sample from '@/templates/code.template.ts?raw'
 import mainJS from '@/templates/exec.template.js?raw'
 import { transform } from '@babel/standalone'
-import { getScriptByID } from './data_operator'
 
 export default async function executeFieldCode(fieldID: number) {
-   const script = await getScriptByID(fieldID)
+   const script = await giveScript(fieldID)
    const tabId = await getCurrentTabID()
 
    const mainCode = transform(script?.code || sample, {

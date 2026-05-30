@@ -32,8 +32,12 @@ export default defineConfig(
       {
         "patterns": [
           {
-            "group": ["**/helper/hooks/*"],
+            "group": ["**/helpers/hooks/private/*"],
             "message": "Direct imports from my helper hooks are restricted"
+          },
+          {
+            "group": ["**/background/*", "**/content/*"],
+            "message": "Direct imports from background and content are restricted"
           }
         ]
       }

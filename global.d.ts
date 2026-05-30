@@ -31,11 +31,7 @@ type ContentMessages =
    | { message: 'selection cancelled' }
    | { message: 'error occured'; err: string }
 
-type BGMessages =
-   | { message: 'give script'; id: number }
-   | { message: 'save script'; script: Script }
-   | { message: 'begin scrape' }
-   | { message: 'select an element'; fieldId: number }
+type BGMessages = { message: 'select an element'; fieldId: number }
 
 type Events =
    | { message: 'box delivery'; boxes: BoxCoords[] }

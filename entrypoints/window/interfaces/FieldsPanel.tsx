@@ -34,6 +34,8 @@ export default function FieldsPanel(props: FieldsPanel) {
    } = props
    const { palette } = useTheme()
 
+   console.log(allScripts)
+
    const handleLink = async (oldField: FieldByte) => {
       try {
          disableInteract(true)

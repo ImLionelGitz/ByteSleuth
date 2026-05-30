@@ -2,16 +2,16 @@ import { unminifyCode, validateCode } from '@/helpers/formatter'
 import sample from '@/templates/code.template.ts?raw'
 import types from '@/templates/types.template.d.ts?raw'
 import { Editor, loader } from '@monaco-editor/react'
-import { Paper } from '@mui/material'
+import { Box, Paper, Skeleton } from '@mui/material'
 import * as monaco from 'monaco-editor'
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
 import { useEffect, useRef } from 'react'
 import CodeMenu from './popups/CodeMenu'
 
-interface CodeEditorProps extends Script {
+interface CodeEditorProps extends Omit<Script, 'code'> {
    fields: FieldByte[]
-   curEditingId: number
+   code: string | undefined
    onCodeWrite: (code: string | undefined) => void
    onFieldLink: (id: number, tick: boolean) => void
 }
@@ -31,7 +31,7 @@ self.MonacoEnvironment = {
 loader.config({ monaco: monaco })
 
 export default function CodeEditor(prop: CodeEditorProps) {
-   const firstScriptId = useRef(prop.curEditingId)
+   const firstScriptId = useRef(prop.id)
    const monacoDef = useRef<monaco.IDisposable | null>(null)
    const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null)
 
@@ -178,24 +178,55 @@ export default function CodeEditor(prop: CodeEditorProps) {
                border: '2px solid #3E3E42',
             }}
          >
-            <Editor
-               height="100%"
-               width="100%"
-               defaultLanguage="typescript"
-               value={prop.code || sample} // Assuming sample is imported/defined
-               theme="vs-dark"
-               options={{
-                  minimap: { enabled: false },
-                  lightbulb: {
-                     enabled: monaco.editor.ShowLightbulbIconMode.Off,
-                  }, // Adjusted fallback typing
-                  contextmenu: false,
-                  scrollBeyondLastLine: false,
-                  automaticLayout: true,
-               }}
-               onMount={handleEditorDidMount}
-               onChange={handleCodeWrite}
-            />
+            {prop.code !== undefined ? (
+               <Editor
+                  height="100%"
+                  width="100%"
+                  defaultLanguage="typescript"
+                  value={prop.code || sample} // Assuming sample is imported/defined
+                  theme="vs-dark"
+                  options={{
+                     minimap: { enabled: false },
+                     lightbulb: {
+                        enabled: monaco.editor.ShowLightbulbIconMode.Off,
+                     }, // Adjusted fallback typing
+                     contextmenu: false,
+                     scrollBeyondLastLine: false,
+                     automaticLayout: true,
+                  }}
+                  onMount={handleEditorDidMount}
+                  onChange={handleCodeWrite}
+               />
+            ) : (
+               <Box sx={{ width: '100%', height: '100%', padding: 2 }}>
+                  {/* Multi-line skeleton matching the visual block of a code editor */}
+                  <Skeleton
+                     variant="text"
+                     width="60%"
+                     height={30}
+                     animation="wave"
+                  />
+                  <Skeleton
+                     variant="text"
+                     width="80%"
+                     height={30}
+                     animation="wave"
+                  />
+                  <Skeleton
+                     variant="text"
+                     width="45%"
+                     height={30}
+                     animation="wave"
+                  />
+                  <Skeleton
+                     variant="rectangular"
+                     width="100%"
+                     height="68%"
+                     sx={{ mt: 2, borderRadius: 1 }}
+                     animation="wave"
+                  />
+               </Box>
+            )}
          </div>
 
          {/* --- Primary MUI Context Menu --- */}

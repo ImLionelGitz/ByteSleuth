@@ -1,5 +1,10 @@
 import { useFields } from '@/helpers/datastores/fieldDatabase'
 import {
+   giveAllScripts,
+   giveScript,
+   saveScript,
+} from '@/helpers/datastores/scriptDatabase'
+import {
    checkStandard,
    isCodeDefault,
    minifyCode,
@@ -16,14 +21,15 @@ import InfoPanel, { type Panel } from './interfaces/popups/InfoPanel'
 import SettingsPanel from './interfaces/popups/SettingsPanel'
 
 function App() {
-   const fields = useFields()
-   const scripts = useLiveQuery(() => '')
-
    const [fieldID, setFieldID] = useState(NaN)
-
    const [curLinkeds, setCurLinked] = useState<number[]>([])
-   const [curCode, setCurCode] = useState('')
+   const [curCode, setCurCode] = useState<string | undefined>(undefined)
+
+   const curLinkedCache = useRef(curLinkeds)
    const curCodeDraft = useRef('')
+
+   const fields = useFields()
+   const scripts = useLiveQuery(() => giveAllScripts(), [fieldID])
 
    const [settingVisible, setSettingVisible] = useState(false)
    const [dialogState, setDialogState] = useState<Panel | null>(null)
@@ -48,8 +54,12 @@ function App() {
    }
 
    const handleCodeLink = (id: number, checked: boolean) => {
+      if (!scripts) return
+
       if (checked && !curLinkeds.includes(id)) {
-         const already = scripts.some((script) => script.linkedIDs.includes(id))
+         const already = scripts.some(
+            (script) => script.linkedIDs.includes(id) && script.id !== fieldID
+         )
 
          if (already) return
 
@@ -71,23 +81,21 @@ function App() {
 
    const handleEditorClose = async () => {
       const proceed = async (discard: boolean = false) => {
-         if (!discard) {
+         if (!discard && curCode) {
             const minified = await minifyCode(curCodeDraft.current || curCode)
 
-            scriptAction({
-               type: 'SAVE',
+            await saveScript({
                id: fieldID,
-               payload: {
-                  linkedIDs: curLinkeds,
-                  code: minified,
-               },
+               linkedIDs: curLinkeds,
+               code: minified,
             })
          }
 
          setFieldID(NaN)
          setCurLinked([])
-         setCurCode('')
+         setCurCode(undefined)
          curCodeDraft.current = ''
+         curLinkedCache.current = []
       }
 
       try {
@@ -140,14 +148,15 @@ function App() {
 
    useEffect(() => {
       const fetchScript = async () => {
-         if (!Number.isNaN(fieldID)) {
-            const curScript = scripts.find((script) =>
-               script.linkedIDs.includes(fieldID)
-            )
+         if (!Number.isNaN(fieldID) && scripts) {
+            const curScript = await giveScript(fieldID)
             const code = await unminifyCode(curScript?.code || '')
+            const linked = curScript?.linkedIDs || [fieldID]
 
-            setCurLinked(curScript?.linkedIDs || [fieldID])
+            setCurLinked(linked)
             setCurCode(code)
+
+            curLinkedCache.current = linked
          }
       }
 
@@ -197,8 +206,8 @@ function App() {
    return (
       <GlobalErrorBoundary>
          <MainScreen
-            allFields={fields || []}
-            allScripts={scripts || []}
+            allFields={fields ?? []}
+            allScripts={scripts ?? []}
             openEditor={setFieldID}
             showDialog={setDialogState}
             openSettings={() => setSettingVisible(true)}
@@ -218,8 +227,8 @@ function App() {
             }}
          >
             <CodeEditor
-               fields={fields}
-               curEditingId={fieldID}
+               fields={fields || []}
+               id={fieldID}
                linkedIDs={curLinkeds}
                code={curCode}
                onCodeWrite={handleCodeWrite}
