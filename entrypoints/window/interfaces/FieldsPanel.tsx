@@ -34,21 +34,16 @@ export default function FieldsPanel(props: FieldsPanel) {
    } = props
    const { palette } = useTheme()
 
-   console.log(allScripts)
-
    const handleLink = async (oldField: FieldByte) => {
-      try {
-         disableInteract(true)
+      disableInteract(true)
 
-         const selector = await sendToBackground<string>({
-            message: 'select an element',
-            fieldId: oldField.id,
-         })
+      const selector = await sendToBackground<string>({
+         message: 'select an element',
+         fieldId: oldField.id,
+      })
 
-         if (selector) {
-            fieldUpdate({ ...oldField, selector: selector })
-         }
-      } finally {
+      if (selector) {
+         fieldUpdate({ ...oldField, selector: selector })
          disableInteract(false)
       }
    }

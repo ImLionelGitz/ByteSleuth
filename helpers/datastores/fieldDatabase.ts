@@ -1,4 +1,5 @@
 import { useStorage } from '../hooks/useStore'
+import { deleteScript } from './scriptDatabase'
 
 const fieldDB = storage.defineItem<FieldByte[]>('local:fields', {
    fallback: [],
@@ -59,6 +60,8 @@ async function deleteField(id: number) {
          .filter((field) => field.id !== id)
          .map((field, i) => ({ ...field, id: i }))
    )
+
+   await deleteScript(id)
 }
 
 export {

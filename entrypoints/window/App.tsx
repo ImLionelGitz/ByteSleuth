@@ -81,7 +81,12 @@ function App() {
 
    const handleEditorClose = async () => {
       const proceed = async (discard: boolean = false) => {
-         if (!discard && curCode) {
+         if (
+            !discard &&
+            curCode !== undefined &&
+            curCodeDraft.current &&
+            curCodeDraft.current !== curCode
+         ) {
             const minified = await minifyCode(curCodeDraft.current || curCode)
 
             await saveScript({
@@ -182,7 +187,7 @@ function App() {
       }
 
       // 2. Catch errors sent from Background or Content scripts via WXT/WebExtension API
-      const handleExtensionMessage = (msg: ContentMessages) => {
+      const handleExtensionMessage = (msg: BGMessages) => {
          if (msg.message === 'error occured') {
             setDialogState({
                title: 'An External Error Occurred',

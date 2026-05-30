@@ -27,11 +27,11 @@ type CtxAction = 'COPY' | 'CUT' | 'PASTE' | 'FORMAT' | 'LINK'
 
 // Events
 
-type ContentMessages =
-   | { message: 'selection cancelled' }
-   | { message: 'error occured'; err: string }
+type ContentMessages = { message: 'selection cancelled' }
 
-type BGMessages = { message: 'select an element'; fieldId: number }
+type BGMessages =
+   | { message: 'select an element'; fieldId: number }
+   | { message: 'error occured'; err: string }
 
 type Events =
    | { message: 'box delivery'; boxes: BoxCoords[] }
