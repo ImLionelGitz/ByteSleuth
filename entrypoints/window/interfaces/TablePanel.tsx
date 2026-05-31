@@ -4,9 +4,10 @@ import DaTable from '../components/Table'
 
 interface TablePanel {
    size: number
+   data: TableByte[]
 }
 
-export default function TablePanel({ size }: TablePanel) {
+export default function TablePanel({ size, data }: TablePanel) {
    const { palette } = useTheme()
 
    return (
@@ -88,7 +89,7 @@ export default function TablePanel({ size }: TablePanel) {
                               color: palette.secondary.contrastText,
                            }}
                         >
-                           12 Rows
+                           {`${data.length} Rows`}
                         </p>
                      </Stack>
 
@@ -107,7 +108,7 @@ export default function TablePanel({ size }: TablePanel) {
                      </Button>
                   </Stack>
 
-                  <DaTable />
+                  <DaTable table={data} />
                </Stack>
             </Stack>
          </Stack>

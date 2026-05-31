@@ -73,7 +73,14 @@ export default function MainScreen(props: MainScreen) {
                gap: '8px',
             }}
          >
-            <TablePanel size={TABLE_SIZE} />
+            <TablePanel
+               size={TABLE_SIZE}
+               data={[
+                  { name: 'goku', price: '200', recoome: 'ha' },
+                  { name: 'vegeta', price: '500', recoome: 'no' },
+                  { name: 'broly', price: '1500', recoome: 'oh' },
+               ]}
+            />
 
             <Stack sx={{ gap: '12px', height: TABLE_SIZE }}>
                <FieldsPanel

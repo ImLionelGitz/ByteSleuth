@@ -9,7 +9,7 @@ import {
 import { forwardRef } from 'react'
 import { TableVirtuoso, type TableComponents } from 'react-virtuoso'
 
-const compos: TableComponents<number> = {
+const compos: TableComponents<TableByte> = {
    Scroller: forwardRef<HTMLDivElement>(function Scroller(props, ref) {
       return (
          <TableContainer
@@ -32,17 +32,15 @@ const compos: TableComponents<number> = {
    Table: (props) => <Table {...props} stickyHeader />,
 }
 
-export default function DaTable() {
-   const arr = new Array(12).fill('') // Placeholder data
-
+export default function DaTable({ table }: { table: TableByte[] }) {
    const renderHeader = () => (
       <TableRow sx={{ background: '#000' }}>
-         {arr.map((_, i) => (
+         {Object.keys(table[0]).map((row) => (
             <TableCell
-               key={i}
+               key={row}
                sx={{ textTransform: 'capitalize', color: 'aliceblue' }}
             >
-               <strong>{'title'}</strong>
+               <strong>{row}</strong>
             </TableCell>
          ))}
       </TableRow>
@@ -50,7 +48,7 @@ export default function DaTable() {
 
    const renderRow = (rowIndex: number) => (
       <>
-         {arr.map((_, colIndex) => (
+         {Object.keys(table[rowIndex]).map((key, colIndex) => (
             <TableCell
                key={colIndex}
                sx={{
@@ -63,7 +61,7 @@ export default function DaTable() {
                   border: '1px solid',
                }}
             >
-               <div>{rowIndex}</div>
+               <div>{table[rowIndex][key]}</div>
             </TableCell>
          ))}
       </>
@@ -71,7 +69,7 @@ export default function DaTable() {
 
    return (
       <TableVirtuoso
-         data={arr}
+         data={table}
          components={compos}
          fixedHeaderContent={renderHeader}
          itemContent={renderRow}

@@ -8,6 +8,7 @@ import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
 import { useEffect, useRef } from 'react'
 import CodeMenu from './popups/CodeMenu'
+import { SCRAPER_LOGIC } from '@/helpers/vars'
 
 interface CodeEditorProps extends Omit<Script, 'code'> {
    fields: FieldByte[]
@@ -47,7 +48,7 @@ export default function CodeEditor(prop: CodeEditorProps) {
    ) => {
       editorRef.current = editor
 
-      if (firstScriptId.current === Math.PI) {
+      if (firstScriptId.current === SCRAPER_LOGIC) {
          const fileUri = 'file:///node_modules/@types/global/index.d.ts'
          // Assuming 'types' is defined globally or imported elsewhere in your file
          monacoDef.current = vscode.typescript.typescriptDefaults.addExtraLib(

@@ -19,6 +19,7 @@ import CodeEditor from './interfaces/CodeEditor'
 import MainScreen from './interfaces/MainScreen'
 import InfoPanel, { type Panel } from './interfaces/popups/InfoPanel'
 import SettingsPanel from './interfaces/popups/SettingsPanel'
+import { SCRAPER_LOGIC } from '@/helpers/vars'
 
 function App() {
    const [fieldID, setFieldID] = useState(NaN)
@@ -219,7 +220,7 @@ function App() {
          />
 
          <Dialog open={settingVisible} onClose={() => setSettingVisible(false)}>
-            <SettingsPanel openEditor={() => setFieldID(Math.PI)} />
+            <SettingsPanel openEditor={() => setFieldID(SCRAPER_LOGIC)} />
          </Dialog>
 
          <Modal
