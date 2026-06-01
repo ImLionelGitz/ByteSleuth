@@ -10,18 +10,35 @@ import {
    RowContainerSetting,
    ScrapeSetting,
 } from '@/entrypoints/window/components/settings'
+import { ROW_CONT_LOGIC, SCRAPER_LOGIC } from '@/helpers/vars'
+import { transmit } from '@/helpers/pinger'
 
 interface SettingsPanel {
-   openEditor: () => void
+   fields: FieldByte[]
+   openEditor: (id: number) => void
 }
 
-export default function SettingsPanel({ openEditor }: SettingsPanel) {
+export default function SettingsPanel({ fields, openEditor }: SettingsPanel) {
    const [color, setColor] = useColor(getDefaultUserData().color)
    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
+   const rowField = useMemo(
+      () => fields.find((f) => f.id === ROW_CONT_LOGIC),
+      [fields]
+   )
 
    const handlePopClose = () => {
       saveUserData('color', color.hex)
       setAnchorEl(null)
+   }
+
+   const handleSampling = () => {
+      if (!rowField) return
+
+      console.log(rowField)
+      transmit({
+         message: 'sample row container',
+         rowField: rowField,
+      })
    }
 
    useEffect(() => {
@@ -52,17 +69,15 @@ export default function SettingsPanel({ openEditor }: SettingsPanel) {
                   onClick={(el) => setAnchorEl(el)}
                />
 
-               <ScrapeSetting onClick={openEditor} />
+               <ScrapeSetting onClick={() => openEditor(SCRAPER_LOGIC)} />
 
-               <RowContainerSetting
-                  title="Add a row container"
-                  onEditClick={function (): void {
-                     throw new Error('Function not implemented.')
-                  }}
-                  onSample={function (): void {
-                     throw new Error('Function not mayer.')
-                  }}
-               />
+               {rowField && (
+                  <RowContainerSetting
+                     myField={rowField}
+                     onEditClick={() => openEditor(ROW_CONT_LOGIC)}
+                     onSample={handleSampling}
+                  />
+               )}
             </Stack>
          </Stack>
 

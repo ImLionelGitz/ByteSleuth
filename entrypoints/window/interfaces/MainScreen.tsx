@@ -1,21 +1,18 @@
-import {
-   directSaveFields,
-   checkMemoryFull,
-   deleteField,
-   addField,
-   updateField,
-} from '@/helpers/datastores/fieldDatabase'
 import { Stack } from '@mui/material'
 import ButtonPanel from './ButtonPanel'
 import FieldsPanel from './FieldsPanel'
 import { Panel } from './popups/InfoPanel'
 import TablePanel from './TablePanel'
+import type { Action } from '@/entrypoints/window/reducers/fieldReducer'
+import { checkMemoryFull } from '@/helpers/datastores/fieldDatabase'
+import { deleteScript } from '@/helpers/datastores/scriptDatabase'
 
 const TABLE_SIZE = 390
 
 interface MainScreen {
    allFields: FieldByte[]
    allScripts: Script[]
+   updater: (a: Action) => void
    openEditor: (id: number) => void
    showDialog: (p: Panel | null) => void
    openSettings: () => void
@@ -26,12 +23,25 @@ export default function MainScreen(props: MainScreen) {
 
    async function handleFieldAdd() {
       const full = await checkMemoryFull()
-      if (!full) addField()
+      if (!full) props.updater({ type: 'ADD' })
    }
 
-   function handleFieldDelete(id: number) {
-      deleteField(id)
+   function handleFieldUpdate(field: FieldByte) {
+      props.updater({ type: 'UPDATE', payload: field })
+   }
 
+   function handleFieldReorder(fields: FieldByte[]) {
+      props.updater({ type: 'LOAD', payload: fields })
+   }
+
+   function handleFieldSelectorFound(id: number, selector: string) {
+      props.updater({ type: 'SELECTOR_FOUND', payload: { id, selector } })
+   }
+
+   async function handleFieldDelete(id: number) {
+      props.updater({ type: 'DELETE', payload: id })
+
+      await deleteScript(id)
       // const hasScript = allScripts.some((script) =>
       //    script.linkedIDs.includes(id)
       // )
@@ -87,11 +97,12 @@ export default function MainScreen(props: MainScreen) {
                   allFields={allFields}
                   allScripts={allScripts}
                   fieldAdd={handleFieldAdd}
-                  fieldUpdate={updateField}
+                  fieldUpdate={handleFieldUpdate}
                   fieldDelete={handleFieldDelete}
-                  fieldReorder={directSaveFields}
+                  fieldReorder={handleFieldReorder}
                   openEditor={openEditor}
                   disableInteract={handleDialog}
+                  selectorFound={handleFieldSelectorFound}
                />
 
                <ButtonPanel onPlay={() => {}} onSetting={openSettings} />

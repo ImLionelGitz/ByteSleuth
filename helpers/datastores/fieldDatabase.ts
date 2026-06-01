@@ -1,11 +1,13 @@
-import { useStorage } from '../hooks/useStore'
-import { deleteScript } from './scriptDatabase'
+import { ROW_CONT_LOGIC } from '../vars'
 
-const fieldDB = storage.defineItem<FieldByte[]>('local:fields', {
+interface RawFieldByte {
+   id: number
+   name: string
+}
+
+const fieldDB = storage.defineItem<RawFieldByte[]>('local:fields', {
    fallback: [],
 })
-
-const useFields = () => useStorage(fieldDB)
 
 async function checkMemoryFull() {
    const quota = 448 //browser.storage.session.QUOTA_BYTES
@@ -16,59 +18,21 @@ async function checkMemoryFull() {
    else return true
 }
 
-async function addField() {
-   const fields = await fieldDB.getValue()
+async function loadFields(): Promise<FieldByte[]> {
+   const raw = await fieldDB.getValue()
 
-   const existNames = fields.map((field) => field.name)
-   let name = 'New Field'
-   let i = 1
-
-   while (existNames.includes(name)) {
-      name = `New Field ${i}`
-      i++
-   }
-
-   const field: FieldByte = {
-      id: fields.length,
-      name: name,
+   const defField: FieldByte = {
+      id: ROW_CONT_LOGIC,
+      name: 'Row Container',
       selector: '',
    }
 
-   fieldDB.setValue([...fields, field])
+   return [...raw.map((f) => ({ ...f, selector: '' })), defField]
 }
 
-async function updateField(field: FieldByte) {
-   const fields = await fieldDB.getValue()
-
-   fieldDB.setValue(
-      fields.map((f) => {
-         if (f.id === field.id) return field
-         else return f
-      })
-   )
+function saveFields(list: FieldByte[]) {
+   const refined = list.map((f) => ({ id: f.id, name: f.name }))
+   fieldDB.setValue(refined.filter((f) => f.id !== ROW_CONT_LOGIC))
 }
 
-async function directSaveFields(fields: FieldByte[]) {
-   fieldDB.setValue(fields)
-}
-
-async function deleteField(id: number) {
-   const fields = await fieldDB.getValue()
-
-   fieldDB.setValue(
-      fields
-         .filter((field) => field.id !== id)
-         .map((field, i) => ({ ...field, id: i }))
-   )
-
-   await deleteScript(id)
-}
-
-export {
-   directSaveFields,
-   checkMemoryFull,
-   deleteField,
-   addField,
-   updateField,
-   useFields,
-}
+export { checkMemoryFull, loadFields, saveFields }

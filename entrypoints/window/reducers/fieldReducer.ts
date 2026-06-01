@@ -1,19 +1,40 @@
 import { saveFields } from '@/helpers/datastores/fieldDatabase'
 
 export type Action =
+   | { type: 'ADD' }
    | { type: 'LOAD'; payload: FieldByte[] }
-   | { type: 'ADD' | 'UPDATE'; payload: FieldByte }
+   | { type: 'UPDATE'; payload: FieldByte }
    | { type: 'DELETE'; payload: number }
+   | { type: 'SELECTOR_FOUND'; payload: { id: number; selector: string } }
 
 export default function fieldReducer(state: FieldByte[], action: Action) {
    switch (action.type) {
-      case 'UPDATE': {
-         const arr = state.map((field) => {
-            if (field.id === action.payload.id) {
-               return action.payload
-            }
+      case 'ADD': {
+         const existNames = state.map((f) => f.name)
+         let name = 'New Field'
+         let i = 1
 
-            return field
+         while (existNames.includes(name)) {
+            name = `New Field ${i}`
+            i++
+         }
+
+         const newField: FieldByte = {
+            id: state.length,
+            name: name,
+            selector: '',
+         }
+
+         const arr = [...state, newField]
+
+         saveFields(arr)
+         return arr
+      }
+
+      case 'UPDATE': {
+         const arr = state.map((f) => {
+            if (f.id === action.payload.id) return action.payload
+            else return f
          })
 
          saveFields(arr)
@@ -29,10 +50,13 @@ export default function fieldReducer(state: FieldByte[], action: Action) {
          return arr
       }
 
-      case 'ADD': {
-         const arr = [...state, action.payload]
-         saveFields(arr)
-         return arr
+      case 'SELECTOR_FOUND': {
+         const { id, selector } = action.payload
+
+         return state.map((f) => {
+            if (f.id === id) return { ...f, selector: selector }
+            else return f
+         })
       }
 
       case 'LOAD':

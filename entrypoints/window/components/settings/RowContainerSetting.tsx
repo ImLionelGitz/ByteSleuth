@@ -48,9 +48,15 @@ export default function RowContainerSetting(props: RowContainerSetting) {
                <Tooltip
                   key={key}
                   title={
-                     <h1 style={{ fontSize: 10, textTransform: 'capitalize' }}>
-                        {key.replace('_', ' ')}
-                     </h1>
+                     !value.dynamic ? (
+                        <h1
+                           style={{ fontSize: 10, textTransform: 'capitalize' }}
+                        >
+                           {key.replace('_', ' ')}
+                        </h1>
+                     ) : (
+                        props.myField.selector
+                     )
                   }
                >
                   <Button
@@ -58,14 +64,18 @@ export default function RowContainerSetting(props: RowContainerSetting) {
                      variant="contained"
                      color="secondary"
                      disableElevation
-                     sx={{
+                     sx={({ palette }) => ({
                         minWidth: 0,
                         fontSize: 18,
                         fontFamily: 'Inter',
                         padding: 0,
                         width: btnSize,
                         height: btnSize,
-                     }}
+                        backgroundColor:
+                           value.dynamic && props.myField.selector
+                              ? '#bc0a0e'
+                              : palette.secondary.main,
+                     })}
                      onClick={value.onClick}
                   >
                      <value.icon />

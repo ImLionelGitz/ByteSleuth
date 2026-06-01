@@ -36,3 +36,4 @@ type BGMessages =
 type Events =
    | { message: 'box delivery'; boxes: BoxCoords[] }
    | { message: 'block clicks' | 'unblock clicks' | 'terminate' }
+   | { message: 'sample row container'; rowField: FieldByte }

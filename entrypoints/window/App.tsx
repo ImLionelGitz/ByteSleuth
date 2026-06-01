@@ -1,4 +1,4 @@
-import { useFields } from '@/helpers/datastores/fieldDatabase'
+import { loadFields } from '@/helpers/datastores/fieldDatabase'
 import {
    giveAllScripts,
    giveScript,
@@ -19,7 +19,7 @@ import CodeEditor from './interfaces/CodeEditor'
 import MainScreen from './interfaces/MainScreen'
 import InfoPanel, { type Panel } from './interfaces/popups/InfoPanel'
 import SettingsPanel from './interfaces/popups/SettingsPanel'
-import { ROW_CONT_LOGIC, SCRAPER_LOGIC } from '@/helpers/vars'
+import fieldReducer from './reducers/fieldReducer'
 
 function App() {
    const [fieldID, setFieldID] = useState(NaN)
@@ -29,20 +29,8 @@ function App() {
    const curLinkedCache = useRef(curLinkeds)
    const curCodeDraft = useRef('')
 
-   const fields = useFields()
+   const [fields, fieldUpdater] = useReducer(fieldReducer, [])
    const scripts = useLiveQuery(() => giveAllScripts(), [fieldID])
-
-   const fieldsForEditor = useMemo(() => {
-      if (!fields) return []
-
-      const defField: FieldByte = {
-         id: ROW_CONT_LOGIC,
-         name: 'Row Container',
-         selector: '',
-      }
-
-      return [...fields, defField]
-   }, [fields])
 
    const [settingVisible, setSettingVisible] = useState(false)
    const [dialogState, setDialogState] = useState<Panel | null>(null)
@@ -189,6 +177,15 @@ function App() {
       fetchScript()
    }, [fieldID])
 
+   useEffect(() => {
+      const fetchFields = async () => {
+         const fieldData = await loadFields()
+         fieldUpdater({ type: 'LOAD', payload: fieldData })
+      }
+
+      fetchFields()
+   }, [])
+
    // Error handlers (central)
    useEffect(() => {
       const handleWindowError = (event: ErrorEvent) => {
@@ -234,13 +231,14 @@ function App() {
          <MainScreen
             allFields={fields ?? []}
             allScripts={scripts ?? []}
+            updater={fieldUpdater}
             openEditor={setFieldID}
             showDialog={setDialogState}
             openSettings={() => setSettingVisible(true)}
          />
 
          <Dialog open={settingVisible} onClose={() => setSettingVisible(false)}>
-            <SettingsPanel openEditor={() => setFieldID(SCRAPER_LOGIC)} />
+            <SettingsPanel openEditor={setFieldID} fields={fields} />
          </Dialog>
 
          <Modal
@@ -253,7 +251,7 @@ function App() {
             }}
          >
             <CodeEditor
-               fields={fieldsForEditor}
+               fields={fields}
                id={fieldID}
                linkedIDs={curLinkeds}
                code={curCode}
