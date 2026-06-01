@@ -82,7 +82,6 @@ export default function FieldsPanel(props: FieldsPanel) {
 
    useEffect(() => {
       pinger((msg) => {
-         console.log(msg)
          if (msg.message === 'sample row container') {
             handleLink(msg.rowField)
          }

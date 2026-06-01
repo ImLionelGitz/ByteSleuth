@@ -1,16 +1,14 @@
-import sample from '@/templates/code.template.ts?raw'
+import fieldSample from '@/templates/field.template.ts?raw'
+import scraperSample from '@/templates/scrape.template.ts?raw'
 import * as parser from '@babel/parser'
 import { editor, MarkerSeverity } from 'monaco-editor'
+import { SCRAPER_LOGIC } from './vars'
 
 // 1. Define strict structures for configuration targets
 interface ExpectedParam {
    name: string
    type: string
 }
-
-const REQUIRED_NAME = 'makeSelector'
-const REQUIRED_RETURN = 'string'
-const REQUIRED_PARAMS: ExpectedParam[] = [{ name: 'el', type: 'HTMLElement' }]
 
 async function unminifyCode(code: string) {
    const { format } = await import('prettier/standalone')
@@ -62,7 +60,8 @@ async function checkStandard(code: string) {
    })
 }
 
-async function isCodeDefault(code: string) {
+async function isCodeDefault(code: string, id: number) {
+   const sample = id === SCRAPER_LOGIC ? scraperSample : fieldSample
    const against = await minifyCode(sample)
    const process = await minifyCode(code)
 
@@ -70,40 +69,70 @@ async function isCodeDefault(code: string) {
 }
 
 // Helper utility to safely resolve type annotations into strings from Babel AST
+// 1. Updated helper that resolves arrays, generics, and unwraps annotations cleanly
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const getTypeString = (typeAnnotation: any): string => {
-   if (!typeAnnotation || !typeAnnotation.typeAnnotation) return 'any'
-   const typeNode = typeAnnotation.typeAnnotation
+const getTypeString = (node: any): string => {
+   if (!node) return 'any'
 
-   if (typeNode.type === 'TSNumberKeyword') return 'number'
-   if (typeNode.type === 'TSStringKeyword') return 'string'
-   if (typeNode.type === 'TSBooleanKeyword') return 'boolean'
-   if (typeNode.type === 'TSVoidKeyword') return 'void'
-   if (typeNode.type === 'TSTypeReference')
-      return typeNode.typeName.name || 'unknown'
+   // Unwrap Babel's TSTypeAnnotation container if present
+   if (node.type === 'TSTypeAnnotation') {
+      return getTypeString(node.typeAnnotation)
+   }
+
+   // Base Types
+   if (node.type === 'TSNumberKeyword') return 'number'
+   if (node.type === 'TSStringKeyword') return 'string'
+   if (node.type === 'TSBooleanKeyword') return 'boolean'
+   if (node.type === 'TSVoidKeyword') return 'void'
+
+   // Handles TableByte[] -> converts it to Array<TableByte> to match your REQUIRED_RETURN
+   if (node.type === 'TSArrayType') {
+      return `Array<${getTypeString(node.elementType)}>`
+   }
+
+   // Handles Array<TableByte>
+   if (node.type === 'TSTypeReference') {
+      const baseName = node.typeName.name || 'unknown'
+
+      if (node.typeParameters && node.typeParameters.params.length > 0) {
+         const genericArgs = node.typeParameters.params
+            .map((param: unknown) => getTypeString(param))
+            .join(', ')
+         return `${baseName}<${genericArgs}>`
+      }
+
+      return baseName
+   }
 
    return 'unknown'
 }
 
-function validateCode(code: string) {
+function validateCode(code: string, id: number) {
+   const REQUIRED_NAME = id === SCRAPER_LOGIC ? 'scrape' : 'makeSelector'
+   const REQUIRED_RETURN = id === SCRAPER_LOGIC ? 'Array<TableByte>' : 'string'
+   const REQUIRED_PARAMS: ExpectedParam[] = [
+      {
+         name: id === SCRAPER_LOGIC ? 'cfg' : 'el',
+         type: id === SCRAPER_LOGIC ? 'Config' : 'HTMLElement',
+      },
+   ]
+
    const ast = parser.parse(code, {
       sourceType: 'module',
-      plugins: ['typescript'], // Supports TS annotations if typed
+      plugins: ['typescript'],
    })
 
    const markers: editor.IMarkerData[] = []
    let mainFunctionFound = false
 
-   // 2. Walk the top-level nodes of the file
    for (const node of ast.program.body) {
       if (node.type === 'FunctionDeclaration') {
          const funcName = node.id?.name
 
-         // Check if this is the target function
          if (funcName === REQUIRED_NAME) {
             mainFunctionFound = true
 
-            // --- VALIDATE PARAMETERS (NAMES AND TYPES) ---
+            // --- VALIDATE PARAMETERS ---
             let paramsValid = node.params.length === REQUIRED_PARAMS.length
 
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -114,11 +143,12 @@ function validateCode(code: string) {
                   return
                }
 
-               // Handle standard Identifier or AssignmentPattern (parameters with default values)
                const isAssignment = param.type === 'AssignmentPattern'
                const leftNode = isAssignment ? param.left : param
 
                const actualName = leftNode.name
+
+               // PASS THE WHOLE leftNode.typeAnnotation AT NODE LEVEL
                const actualType = getTypeString(leftNode.typeAnnotation)
 
                if (
@@ -145,19 +175,20 @@ function validateCode(code: string) {
             }
 
             // --- VALIDATE RETURN TYPE ---
+            // PASS THE returnType DIRECTLY
             const actualReturnType = getTypeString(node.returnType)
+
             if (
                actualReturnType !== REQUIRED_RETURN &&
                node.id &&
                node.id.loc
             ) {
                markers.push({
-                  // Highlights right next to the function identifier where types sit
                   startLineNumber: node.id.loc.start.line,
                   startColumn: node.id.loc.end.column + 1,
                   endLineNumber: node.id.loc.end.line,
                   endColumn: node.id.loc.end.column + 15,
-                  message: `Return type mismatch. Expected function to explicitly return type: "${REQUIRED_RETURN}"`,
+                  message: `Return type mismatch. Expected function to explicitly return type: "${REQUIRED_RETURN}" (Got: "${actualReturnType}")`,
                   severity: MarkerSeverity.Error,
                })
             }
@@ -165,7 +196,6 @@ function validateCode(code: string) {
       }
    }
 
-   // 3. Flag an error if the specific function name does not exist anywhere in the code
    if (!mainFunctionFound && code.trim().length > 0) {
       markers.push({
          startLineNumber: 1,

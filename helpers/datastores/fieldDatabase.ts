@@ -5,14 +5,20 @@ interface RawFieldByte {
    name: string
 }
 
+//const MAX_ALLOWED_BYTES = 1 * 1024
+
 const fieldDB = storage.defineItem<RawFieldByte[]>('local:fields', {
    fallback: [],
 })
 
 async function checkMemoryFull() {
-   const quota = 448 //browser.storage.session.QUOTA_BYTES
-   const bytesUse = await browser.storage.local.getBytesInUse(null)
+   const quota = 70 //browser.storage.session.QUOTA_BYTES
+   const items = await fieldDB.getValue()
+   const rawStr = JSON.stringify({ raw: items })
+   const bytesUse = new Blob([rawStr]).size
    const percent = bytesUse / quota
+
+   console.log(percent, bytesUse)
 
    if (percent <= 0.9) return false
    else return true

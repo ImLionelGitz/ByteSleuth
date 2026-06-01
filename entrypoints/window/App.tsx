@@ -110,10 +110,8 @@ function App() {
          curLinkedCache.current = []
       }
 
-      console.log(curLinkeds)
-
       try {
-         const looksDefault = await isCodeDefault(curCodeDraft.current)
+         const looksDefault = await isCodeDefault(curCodeDraft.current, fieldID)
 
          if (curCodeDraft.current && looksDefault) {
             setDialogState({
@@ -147,6 +145,7 @@ function App() {
          }
 
          proceed()
+         console.log(curLinkeds)
       } catch {
          setDialogState({
             title: 'Code Contains JS Breaking Syntax',

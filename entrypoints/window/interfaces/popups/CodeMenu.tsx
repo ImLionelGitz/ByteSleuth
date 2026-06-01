@@ -1,3 +1,4 @@
+import { SCRAPER_LOGIC } from '@/helpers/vars'
 import { Menu, MenuProps } from '@mui/material'
 import { MenuItemData, nestedMenuItemsFromObject } from 'mui-nested-menu'
 import { FaCheck } from 'react-icons/fa'
@@ -5,10 +6,14 @@ import { FaCheck } from 'react-icons/fa'
 function generateMenu(
    fields: FieldByte[],
    linked: number[],
+   idOfCtx: number,
    onSelect: (id: number) => void,
    onCtxAction: (action: CtxAction) => void
 ) {
-   const items: CtxAction[] = ['COPY', 'CUT', 'PASTE', 'FORMAT', 'LINK']
+   const items: CtxAction[] = ['COPY', 'CUT', 'PASTE', 'FORMAT']
+
+   if (idOfCtx === SCRAPER_LOGIC) items.push('RESET')
+   else items.push('LINK')
 
    return items.map((item) => {
       const caps = (() => {
@@ -21,6 +26,10 @@ function generateMenu(
                return 'Format Code'
             case 'LINK':
                return 'Link to Fields'
+            case 'RESET':
+               return 'Reset Code'
+            default:
+               return ''
          }
       })()
 
@@ -52,6 +61,7 @@ function generateMenu(
 interface CodeMenuProps extends MenuProps {
    fields: FieldByte[]
    linkedIds: number[]
+   curID: number
    itemSelect: (id: number) => void
    ctxAction: (action: CtxAction) => void
 }
@@ -63,6 +73,7 @@ export default function CodeMenu(props: CodeMenuProps) {
             menuItemsData: generateMenu(
                props.fields,
                props.linkedIds,
+               props.curID,
                props.itemSelect,
                props.ctxAction
             ),

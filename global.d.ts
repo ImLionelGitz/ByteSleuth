@@ -23,7 +23,7 @@ interface MouseCoords {
 }
 
 type TableByte = Record<string, string>
-type CtxAction = 'COPY' | 'CUT' | 'PASTE' | 'FORMAT' | 'LINK'
+type CtxAction = 'COPY' | 'CUT' | 'PASTE' | 'FORMAT' | 'LINK' | 'RESET'
 
 // Events
 

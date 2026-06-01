@@ -1,5 +1,6 @@
 import { unminifyCode, validateCode } from '@/helpers/formatter'
-import sample from '@/templates/code.template.ts?raw'
+import fieldSample from '@/templates/field.template.ts?raw'
+import scraperSample from '@/templates/scrape.template.ts?raw'
 import types from '@/templates/types.template.d.ts?raw'
 import { Editor, loader } from '@monaco-editor/react'
 import { Box, Paper, Skeleton } from '@mui/material'
@@ -9,6 +10,7 @@ import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
 import { useEffect, useRef } from 'react'
 import CodeMenu from './popups/CodeMenu'
 import { SCRAPER_LOGIC } from '@/helpers/vars'
+import { deleteScript } from '@/helpers/datastores/scriptDatabase'
 
 interface CodeEditorProps extends Omit<Script, 'code'> {
    fields: FieldByte[]
@@ -35,6 +37,11 @@ export default function CodeEditor(prop: CodeEditorProps) {
    const firstScriptId = useRef(prop.id)
    const monacoDef = useRef<monaco.IDisposable | null>(null)
    const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null)
+
+   const sampleCode = useMemo(() => {
+      if (prop.id === SCRAPER_LOGIC) return scraperSample
+      else return fieldSample
+   }, [])
 
    // --- MUI Menu States ---
    const [menuPosition, setMenuPosition] = useState<{
@@ -84,7 +91,7 @@ export default function CodeEditor(prop: CodeEditorProps) {
 
       try {
          if (code) {
-            const isValid = validateCode(code)
+            const isValid = validateCode(code, prop.id)
             const model = editorRef.current.getModel()
             if (!model) return
 
@@ -150,6 +157,12 @@ export default function CodeEditor(prop: CodeEditorProps) {
             break
          }
 
+         case 'RESET': {
+            editor.setValue(sampleCode)
+            deleteScript(prop.id)
+            break
+         }
+
          default:
             break
       }
@@ -184,7 +197,7 @@ export default function CodeEditor(prop: CodeEditorProps) {
                   height="100%"
                   width="100%"
                   defaultLanguage="typescript"
-                  value={prop.code || sample} // Assuming sample is imported/defined
+                  value={prop.code || sampleCode} // Assuming sample is imported/defined
                   theme="vs-dark"
                   options={{
                      minimap: { enabled: false },
@@ -234,6 +247,7 @@ export default function CodeEditor(prop: CodeEditorProps) {
          <CodeMenu
             open={menuPosition !== null}
             fields={prop.fields}
+            curID={prop.id}
             linkedIds={prop.linkedIDs}
             itemSelect={handleItemSelect}
             ctxAction={handleContext}
