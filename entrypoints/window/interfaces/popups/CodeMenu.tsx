@@ -31,7 +31,7 @@ function generateMenu(
 
       if (item === 'LINK' && fields.length > 0) {
          data.items = fields.map((field) => {
-            const data: MenuItemData = {
+            const linkData: MenuItemData = {
                label: field.name,
                rightIcon: linked.includes(field.id) ? <FaCheck /> : null,
                callback() {
@@ -39,7 +39,7 @@ function generateMenu(
                },
             }
 
-            return data
+            return linkData
          })
       } else if (item !== 'LINK') {
          data.callback = () => onCtxAction(item)

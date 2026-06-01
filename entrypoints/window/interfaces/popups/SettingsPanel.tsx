@@ -3,14 +3,13 @@ import {
    getUserData,
    saveUserData,
 } from '@/helpers/datastores/userDatabase'
-import { Button, Divider, Paper, Popover, Stack } from '@mui/material'
+import { Divider, Paper, Popover, Stack } from '@mui/material'
 import { ColorPicker, ColorService, useColor } from 'react-color-palette'
-import tiny from 'tinycolor2'
-
-type colorData = {
-   color: string
-   onClick: (anchor: HTMLElement) => void
-}
+import {
+   ColorSetting,
+   RowContainerSetting,
+   ScrapeSetting,
+} from '@/entrypoints/window/components/settings'
 
 interface SettingsPanel {
    openEditor: () => void
@@ -53,7 +52,17 @@ export default function SettingsPanel({ openEditor }: SettingsPanel) {
                   onClick={(el) => setAnchorEl(el)}
                />
 
-               <ScrapeSysEdit onClick={openEditor} />
+               <ScrapeSetting onClick={openEditor} />
+
+               <RowContainerSetting
+                  title="Add a row container"
+                  onEditClick={function (): void {
+                     throw new Error('Function not implemented.')
+                  }}
+                  onSample={function (): void {
+                     throw new Error('Function not mayer.')
+                  }}
+               />
             </Stack>
          </Stack>
 
@@ -72,59 +81,5 @@ export default function SettingsPanel({ openEditor }: SettingsPanel) {
             />
          </Popover>
       </Paper>
-   )
-}
-
-function ColorSetting({ color, onClick }: colorData) {
-   const modifier = useMemo(() => tiny(color), [color])
-
-   return (
-      <Stack
-         direction="row"
-         sx={{ gap: 2, alignItems: 'center', justifyContent: 'space-between' }}
-      >
-         <strong style={{ textTransform: 'capitalize' }}>
-            Change highlight color
-         </strong>
-
-         <Button
-            sx={{
-               background: color,
-               minWidth: 0,
-               width: 24,
-               height: 24,
-               border: `2px solid ${modifier.darken(4)}`,
-            }}
-            onClick={(e) => onClick(e.currentTarget)}
-         ></Button>
-      </Stack>
-   )
-}
-
-function ScrapeSysEdit({ onClick }: { onClick: () => void }) {
-   return (
-      <Stack
-         direction="row"
-         sx={{
-            gap: 2,
-            alignItems: 'center',
-            justifyContent: 'space-evenly',
-         }}
-      >
-         <strong style={{ textTransform: 'capitalize' }}>
-            Change scraper behaivor
-         </strong>
-
-         <Button
-            size="small"
-            variant="contained"
-            color="secondary"
-            disableElevation
-            sx={{ minWidth: 0, fontSize: 10, fontFamily: 'Inter' }}
-            onClick={onClick}
-         >
-            Open Editor
-         </Button>
-      </Stack>
    )
 }

@@ -38,6 +38,10 @@ export default defineConfig(
           {
             "group": ["**/background/*", "**/content/*"],
             "message": "Direct imports from background and content are restricted"
+          },
+          {
+            "group": ["**/components/settings/*"],
+            "message": "Direct imports from settings slots are restricted"
           }
         ]
       }

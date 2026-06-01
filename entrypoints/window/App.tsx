@@ -19,7 +19,7 @@ import CodeEditor from './interfaces/CodeEditor'
 import MainScreen from './interfaces/MainScreen'
 import InfoPanel, { type Panel } from './interfaces/popups/InfoPanel'
 import SettingsPanel from './interfaces/popups/SettingsPanel'
-import { SCRAPER_LOGIC } from '@/helpers/vars'
+import { ROW_CONT_LOGIC, SCRAPER_LOGIC } from '@/helpers/vars'
 
 function App() {
    const [fieldID, setFieldID] = useState(NaN)
@@ -31,6 +31,18 @@ function App() {
 
    const fields = useFields()
    const scripts = useLiveQuery(() => giveAllScripts(), [fieldID])
+
+   const fieldsForEditor = useMemo(() => {
+      if (!fields) return []
+
+      const defField: FieldByte = {
+         id: ROW_CONT_LOGIC,
+         name: 'Row Container',
+         selector: '',
+      }
+
+      return [...fields, defField]
+   }, [fields])
 
    const [settingVisible, setSettingVisible] = useState(false)
    const [dialogState, setDialogState] = useState<Panel | null>(null)
@@ -81,12 +93,18 @@ function App() {
    }
 
    const handleEditorClose = async () => {
+      const noEmptyCode =
+         curCodeDraft.current && curCodeDraft.current !== curCode
+
+      const unChangedLinks =
+         curLinkeds.length === curLinkedCache.current.length &&
+         curLinkeds.every((id) => curLinkedCache.current.includes(id))
+
       const proceed = async (discard: boolean = false) => {
          if (
             !discard &&
             curCode !== undefined &&
-            curCodeDraft.current &&
-            curCodeDraft.current !== curCode
+            (noEmptyCode || !unChangedLinks)
          ) {
             const minified = await minifyCode(curCodeDraft.current || curCode)
 
@@ -103,6 +121,8 @@ function App() {
          curCodeDraft.current = ''
          curLinkedCache.current = []
       }
+
+      console.log(curLinkeds)
 
       try {
          const looksDefault = await isCodeDefault(curCodeDraft.current)
@@ -233,7 +253,7 @@ function App() {
             }}
          >
             <CodeEditor
-               fields={fields || []}
+               fields={fieldsForEditor}
                id={fieldID}
                linkedIDs={curLinkeds}
                code={curCode}
