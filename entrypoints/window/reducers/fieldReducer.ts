@@ -21,7 +21,7 @@ export default function fieldReducer(state: FieldByte[], action: Action) {
          }
 
          const newField: FieldByte = {
-            id: state.length,
+            id: state.length - 1,
             name: name,
             selector: '',
          }

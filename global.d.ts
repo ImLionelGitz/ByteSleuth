@@ -32,6 +32,7 @@ type ContentMessages = { message: 'selection cancelled' }
 type BGMessages =
    | { message: 'select an element'; fieldId: number }
    | { message: 'error occured'; err: string }
+   | { message: 'scrape'; fields: FieldByte[] }
 
 type Events =
    | { message: 'box delivery'; boxes: BoxCoords[] }

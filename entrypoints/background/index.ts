@@ -1,5 +1,5 @@
 import { receiver } from '@/helpers/messager'
-import executeFieldCode from './code_operator'
+import { executeFieldCode, executeScrapeCode } from './code_operator'
 
 export default defineBackground(() => {
    let windowID = 0
@@ -35,6 +35,11 @@ export default defineBackground(() => {
       switch (msg.message) {
          case 'select an element': {
             executeFieldCode(msg.fieldId).then((res) => reply(res))
+            return true
+         }
+
+         case 'scrape': {
+            executeScrapeCode(msg.fields).then((res) => reply(res))
             return true
          }
 

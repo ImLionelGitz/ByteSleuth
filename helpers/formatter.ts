@@ -109,7 +109,7 @@ const getTypeString = (node: any): string => {
 
 function validateCode(code: string, id: number) {
    const REQUIRED_NAME = id === SCRAPER_LOGIC ? 'scrape' : 'makeSelector'
-   const REQUIRED_RETURN = id === SCRAPER_LOGIC ? 'Array<TableByte>' : 'string'
+   const REQUIRED_RETURN = id === SCRAPER_LOGIC ? 'Array<Table>' : 'string'
    const REQUIRED_PARAMS: ExpectedParam[] = [
       {
          name: id === SCRAPER_LOGIC ? 'cfg' : 'el',

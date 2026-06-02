@@ -6,6 +6,7 @@ import TablePanel from './TablePanel'
 import type { Action } from '@/entrypoints/window/reducers/fieldReducer'
 import { checkMemoryFull } from '@/helpers/datastores/fieldDatabase'
 import { deleteScript } from '@/helpers/datastores/scriptDatabase'
+import { sendToBackground } from '@/helpers/messager'
 
 const TABLE_SIZE = 390
 
@@ -20,6 +21,8 @@ interface MainScreen {
 
 export default function MainScreen(props: MainScreen) {
    const { openEditor, showDialog, openSettings, allFields, allScripts } = props
+
+   const [tableData, setTableData] = useState<TableByte[]>([])
 
    async function handleFieldAdd() {
       const full = await checkMemoryFull()
@@ -72,6 +75,15 @@ export default function MainScreen(props: MainScreen) {
       }
    }
 
+   async function handlePlay() {
+      const data = await sendToBackground<TableByte[] | null>({
+         message: 'scrape',
+         fields: allFields,
+      })
+
+      setTableData(data || [])
+   }
+
    return (
       <div>
          <Stack
@@ -83,14 +95,7 @@ export default function MainScreen(props: MainScreen) {
                gap: '8px',
             }}
          >
-            <TablePanel
-               size={TABLE_SIZE}
-               data={[
-                  { name: 'goku', price: '200', recoome: 'ha' },
-                  { name: 'vegeta', price: '500', recoome: 'no' },
-                  { name: 'broly', price: '1500', recoome: 'oh' },
-               ]}
-            />
+            <TablePanel size={TABLE_SIZE} data={tableData} />
 
             <Stack sx={{ gap: '12px', height: TABLE_SIZE }}>
                <FieldsPanel
@@ -105,7 +110,7 @@ export default function MainScreen(props: MainScreen) {
                   selectorFound={handleFieldSelectorFound}
                />
 
-               <ButtonPanel onPlay={() => {}} onSetting={openSettings} />
+               <ButtonPanel onPlay={handlePlay} onSetting={openSettings} />
             </Stack>
          </Stack>
       </div>

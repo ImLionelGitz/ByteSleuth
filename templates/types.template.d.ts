@@ -9,4 +9,4 @@ declare interface Config {
    fields: Field[]
 }
 
-declare type TableByte = Record<string, string>
+declare type Table = Record<string, string>

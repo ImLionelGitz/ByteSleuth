@@ -130,7 +130,6 @@ function App() {
          const isFormatted = await checkStandard(curCodeDraft.current)
 
          if (!isFormatted) {
-            console.log(isFormatted, curCodeDraft.current)
             setDialogState({
                title: 'Format Issue Detected',
                msg: 'Your code appears to not follow our format! It may be formatted accordingly if you choose to proceed.',

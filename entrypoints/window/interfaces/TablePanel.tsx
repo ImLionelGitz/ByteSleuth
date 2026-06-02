@@ -1,6 +1,7 @@
 import { Button, Paper, Stack, useTheme } from '@mui/material'
 import { TiExport } from 'react-icons/ti'
 import DaTable from '../components/Table'
+import EmptyMessage from '../components/EmptyMsg'
 
 interface TablePanel {
    size: number
@@ -108,7 +109,11 @@ export default function TablePanel({ size, data }: TablePanel) {
                      </Button>
                   </Stack>
 
-                  <DaTable table={data} />
+                  {data.length > 0 ? (
+                     <DaTable table={data} />
+                  ) : (
+                     <EmptyMessage msg="No rows found!" />
+                  )}
                </Stack>
             </Stack>
          </Stack>
