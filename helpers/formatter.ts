@@ -210,4 +210,4 @@ function validateCode(code: string, id: number) {
    return markers
 }
 
-export { minifyCode, unminifyCode, checkStandard, isCodeDefault, validateCode }
+export { unminifyCode, checkStandard, isCodeDefault, validateCode }

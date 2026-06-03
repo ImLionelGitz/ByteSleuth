@@ -4,5 +4,6 @@
     "allowImportingTsExtensions": true,
     "noEmitOnError": true,
     "jsx": "react-jsx"
-  }
+  },
+  "exclude": ["**/*/types.template.d.ts"]
 }

@@ -3,6 +3,7 @@ import { getCurrentTabID, sendToBackground } from '@/helpers/messager'
 import fieldSample from '@/templates/field.template.ts?raw'
 import scraperSample from '@/templates/scrape.template.ts?raw'
 import fieldMainJS from '@/templates/exec.template.js?raw'
+import scraperMainJS from '@/templates/exec2.template.js?raw'
 import { transform } from '@babel/standalone'
 import { ROW_CONT_LOGIC, SCRAPER_LOGIC } from '@/helpers/vars'
 
@@ -54,7 +55,7 @@ export async function executeScrapeCode(list: FieldByte[]) {
    const mainField = list.find((f) => f.id === ROW_CONT_LOGIC)
 
    if (mainCode.code && tabId && mainField) {
-      const cfg: Config = {
+      const cfg = {
          rowSelector: mainField.selector,
          fields: list.filter((f) => f.id !== ROW_CONT_LOGIC),
       }
@@ -65,7 +66,7 @@ export async function executeScrapeCode(list: FieldByte[]) {
 
          ${mainCode.code};
 
-         return scrape(cfg);
+         ${scraperMainJS}
           })()
          `
 

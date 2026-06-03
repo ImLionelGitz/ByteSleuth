@@ -8,9 +8,10 @@ import * as monaco from 'monaco-editor'
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
 import { useEffect, useRef } from 'react'
-import CodeMenu from './popups/CodeMenu'
+import CodeMenu from '../popups/CodeMenu'
 import { SCRAPER_LOGIC } from '@/helpers/vars'
 import { deleteScript } from '@/helpers/datastores/scriptDatabase'
+import setupTheme from './setupTheme'
 
 interface CodeEditorProps extends Omit<Script, 'code'> {
    fields: FieldByte[]
@@ -75,6 +76,8 @@ export default function CodeEditor(prop: CodeEditorProps) {
             mouseY: event.browserEvent.clientY,
          })
       })
+
+      setupTheme(vscode)
    }
 
    // --- MUI Menu Action Helpers ---

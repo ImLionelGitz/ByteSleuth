@@ -4,18 +4,13 @@ import {
    giveScript,
    saveScript,
 } from '@/helpers/datastores/scriptDatabase'
-import {
-   checkStandard,
-   isCodeDefault,
-   minifyCode,
-   unminifyCode,
-} from '@/helpers/formatter'
+import { isCodeDefault } from '@/helpers/formatter'
 import { getCurrentTabID, sendToContentJS } from '@/helpers/messager'
 import { Dialog, Modal } from '@mui/material'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useState } from 'react'
 import { GlobalErrorBoundary } from './components/GlobalErrorBoundary'
-import CodeEditor from './interfaces/CodeEditor'
+import CodeEditor from './interfaces/editor/CodeEditor'
 import MainScreen from './interfaces/MainScreen'
 import InfoPanel, { type Panel } from './interfaces/popups/InfoPanel'
 import SettingsPanel from './interfaces/popups/SettingsPanel'
@@ -94,12 +89,10 @@ function App() {
             curCode !== undefined &&
             (noEmptyCode || !unChangedLinks)
          ) {
-            const minified = await minifyCode(curCodeDraft.current || curCode)
-
             await saveScript({
                id: fieldID,
                linkedIDs: curLinkeds,
-               code: minified,
+               code: curCodeDraft.current,
             })
          }
 
@@ -127,24 +120,7 @@ function App() {
             return
          }
 
-         const isFormatted = await checkStandard(curCodeDraft.current)
-
-         if (!isFormatted) {
-            setDialogState({
-               title: 'Format Issue Detected',
-               msg: 'Your code appears to not follow our format! It may be formatted accordingly if you choose to proceed.',
-               type: 'WARNING',
-               onConfirm() {
-                  proceed()
-                  setDialogState(null)
-               },
-            })
-
-            return
-         }
-
          proceed()
-         console.log(curLinkeds)
       } catch {
          setDialogState({
             title: 'Code Contains JS Breaking Syntax',
@@ -162,11 +138,10 @@ function App() {
       const fetchScript = async () => {
          if (!Number.isNaN(fieldID) && scripts) {
             const curScript = await giveScript(fieldID)
-            const code = await unminifyCode(curScript?.code || '')
             const linked = curScript?.linkedIDs || [fieldID]
 
             setCurLinked(linked)
-            setCurCode(code)
+            setCurCode(curScript?.code || '')
 
             curLinkedCache.current = linked
          }
