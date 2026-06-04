@@ -7,6 +7,8 @@ import type { Action } from '@/entrypoints/window/reducers/fieldReducer'
 import { checkMemoryFull } from '@/helpers/datastores/fieldDatabase'
 import { deleteScript } from '@/helpers/datastores/scriptDatabase'
 import { sendToBackground } from '@/helpers/messager'
+import { ROW_CONT_LOGIC } from '@/helpers/vars'
+import { transmit } from '@/helpers/pinger'
 
 const TABLE_SIZE = 390
 
@@ -21,6 +23,11 @@ interface MainScreen {
 
 export default function MainScreen(props: MainScreen) {
    const { openEditor, showDialog, openSettings, allFields, allScripts } = props
+
+   const rowField = useMemo(
+      () => allFields.find((f) => f.id === ROW_CONT_LOGIC),
+      [allFields]
+   )
 
    const [tableData, setTableData] = useState<TableByte[]>([])
 
@@ -76,12 +83,45 @@ export default function MainScreen(props: MainScreen) {
    }
 
    async function handlePlay() {
+      const rowField = allFields.find((field) => field.id === ROW_CONT_LOGIC)
+      if (!rowField) return
+
+      if (allFields.length <= 1) {
+         props.showDialog({
+            type: 'ERROR',
+            title: 'No Fields are specified',
+            msg: 'Please add some fields to continue',
+         })
+
+         return
+      }
+
+      if (!rowField.selector) {
+         props.showDialog({
+            type: 'ERROR',
+            title: 'No Root Element is specified',
+            msg: 'Please specify a root element to continue',
+         })
+
+         return
+      }
+
       const data = await sendToBackground<TableByte[] | null>({
          message: 'scrape',
          fields: allFields,
       })
 
       setTableData(data || [])
+   }
+
+   function handleSampling() {
+      if (!rowField) return
+
+      console.log(rowField)
+      transmit({
+         message: 'sample row container',
+         rowField: rowField,
+      })
    }
 
    return (
@@ -110,7 +150,14 @@ export default function MainScreen(props: MainScreen) {
                   selectorFound={handleFieldSelectorFound}
                />
 
-               <ButtonPanel onPlay={handlePlay} onSetting={openSettings} />
+               {rowField && (
+                  <ButtonPanel
+                     rowField={rowField}
+                     onPlay={handlePlay}
+                     onSetting={openSettings}
+                     onSample={handleSampling}
+                  />
+               )}
             </Stack>
          </Stack>
       </div>

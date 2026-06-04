@@ -1,3 +1,4 @@
+import { SETTING_BTN_SIZE } from '@/helpers/vars'
 import { Button, Stack } from '@mui/material'
 import tiny from 'tinycolor2'
 
@@ -22,8 +23,8 @@ export default function ColorSetting({ color, onClick }: colorData) {
             sx={{
                background: color,
                minWidth: 0,
-               width: 24,
-               height: 24,
+               width: SETTING_BTN_SIZE,
+               height: SETTING_BTN_SIZE,
                border: `2px solid ${modifier.darken(4)}`,
             }}
             onClick={(e) => onClick(e.currentTarget)}

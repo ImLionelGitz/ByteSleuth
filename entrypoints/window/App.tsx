@@ -210,7 +210,11 @@ function App() {
             openSettings={() => setSettingVisible(true)}
          />
 
-         <Dialog open={settingVisible} onClose={() => setSettingVisible(false)}>
+         <Dialog
+            open={settingVisible}
+            onClose={() => setSettingVisible(false)}
+            slotProps={{ paper: { sx: { background: 'none' } } }}
+         >
             <SettingsPanel openEditor={setFieldID} fields={fields} />
          </Dialog>
 
@@ -233,7 +237,11 @@ function App() {
             />
          </Modal>
 
-         <Dialog open={dialogState !== null} onClose={handleInfoClose}>
+         <Dialog
+            open={dialogState !== null}
+            onClose={handleInfoClose}
+            slotProps={{ paper: { sx: { background: 'none' } } }}
+         >
             {dialogState && (
                <InfoPanel
                   title={dialogState.title}

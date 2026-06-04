@@ -1,7 +1,11 @@
-import { Button, Paper, Stack, useTheme } from '@mui/material'
-import { TiExport } from 'react-icons/ti'
-import DaTable from '../components/Table'
+import { Paper, Stack, useTheme } from '@mui/material'
 import EmptyMessage from '../components/EmptyMsg'
+import SplitButton from '../components/SplitButton'
+import DaTable from '../components/Table'
+import exportExcel from '@/helpers/exporters/excel'
+import exportJson from '@/helpers/exporters/json'
+import exportCsv from '@/helpers/exporters/csv'
+import { copyAsCsv, copyAsJson } from '@/helpers/exporters/copy'
 
 interface TablePanel {
    size: number
@@ -10,6 +14,32 @@ interface TablePanel {
 
 export default function TablePanel({ size, data }: TablePanel) {
    const { palette } = useTheme()
+
+   const handleExport = (option: ExportOptions) => {
+      if (data.length === 0) return
+
+      switch (option) {
+         case 'JSON':
+            exportJson(data)
+            break
+
+         case 'CSV':
+            exportCsv(data)
+            break
+
+         case 'XLSX':
+            exportExcel(data)
+            break
+
+         case 'Copy to JSON':
+            copyAsJson(data)
+            break
+
+         case 'Copy to CSV':
+            copyAsCsv(data)
+            break
+      }
+   }
 
    return (
       <Paper
@@ -94,19 +124,7 @@ export default function TablePanel({ size, data }: TablePanel) {
                         </p>
                      </Stack>
 
-                     <Button
-                        variant="contained"
-                        size="small"
-                        disableElevation
-                        sx={{
-                           fontFamily: 'Inter',
-                           textTransform: 'capitalize',
-                           gap: 0.5,
-                        }}
-                     >
-                        <TiExport fontSize={14} />
-                        Export CSV
-                     </Button>
+                     <SplitButton onClick={handleExport} />
                   </Stack>
 
                   {data.length > 0 ? (

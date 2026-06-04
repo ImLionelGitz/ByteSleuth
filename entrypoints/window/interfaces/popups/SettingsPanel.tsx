@@ -1,17 +1,16 @@
 import {
-   getDefaultUserData,
-   getUserData,
-   saveUserData,
-} from '@/helpers/datastores/userDatabase'
-import { Divider, Paper, Popover, Stack } from '@mui/material'
-import { ColorPicker, ColorService, useColor } from 'react-color-palette'
-import {
    ColorSetting,
    RowContainerSetting,
    ScrapeSetting,
 } from '@/entrypoints/window/components/settings'
+import {
+   getDefaultUserData,
+   getUserData,
+   saveUserData,
+} from '@/helpers/datastores/userDatabase'
 import { ROW_CONT_LOGIC, SCRAPER_LOGIC } from '@/helpers/vars'
-import { transmit } from '@/helpers/pinger'
+import { Divider, Paper, Popover, Stack } from '@mui/material'
+import { ColorPicker, ColorService, useColor } from 'react-color-palette'
 
 interface SettingsPanel {
    fields: FieldByte[]
@@ -31,16 +30,6 @@ export default function SettingsPanel({ fields, openEditor }: SettingsPanel) {
       setAnchorEl(null)
    }
 
-   const handleSampling = () => {
-      if (!rowField) return
-
-      console.log(rowField)
-      transmit({
-         message: 'sample row container',
-         rowField: rowField,
-      })
-   }
-
    useEffect(() => {
       const fetchSettings = async () => {
          const data = await getUserData()
@@ -55,6 +44,7 @@ export default function SettingsPanel({ fields, openEditor }: SettingsPanel) {
          sx={({ palette }) => ({
             padding: 2,
             maxWidth: 310,
+            borderRadius: '12px',
             backgroundColor: palette.primary.main,
          })}
       >
@@ -73,9 +63,7 @@ export default function SettingsPanel({ fields, openEditor }: SettingsPanel) {
 
                {rowField && (
                   <RowContainerSetting
-                     myField={rowField}
                      onEditClick={() => openEditor(ROW_CONT_LOGIC)}
-                     onSample={handleSampling}
                   />
                )}
             </Stack>

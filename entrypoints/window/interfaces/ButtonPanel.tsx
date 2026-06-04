@@ -1,13 +1,16 @@
 import { Button, Paper, Stack } from '@mui/material'
 import { FaPlay } from 'react-icons/fa'
 import { FaGear } from 'react-icons/fa6'
+import { IoEyedrop } from 'react-icons/io5'
 
 interface ButtonPanel {
+   rowField: FieldByte
    onPlay: () => void
+   onSample: () => void
    onSetting: () => void
 }
 
-export default function ButtonPanel({ onPlay, onSetting }: ButtonPanel) {
+export default function ButtonPanel(props: ButtonPanel) {
    return (
       <Paper
          variant="outlined"
@@ -19,7 +22,7 @@ export default function ButtonPanel({ onPlay, onSetting }: ButtonPanel) {
             <Button
                variant="contained"
                disableElevation
-               onClick={onPlay}
+               onClick={props.onPlay}
                sx={{
                   fontSize: 'x-large',
                   borderRadius: '100%',
@@ -32,9 +35,27 @@ export default function ButtonPanel({ onPlay, onSetting }: ButtonPanel) {
 
             <Button
                variant="contained"
+               color={props.rowField.selector ? 'error' : 'info'}
+               disableElevation
+               onClick={props.onSample}
+               sx={{
+                  fontSize: 'x-large',
+                  borderRadius: '100%',
+                  padding: '10px',
+                  minWidth: 0,
+                  // backgroundColor: props.rowField.selector
+                  //    ? '#bc0a0e'
+                  //    : palette.info.main,
+               }}
+            >
+               <IoEyedrop />
+            </Button>
+
+            <Button
+               variant="contained"
                color="info"
                disableElevation
-               onClick={onSetting}
+               onClick={props.onSetting}
                sx={{
                   fontSize: 'x-large',
                   borderRadius: '100%',

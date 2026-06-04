@@ -35,7 +35,7 @@ self.MonacoEnvironment = {
 loader.config({ monaco: monaco })
 
 export default function CodeEditor(prop: CodeEditorProps) {
-   const firstScriptId = useRef(prop.id)
+   //const firstScriptId = useRef(prop.id)
    const monacoDef = useRef<monaco.IDisposable | null>(null)
    const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null)
 
@@ -56,7 +56,7 @@ export default function CodeEditor(prop: CodeEditorProps) {
    ) => {
       editorRef.current = editor
 
-      if (firstScriptId.current === SCRAPER_LOGIC) {
+      if (prop.id === SCRAPER_LOGIC) {
          const fileUri = 'file:///node_modules/@types/global/index.d.ts'
          // Assuming 'types' is defined globally or imported elsewhere in your file
          monacoDef.current = vscode.typescript.typescriptDefaults.addExtraLib(
