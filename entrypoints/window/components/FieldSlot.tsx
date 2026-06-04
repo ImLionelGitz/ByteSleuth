@@ -1,3 +1,4 @@
+import { FIELD_NAME_LENGTH } from '@/helpers/vars'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import {
@@ -76,7 +77,14 @@ export default function FieldSlot(props: FieldSlot) {
                         e.currentTarget.blur()
                      }
                   }}
-                  onChange={(e) => setInput(e.target.value)}
+                  onChange={(e) => {
+                     const newVal = e.target.value.replace(/\s/g, '')
+                     const size = new TextEncoder().encode(newVal).length
+
+                     if (size < FIELD_NAME_LENGTH) {
+                        setInput(e.target.value)
+                     }
+                  }}
                   onBlur={onChange}
                />
 

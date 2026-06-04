@@ -4,7 +4,7 @@ import FieldsPanel from './FieldsPanel'
 import { Panel } from './popups/InfoPanel'
 import TablePanel from './TablePanel'
 import type { Action } from '@/entrypoints/window/reducers/fieldReducer'
-import { checkMemoryFull } from '@/helpers/datastores/fieldDatabase'
+import { fieldQuotaFull } from '@/helpers/datastores/fieldDatabase'
 import { deleteScript } from '@/helpers/datastores/scriptDatabase'
 import { sendToBackground } from '@/helpers/messager'
 import { ROW_CONT_LOGIC } from '@/helpers/vars'
@@ -32,8 +32,15 @@ export default function MainScreen(props: MainScreen) {
    const [tableData, setTableData] = useState<TableByte[]>([])
 
    async function handleFieldAdd() {
-      const full = await checkMemoryFull()
+      const full = await fieldQuotaFull()
+
       if (!full) props.updater({ type: 'ADD' })
+      else
+         showDialog({
+            type: 'ERROR',
+            title: 'Field Limit Reached',
+            msg: 'You have reached the maximum number of fields allowed. Please delete an existing field to add a new one.',
+         })
    }
 
    function handleFieldUpdate(field: FieldByte) {

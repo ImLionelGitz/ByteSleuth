@@ -1,4 +1,4 @@
-import { unminifyCode, validateCode } from '@/helpers/formatter'
+import { formatCode, validateCode } from '@/helpers/formatter'
 import fieldSample from '@/templates/field.template.ts?raw'
 import scraperSample from '@/templates/scrape.template.ts?raw'
 import types from '@/templates/types.template.d.ts?raw'
@@ -155,7 +155,7 @@ export default function CodeEditor(prop: CodeEditorProps) {
          }
 
          case 'FORMAT': {
-            const formatted = await unminifyCode(editor.getValue())
+            const formatted = await formatCode(editor.getValue())
             editor.setValue(formatted)
             break
          }

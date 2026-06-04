@@ -1,4 +1,4 @@
-import { ROW_CONT_LOGIC } from '../vars'
+import { MAX_ALLOWED_FIELDS, ROW_CONT_LOGIC } from '../vars'
 
 interface RawFieldByte {
    id: number
@@ -11,14 +11,9 @@ const fieldDB = storage.defineItem<RawFieldByte[]>('local:fields', {
    fallback: [],
 })
 
-async function checkMemoryFull() {
-   const quota = 70 //browser.storage.session.QUOTA_BYTES
+async function fieldQuotaFull() {
    const items = await fieldDB.getValue()
-   const rawStr = JSON.stringify({ raw: items })
-   const bytesUse = new Blob([rawStr]).size
-   const percent = bytesUse / quota
-
-   console.log(percent, bytesUse)
+   const percent = items.length / MAX_ALLOWED_FIELDS
 
    if (percent <= 0.9) return false
    else return true
@@ -41,4 +36,4 @@ function saveFields(list: FieldByte[]) {
    fieldDB.setValue(refined.filter((f) => f.id !== ROW_CONT_LOGIC))
 }
 
-export { checkMemoryFull, loadFields, saveFields }
+export { fieldQuotaFull, loadFields, saveFields }

@@ -15,7 +15,7 @@ export default function InfoPanel({ title, msg, type, onConfirm }: Panel) {
       <Paper
          sx={({ palette }) => ({
             padding: 2,
-            //maxWidth: 250,
+            maxWidth: 300,
             backgroundColor: (() => {
                switch (type) {
                   case 'INFO':
@@ -34,7 +34,9 @@ export default function InfoPanel({ title, msg, type, onConfirm }: Panel) {
          })}
       >
          <Stack sx={{ textAlign: 'center', gap: 1 }}>
-            <h2 style={{ color: 'aliceblue' }}>{title}</h2>
+            <h2 style={{ color: 'aliceblue', textTransform: 'capitalize' }}>
+               {title}
+            </h2>
 
             <Divider />
 

@@ -15,6 +15,7 @@ import MainScreen from './interfaces/MainScreen'
 import InfoPanel, { type Panel } from './interfaces/popups/InfoPanel'
 import SettingsPanel from './interfaces/popups/SettingsPanel'
 import fieldReducer from './reducers/fieldReducer'
+import { SCRIPT_LENGTH } from '@/helpers/vars'
 
 function App() {
    const [fieldID, setFieldID] = useState(NaN)
@@ -46,7 +47,18 @@ function App() {
 
    const handleCodeWrite = (code: string | undefined) => {
       if (code === undefined) return
-      curCodeDraft.current = code
+
+      const size = new TextEncoder().encode(code).length
+
+      if (size > SCRIPT_LENGTH) {
+         setDialogState({
+            type: 'ERROR',
+            title: 'Script size limit exceeded',
+            msg: 'The current script is too large. Please reduce the code size to continue.',
+         })
+      } else {
+         curCodeDraft.current = code
+      }
    }
 
    const handleCodeLink = (id: number, checked: boolean) => {

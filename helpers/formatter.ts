@@ -10,7 +10,7 @@ interface ExpectedParam {
    type: string
 }
 
-async function unminifyCode(code: string) {
+async function formatCode(code: string) {
    const { format } = await import('prettier/standalone')
    const typescriptPlugin = await import('prettier/plugins/typescript')
    const estreePlugin = await import('prettier/plugins/estree')
@@ -26,46 +26,13 @@ async function unminifyCode(code: string) {
    })
 }
 
-async function minifyCode(code: string) {
-   const { format } = await import('prettier/standalone')
-   const typescriptPlugin = await import('prettier/plugins/typescript')
-   const estreePlugin = await import('prettier/plugins/estree')
-
-   const cleanCode = await format(code, {
-      parser: 'typescript',
-      plugins: [typescriptPlugin, estreePlugin],
-      semi: true,
-   })
-
-   // Strip lines and extra spaces without harming TS types
-   return cleanCode
-      .replace(/\s+/g, ' ')
-      .replace(/\s*([{};,=\-+*/<>:])\s*/g, '$1')
-      .trim()
-}
-
-async function checkStandard(code: string) {
-   const { check } = await import('prettier/standalone')
-   const typescriptPlugin = await import('prettier/plugins/typescript')
-   const estreePlugin = await import('prettier/plugins/estree')
-
-   return check(code, {
-      parser: 'typescript',
-      plugins: [typescriptPlugin, estreePlugin],
-      semi: false,
-      singleQuote: true,
-      tabWidth: 3,
-      trailingComma: 'es5',
-      endOfLine: 'crlf',
-   })
-}
-
-async function isCodeDefault(code: string, id: number) {
+function isCodeDefault(code: string, id: number) {
    const sample = id === SCRAPER_LOGIC ? scraperSample : fieldSample
-   const against = await minifyCode(sample)
-   const process = await minifyCode(code)
+   return normalize(code) === normalize(sample)
+}
 
-   return against === process
+function normalize(code: string) {
+   return code.replace(/\r\n/g, '').trim()
 }
 
 // Helper utility to safely resolve type annotations into strings from Babel AST
@@ -210,4 +177,4 @@ function validateCode(code: string, id: number) {
    return markers
 }
 
-export { unminifyCode, checkStandard, isCodeDefault, validateCode }
+export { formatCode, isCodeDefault, validateCode }
