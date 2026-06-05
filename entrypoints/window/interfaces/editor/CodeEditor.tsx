@@ -1,4 +1,8 @@
-import { formatCode, validateCode } from '@/helpers/formatter'
+import {
+   formatCode,
+   checkCodeSignature,
+   hasInfiniteLoop,
+} from '@/helpers/formatter'
 import fieldSample from '@/templates/field.template.ts?raw'
 import scraperSample from '@/templates/scrape.template.ts?raw'
 import types from '@/templates/types.template.d.ts?raw'
@@ -38,6 +42,7 @@ export default function CodeEditor(prop: CodeEditorProps) {
    //const firstScriptId = useRef(prop.id)
    const monacoDef = useRef<monaco.IDisposable | null>(null)
    const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null)
+   const timeout = useRef<NodeJS.Timeout | null>(null)
 
    const sampleCode = useMemo(() => {
       if (prop.id === SCRAPER_LOGIC) return scraperSample
@@ -90,24 +95,37 @@ export default function CodeEditor(prop: CodeEditorProps) {
    }
 
    const handleCodeWrite = (code: string | undefined) => {
-      if (!editorRef.current) return
-
-      try {
-         if (code) {
-            const isValid = validateCode(code, prop.id)
-            const model = editorRef.current.getModel()
-            if (!model) return
-
-            if (isValid.length > 0) {
-               monaco.editor.setModelMarkers(model, 'signature-lint', isValid)
-            } else {
-               monaco.editor.setModelMarkers(model, 'signature-lint', [])
-               prop.onCodeWrite(code)
-            }
-         }
-      } catch {
-         prop.onCodeWrite(undefined)
+      if (timeout.current) {
+         clearTimeout(timeout.current)
       }
+
+      timeout.current = setTimeout(() => {
+         if (!editorRef.current) return
+
+         try {
+            if (code) {
+               const model = editorRef.current.getModel()
+               if (!model) return
+
+               const signatureIssues = checkCodeSignature(code, prop.id)
+               const illegalFound = hasInfiniteLoop(code)
+
+               if (!signatureIssues.length && !illegalFound.length) {
+                  monaco.editor.setModelMarkers(model, 'byte-sleuth-lint', [])
+                  prop.onCodeWrite(code)
+
+                  return
+               }
+
+               monaco.editor.setModelMarkers(model, 'byte-sleuth-lint', [
+                  ...signatureIssues,
+                  ...illegalFound,
+               ])
+            }
+         } catch {
+            prop.onCodeWrite(undefined)
+         }
+      }, 300)
    }
 
    const handleContext = async (action: CtxAction) => {

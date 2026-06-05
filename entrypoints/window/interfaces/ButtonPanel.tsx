@@ -1,16 +1,37 @@
-import { Button, Paper, Stack } from '@mui/material'
+import { sendToBackground } from '@/helpers/messager'
+import { ROW_CONT_LOGIC } from '@/helpers/vars'
+import { Button, Paper, Stack, Tooltip } from '@mui/material'
 import { FaPlay } from 'react-icons/fa'
 import { FaGear } from 'react-icons/fa6'
 import { IoEyedrop } from 'react-icons/io5'
 
 interface ButtonPanel {
-   rowField: FieldByte
-   onPlay: () => void
-   onSample: () => void
+   disableInteract: (v: boolean) => void
+   onPlay: (intField: FieldByte) => void
    onSetting: () => void
 }
 
 export default function ButtonPanel(props: ButtonPanel) {
+   const [rowField, setRowField] = useState<FieldByte>({
+      id: ROW_CONT_LOGIC,
+      name: 'Row Container',
+      selector: '',
+   })
+
+   async function handleSample() {
+      props.disableInteract(true)
+
+      const selector = await sendToBackground<string>({
+         message: 'select an element',
+         fieldId: rowField.id,
+      })
+
+      if (selector) {
+         setRowField({ ...rowField, selector: selector })
+         props.disableInteract(false)
+      }
+   }
+
    return (
       <Paper
          variant="outlined"
@@ -22,7 +43,7 @@ export default function ButtonPanel(props: ButtonPanel) {
             <Button
                variant="contained"
                disableElevation
-               onClick={props.onPlay}
+               onClick={() => props.onPlay(rowField)}
                sx={{
                   fontSize: 'x-large',
                   borderRadius: '100%',
@@ -33,23 +54,22 @@ export default function ButtonPanel(props: ButtonPanel) {
                <FaPlay />
             </Button>
 
-            <Button
-               variant="contained"
-               color={props.rowField.selector ? 'error' : 'info'}
-               disableElevation
-               onClick={props.onSample}
-               sx={{
-                  fontSize: 'x-large',
-                  borderRadius: '100%',
-                  padding: '10px',
-                  minWidth: 0,
-                  // backgroundColor: props.rowField.selector
-                  //    ? '#bc0a0e'
-                  //    : palette.info.main,
-               }}
-            >
-               <IoEyedrop />
-            </Button>
+            <Tooltip title={rowField.selector}>
+               <Button
+                  variant="contained"
+                  color={rowField.selector ? 'error' : 'info'}
+                  disableElevation
+                  onClick={handleSample}
+                  sx={{
+                     fontSize: 'x-large',
+                     borderRadius: '100%',
+                     padding: '10px',
+                     minWidth: 0,
+                  }}
+               >
+                  <IoEyedrop />
+               </Button>
+            </Tooltip>
 
             <Button
                variant="contained"

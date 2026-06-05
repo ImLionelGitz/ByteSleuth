@@ -1,14 +1,12 @@
+import type { Action } from '@/entrypoints/window/reducers/fieldReducer'
+import { fieldQuotaFull } from '@/helpers/datastores/fieldDatabase'
+import { deleteScript } from '@/helpers/datastores/scriptDatabase'
+import { sendToBackground } from '@/helpers/messager'
 import { Stack } from '@mui/material'
 import ButtonPanel from './ButtonPanel'
 import FieldsPanel from './FieldsPanel'
 import { Panel } from './popups/InfoPanel'
 import TablePanel from './TablePanel'
-import type { Action } from '@/entrypoints/window/reducers/fieldReducer'
-import { fieldQuotaFull } from '@/helpers/datastores/fieldDatabase'
-import { deleteScript } from '@/helpers/datastores/scriptDatabase'
-import { sendToBackground } from '@/helpers/messager'
-import { ROW_CONT_LOGIC } from '@/helpers/vars'
-import { transmit } from '@/helpers/pinger'
 
 const TABLE_SIZE = 390
 
@@ -23,11 +21,6 @@ interface MainScreen {
 
 export default function MainScreen(props: MainScreen) {
    const { openEditor, showDialog, openSettings, allFields, allScripts } = props
-
-   const rowField = useMemo(
-      () => allFields.find((f) => f.id === ROW_CONT_LOGIC),
-      [allFields]
-   )
 
    const [tableData, setTableData] = useState<TableByte[]>([])
 
@@ -48,6 +41,7 @@ export default function MainScreen(props: MainScreen) {
    }
 
    function handleFieldReorder(fields: FieldByte[]) {
+      console.log(fields, allFields)
       props.updater({ type: 'LOAD', payload: fields })
    }
 
@@ -56,32 +50,34 @@ export default function MainScreen(props: MainScreen) {
    }
 
    async function handleFieldDelete(id: number) {
-      props.updater({ type: 'DELETE', payload: id })
+      const hasScript = allScripts.some(
+         (script) => script.linkedIDs.includes(id) || script.id === id
+      )
 
-      await deleteScript(id)
-      // const hasScript = allScripts.some((script) =>
-      //    script.linkedIDs.includes(id)
-      // )
-      // if (hasScript) {
-      //    showDialog({
-      //       title: 'This Field Has Scripts',
-      //       msg: 'Are you sure you want to delete this field?',
-      //       type: 'WARNING',
-      //       onConfirm() {
-      //          updater({ type: 'DELETE', payload: id })
-      //          showDialog(null)
-      //       },
-      //    })
-      // } else {
-      //    updater({ type: 'DELETE', payload: id })
-      // }
+      if (hasScript) {
+         showDialog({
+            title: 'Delete Linked Field?',
+            msg: 'This field is currently associated with a custom script. Deleting it will also remove the script or unlink it from this field. Do you want to proceed?',
+            type: 'WARNING',
+            async onConfirm() {
+               props.updater({ type: 'DELETE', payload: id })
+
+               await deleteScript(id)
+               showDialog(null)
+            },
+         })
+
+         return
+      }
+
+      props.updater({ type: 'DELETE', payload: id })
    }
 
    function handleDialog(show: boolean) {
       if (show) {
          showDialog({
-            title: 'Selecting',
-            msg: 'Click anywhere outside of this dialog within the window to exit',
+            title: 'Waiting for Selection',
+            msg: 'Please click on an element in the browser tab to select it. To cancel, click anywhere outside of this dialog.',
             type: 'INFO',
          })
       } else {
@@ -89,25 +85,32 @@ export default function MainScreen(props: MainScreen) {
       }
    }
 
-   async function handlePlay() {
-      const rowField = allFields.find((field) => field.id === ROW_CONT_LOGIC)
-      if (!rowField) return
-
-      if (allFields.length <= 1) {
+   async function handlePlay(internal: FieldByte) {
+      if (!allFields.length) {
          props.showDialog({
             type: 'ERROR',
-            title: 'No Fields are specified',
-            msg: 'Please add some fields to continue',
+            title: 'No Fields Defined',
+            msg: 'You have not defined any data fields to extract. Please add at least one field to continue.',
          })
 
          return
       }
 
-      if (!rowField.selector) {
+      if (!internal.selector) {
          props.showDialog({
             type: 'ERROR',
-            title: 'No Root Element is specified',
-            msg: 'Please specify a root element to continue',
+            title: 'Root Element Required',
+            msg: 'You have not selected a row container yet. Please select the main element that contains your data fields (like a product box) to continue.',
+         })
+
+         return
+      }
+
+      if (allFields.some((field) => !field.selector)) {
+         props.showDialog({
+            type: 'ERROR',
+            title: 'Missing Selectors',
+            msg: 'One or more fields in your list are not linked to an element. Please select an element for each field to proceed.',
          })
 
          return
@@ -115,20 +118,10 @@ export default function MainScreen(props: MainScreen) {
 
       const data = await sendToBackground<TableByte[] | null>({
          message: 'scrape',
-         fields: allFields,
+         fields: [...allFields, internal],
       })
 
       setTableData(data || [])
-   }
-
-   function handleSampling() {
-      if (!rowField) return
-
-      console.log(rowField)
-      transmit({
-         message: 'sample row container',
-         rowField: rowField,
-      })
    }
 
    return (
@@ -157,14 +150,11 @@ export default function MainScreen(props: MainScreen) {
                   selectorFound={handleFieldSelectorFound}
                />
 
-               {rowField && (
-                  <ButtonPanel
-                     rowField={rowField}
-                     onPlay={handlePlay}
-                     onSetting={openSettings}
-                     onSample={handleSampling}
-                  />
-               )}
+               <ButtonPanel
+                  onPlay={handlePlay}
+                  onSetting={openSettings}
+                  disableInteract={handleDialog}
+               />
             </Stack>
          </Stack>
       </div>

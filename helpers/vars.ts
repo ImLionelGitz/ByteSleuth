@@ -5,4 +5,4 @@ export const SETTING_BTN_SIZE = 24
 
 export const FIELD_NAME_LENGTH = 100
 export const MAX_ALLOWED_FIELDS = 200
-export const SCRIPT_LENGTH = 20
+export const SCRIPT_LENGTH = 200_000

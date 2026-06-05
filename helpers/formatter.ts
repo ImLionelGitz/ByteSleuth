@@ -1,6 +1,6 @@
 import fieldSample from '@/templates/field.template.ts?raw'
 import scraperSample from '@/templates/scrape.template.ts?raw'
-import * as parser from '@babel/parser'
+import { packages } from '@babel/standalone'
 import { editor, MarkerSeverity } from 'monaco-editor'
 import { SCRAPER_LOGIC } from './vars'
 
@@ -9,6 +9,8 @@ interface ExpectedParam {
    name: string
    type: string
 }
+
+const { parser, traverse } = packages
 
 async function formatCode(code: string) {
    const { format } = await import('prettier/standalone')
@@ -74,7 +76,7 @@ const getTypeString = (node: any): string => {
    return 'unknown'
 }
 
-function validateCode(code: string, id: number) {
+function checkCodeSignature(code: string, id: number) {
    const REQUIRED_NAME = id === SCRAPER_LOGIC ? 'scrape' : 'makeSelector'
    const REQUIRED_RETURN = id === SCRAPER_LOGIC ? 'Array<Table>' : 'string'
    const REQUIRED_PARAMS: ExpectedParam[] = [
@@ -177,4 +179,68 @@ function validateCode(code: string, id: number) {
    return markers
 }
 
-export { formatCode, isCodeDefault, validateCode }
+function hasInfiniteLoop(code: string) {
+   const markers: editor.IMarkerData[] = []
+
+   const ast = parser.parse(code, {
+      sourceType: 'module',
+      plugins: ['typescript'],
+   })
+
+   traverse.default(ast, {
+      WhileStatement({ node }) {
+         markers.push({
+            startLineNumber: node.loc?.start.line ?? 0,
+            startColumn: node.loc?.start.column ?? 0 + 1,
+            endLineNumber: node.loc?.end.line ?? 0,
+            endColumn: node.loc?.end.column ?? 0 + 1,
+            message: 'Infinite loop detected.',
+            severity: MarkerSeverity.Error,
+         })
+      },
+
+      DoWhileStatement({ node }) {
+         markers.push({
+            startLineNumber: node.loc?.start.line ?? 0,
+            startColumn: node.loc?.start.column ?? 0 + 1,
+            endLineNumber: node.loc?.end.line ?? 0,
+            endColumn: node.loc?.end.column ?? 0 + 1,
+            message: 'Infinite loop detected.',
+            severity: MarkerSeverity.Error,
+         })
+      },
+
+      ForStatement({ node }) {
+         if (!node.test) {
+            markers.push({
+               startLineNumber: node.loc?.start.line ?? 0,
+               startColumn: node.loc?.start.column ?? 0 + 1,
+               endLineNumber: node.loc?.end.line ?? 0,
+               endColumn: node.loc?.end.column ?? 0 + 1,
+               message: 'Infinite loop detected.',
+               severity: MarkerSeverity.Error,
+            })
+         }
+      },
+
+      CallExpression({ node }) {
+         const callee = node.callee
+         const illegals = ['setInterval', 'requestAnimationFrame']
+
+         if (callee.type === 'Identifier' && illegals.includes(callee.name)) {
+            markers.push({
+               startLineNumber: node.loc?.start.line ?? 0,
+               startColumn: node.loc?.start.column ?? 0 + 1,
+               endLineNumber: node.loc?.end.line ?? 0,
+               endColumn: node.loc?.end.column ?? 0 + 1,
+               message: 'Illegal function call detected.',
+               severity: MarkerSeverity.Error,
+            })
+         }
+      },
+   })
+
+   return markers
+}
+
+export { formatCode, isCodeDefault, checkCodeSignature, hasInfiniteLoop }

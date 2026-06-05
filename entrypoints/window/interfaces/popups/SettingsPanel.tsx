@@ -13,17 +13,12 @@ import { Divider, Paper, Popover, Stack } from '@mui/material'
 import { ColorPicker, ColorService, useColor } from 'react-color-palette'
 
 interface SettingsPanel {
-   fields: FieldByte[]
    openEditor: (id: number) => void
 }
 
-export default function SettingsPanel({ fields, openEditor }: SettingsPanel) {
+export default function SettingsPanel({ openEditor }: SettingsPanel) {
    const [color, setColor] = useColor(getDefaultUserData().color)
    const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
-   const rowField = useMemo(
-      () => fields.find((f) => f.id === ROW_CONT_LOGIC),
-      [fields]
-   )
 
    const handlePopClose = () => {
       saveUserData('color', color.hex)
@@ -61,11 +56,9 @@ export default function SettingsPanel({ fields, openEditor }: SettingsPanel) {
 
                <ScrapeSetting onClick={() => openEditor(SCRAPER_LOGIC)} />
 
-               {rowField && (
-                  <RowContainerSetting
-                     onEditClick={() => openEditor(ROW_CONT_LOGIC)}
-                  />
-               )}
+               <RowContainerSetting
+                  onEditClick={() => openEditor(ROW_CONT_LOGIC)}
+               />
             </Stack>
          </Stack>
 

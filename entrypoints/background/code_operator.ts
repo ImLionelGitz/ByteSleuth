@@ -24,10 +24,13 @@ export async function executeFieldCode(fieldID: number) {
          `
 
       try {
-         const respond = await browser.userScripts.execute<string>({
-            target: { tabId: tabId },
-            js: [{ code: build }],
-         })
+         const respond = await executeWithTimeout(
+            browser.userScripts.execute<string>({
+               target: { tabId: tabId },
+               js: [{ code: build }],
+            }),
+            600_000
+         )
 
          return respond[0].result
       } catch (e) {
@@ -71,10 +74,13 @@ export async function executeScrapeCode(list: FieldByte[]) {
          `
 
       try {
-         const respond = await browser.userScripts.execute<TableByte[]>({
-            target: { tabId: tabId },
-            js: [{ code: build }],
-         })
+         const respond = await executeWithTimeout(
+            browser.userScripts.execute<TableByte[]>({
+               target: { tabId: tabId },
+               js: [{ code: build }],
+            }),
+            2000
+         )
 
          return respond[0].result
       } catch (e) {
@@ -88,4 +94,16 @@ export async function executeScrapeCode(list: FieldByte[]) {
    }
 
    return []
+}
+
+async function executeWithTimeout<T>(
+   promise: Promise<T>,
+   ms: number
+): Promise<T> {
+   return Promise.race([
+      promise,
+      new Promise<T>((_, reject) =>
+         setTimeout(() => reject(new Error('Execution timeout')), ms)
+      ),
+   ])
 }

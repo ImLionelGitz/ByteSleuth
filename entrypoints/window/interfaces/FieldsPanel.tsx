@@ -9,8 +9,6 @@ import { Button, List, Paper, Stack, useTheme } from '@mui/material'
 import { Scrollbars } from 'react-custom-scrollbars-2'
 import EmptyMessage from '../components/EmptyMsg'
 import FieldSlot from '../components/FieldSlot'
-import { ROW_CONT_LOGIC } from '@/helpers/vars'
-import { pinger } from '@/helpers/pinger'
 
 interface FieldsPanel {
    allFields: FieldByte[]
@@ -38,11 +36,6 @@ export default function FieldsPanel(props: FieldsPanel) {
 
    const { palette } = useTheme()
 
-   const cleanFields: FieldByte[] = useMemo(
-      () => allFields.filter((f) => f.id !== ROW_CONT_LOGIC),
-      [allFields]
-   )
-
    const handleLink = async (oldField: FieldByte) => {
       disableInteract(true)
 
@@ -60,8 +53,8 @@ export default function FieldsPanel(props: FieldsPanel) {
    const handleDragEnd = (event: DragEndEvent) => {
       const { active, over } = event
       if (over && active.id !== over.id) {
-         const oldIndex = cleanFields.findIndex((item) => item.id === active.id)
-         const newIndex = cleanFields.findIndex((item) => item.id === over.id)
+         const oldIndex = allFields.findIndex((item) => item.id === active.id)
+         const newIndex = allFields.findIndex((item) => item.id === over.id)
          const newArray = arrayMove(allFields, oldIndex, newIndex)
 
          fieldReorder(newArray)
@@ -75,18 +68,10 @@ export default function FieldsPanel(props: FieldsPanel) {
    const nameExists = (name: string) => {
       const cleaned = name.replace(/\s/g, '')
 
-      return cleanFields.some(
+      return allFields.some(
          (field) => field.name.replace(/\s/g, '') === cleaned
       )
    }
-
-   useEffect(() => {
-      pinger((msg) => {
-         if (msg.message === 'sample row container') {
-            handleLink(msg.rowField)
-         }
-      })
-   }, [])
 
    return (
       <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
@@ -115,7 +100,7 @@ export default function FieldsPanel(props: FieldsPanel) {
                </Button>
             </Stack>
 
-            {cleanFields.length > 0 ? (
+            {allFields.length > 0 ? (
                <List>
                   <Scrollbars
                      style={{ width: '100%', height: 222 }}
@@ -132,10 +117,10 @@ export default function FieldsPanel(props: FieldsPanel) {
                      )}
                   >
                      <SortableContext
-                        items={cleanFields.map((field) => field.id)}
+                        items={allFields.map((field) => field.id)}
                         strategy={verticalListSortingStrategy}
                      >
-                        {cleanFields.map((field) => (
+                        {allFields.map((field) => (
                            <FieldSlot
                               key={field.name}
                               {...field}

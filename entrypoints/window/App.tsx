@@ -6,6 +6,7 @@ import {
 } from '@/helpers/datastores/scriptDatabase'
 import { isCodeDefault } from '@/helpers/formatter'
 import { getCurrentTabID, sendToContentJS } from '@/helpers/messager'
+import { SCRIPT_LENGTH } from '@/helpers/vars'
 import { Dialog, Modal } from '@mui/material'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useState } from 'react'
@@ -15,7 +16,6 @@ import MainScreen from './interfaces/MainScreen'
 import InfoPanel, { type Panel } from './interfaces/popups/InfoPanel'
 import SettingsPanel from './interfaces/popups/SettingsPanel'
 import fieldReducer from './reducers/fieldReducer'
-import { SCRIPT_LENGTH } from '@/helpers/vars'
 
 function App() {
    const [fieldID, setFieldID] = useState(NaN)
@@ -116,7 +116,7 @@ function App() {
       }
 
       try {
-         const looksDefault = await isCodeDefault(curCodeDraft.current, fieldID)
+         const looksDefault = isCodeDefault(curCodeDraft.current, fieldID)
 
          if (curCodeDraft.current && looksDefault) {
             setDialogState({
@@ -227,7 +227,7 @@ function App() {
             onClose={() => setSettingVisible(false)}
             slotProps={{ paper: { sx: { background: 'none' } } }}
          >
-            <SettingsPanel openEditor={setFieldID} fields={fields} />
+            <SettingsPanel openEditor={setFieldID} />
          </Dialog>
 
          <Modal

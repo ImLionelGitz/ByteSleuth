@@ -1,5 +1,4 @@
 import { saveFields } from '@/helpers/datastores/fieldDatabase'
-import { ROW_CONT_LOGIC } from '@/helpers/vars'
 
 export type Action =
    | { type: 'ADD' }
@@ -11,18 +10,33 @@ export type Action =
 export default function fieldReducer(state: FieldByte[], action: Action) {
    switch (action.type) {
       case 'ADD': {
-         const existNames = state.map((f) => f.name)
-         let name = 'New Field'
-         let i = 1
+         const getName = () => {
+            const existNames = state.map((f) => f.name)
+            let name = 'New Field'
+            let i = 1
 
-         while (existNames.includes(name)) {
-            name = `New Field ${i}`
-            i++
+            while (existNames.includes(name)) {
+               name = `New Field ${i}`
+               i++
+            }
+
+            return name
+         }
+
+         const getId = () => {
+            const existIds = state.map((f) => f.id)
+            let i = 1
+
+            while (existIds.includes(i)) {
+               i++
+            }
+
+            return i
          }
 
          const newField: FieldByte = {
-            id: state.length - 1,
-            name: name,
+            id: getId(),
+            name: getName(),
             selector: '',
          }
 
@@ -43,12 +57,9 @@ export default function fieldReducer(state: FieldByte[], action: Action) {
       }
 
       case 'DELETE': {
-         const arr = state
-            .filter((field) => field.id !== action.payload)
-            .map((field, i) => {
-               if (field.id === ROW_CONT_LOGIC) return field
-               else return { ...field, id: i }
-            })
+         console.log(action.payload)
+
+         const arr = state.filter((field) => field.id !== action.payload)
 
          saveFields(arr)
          return arr

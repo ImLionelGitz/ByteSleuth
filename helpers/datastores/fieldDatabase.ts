@@ -1,4 +1,4 @@
-import { MAX_ALLOWED_FIELDS, ROW_CONT_LOGIC } from '../vars'
+import { MAX_ALLOWED_FIELDS } from '../vars'
 
 interface RawFieldByte {
    id: number
@@ -21,19 +21,12 @@ async function fieldQuotaFull() {
 
 async function loadFields(): Promise<FieldByte[]> {
    const raw = await fieldDB.getValue()
-
-   const defField: FieldByte = {
-      id: ROW_CONT_LOGIC,
-      name: 'Row Container',
-      selector: '',
-   }
-
-   return [...raw.map((f) => ({ ...f, selector: '' })), defField]
+   return raw.map((f) => ({ ...f, selector: '' }))
 }
 
 function saveFields(list: FieldByte[]) {
    const refined = list.map((f) => ({ id: f.id, name: f.name }))
-   fieldDB.setValue(refined.filter((f) => f.id !== ROW_CONT_LOGIC))
+   fieldDB.setValue(refined)
 }
 
 export { fieldQuotaFull, loadFields, saveFields }
