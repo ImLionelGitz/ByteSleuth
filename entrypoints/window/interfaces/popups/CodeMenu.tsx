@@ -3,16 +3,19 @@ import { Menu, MenuProps } from '@mui/material'
 import { MenuItemData, nestedMenuItemsFromObject } from 'mui-nested-menu'
 import { FaCheck } from 'react-icons/fa'
 
-function generateMenu(
-   fields: FieldByte[],
-   linked: number[],
-   idOfCtx: number,
-   onSelect: (id: number) => void,
-   onCtxAction: (action: CtxAction) => void
-) {
+interface CodeMenuProps extends MenuProps {
+   fields: FieldByte[]
+   scripts: Script[]
+   linkedIds: number[]
+   curID: number
+   itemSelect: (id: number) => void
+   ctxAction: (action: CtxAction) => void
+}
+
+function generateMenu(props: CodeMenuProps) {
    const items: CtxAction[] = ['COPY', 'CUT', 'PASTE', 'FORMAT']
 
-   if (idOfCtx === SCRAPER_LOGIC) items.push('RESET')
+   if (props.curID === SCRAPER_LOGIC) items.push('RESET')
    else items.push('LINK')
 
    return items.map((item) => {
@@ -38,45 +41,39 @@ function generateMenu(
          uid: item,
       }
 
-      if (item === 'LINK' && fields.length > 0) {
-         data.items = fields.map((field) => {
+      if (item === 'LINK' && props.fields.length > 0) {
+         data.items = props.fields.map((field) => {
             const linkData: MenuItemData = {
                label: field.name,
-               rightIcon: linked.includes(field.id) ? <FaCheck /> : null,
+
+               rightIcon: props.linkedIds.includes(field.id) ? (
+                  <FaCheck />
+               ) : null,
+
+               disabled: props.scripts.some(
+                  (s) => s.id === field.id && s.id !== props.curID
+               ),
+
                callback() {
-                  onSelect(field.id)
+                  props.itemSelect(field.id)
                },
             }
 
             return linkData
          })
       } else if (item !== 'LINK') {
-         data.callback = () => onCtxAction(item)
+         data.callback = () => props.ctxAction(item)
       }
 
       return data
    })
 }
 
-interface CodeMenuProps extends MenuProps {
-   fields: FieldByte[]
-   linkedIds: number[]
-   curID: number
-   itemSelect: (id: number) => void
-   ctxAction: (action: CtxAction) => void
-}
-
 export default function CodeMenu(props: CodeMenuProps) {
    return (
       <Menu {...props} slotProps={{ paper: { sx: { width: 200 } } }}>
          {nestedMenuItemsFromObject({
-            menuItemsData: generateMenu(
-               props.fields,
-               props.linkedIds,
-               props.curID,
-               props.itemSelect,
-               props.ctxAction
-            ),
+            menuItemsData: generateMenu(props),
             isOpen: true,
             handleClose: () => {},
          })}

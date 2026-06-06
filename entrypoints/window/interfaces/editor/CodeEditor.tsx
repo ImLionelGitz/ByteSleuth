@@ -19,6 +19,7 @@ import setupTheme from './setupTheme'
 
 interface CodeEditorProps extends Omit<Script, 'code'> {
    fields: FieldByte[]
+   scripts: Script[]
    code: string | undefined
    onCodeWrite: (code: string | undefined) => void
    onFieldLink: (id: number, tick: boolean) => void
@@ -268,6 +269,7 @@ export default function CodeEditor(prop: CodeEditorProps) {
          <CodeMenu
             open={menuPosition !== null}
             fields={prop.fields}
+            scripts={prop.scripts}
             curID={prop.id}
             linkedIds={prop.linkedIDs}
             itemSelect={handleItemSelect}

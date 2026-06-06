@@ -104,7 +104,7 @@ function App() {
             await saveScript({
                id: fieldID,
                linkedIDs: curLinkeds,
-               code: curCodeDraft.current,
+               code: curCodeDraft.current || curCode,
             })
          }
 
@@ -241,6 +241,7 @@ function App() {
          >
             <CodeEditor
                fields={fields}
+               scripts={scripts ?? []}
                id={fieldID}
                linkedIDs={curLinkeds}
                code={curCode}
