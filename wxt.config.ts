@@ -26,6 +26,7 @@ export default defineConfig({
   }),
 
   manifest: {
+    name: 'ByteSleuth',
     action: {},
     host_permissions: ["<all_urls>"],
     permissions: ['storage', 'userScripts', 'unlimitedStorage'],

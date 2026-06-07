@@ -9,7 +9,7 @@ export default defineConfig(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
-    ignores: ['templates/**']
+    ignores: ['templates/**', 'examples/**']
   },
   {
     // Explicitly target TSX and JSX files

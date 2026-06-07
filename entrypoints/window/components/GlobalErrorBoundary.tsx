@@ -30,7 +30,7 @@ export class GlobalErrorBoundary extends Component<Props, State> {
       // inside App.tsx is handling the visual error message overlay
       if (this.state.hasError) {
          return (
-            <Dialog open>
+            <Dialog open slotProps={{ paper: { sx: { background: 'none' } } }}>
                <InfoPanel
                   title="An UI Error Occurred"
                   msg={this.state.msg}

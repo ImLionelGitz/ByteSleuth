@@ -1,21 +1,11 @@
 import { SETTING_BTN_SIZE } from '@/helpers/vars'
-import { Button, Stack } from '@mui/material'
+import { Button } from '@mui/material'
 import { MdOpenInBrowser } from 'react-icons/md'
+import SettingSlot from './SettingSlot'
 
 export default function ScrapeSetting({ onClick }: { onClick: () => void }) {
    return (
-      <Stack
-         direction="row"
-         sx={{
-            gap: 2,
-            alignItems: 'center',
-            justifyContent: 'space-evenly',
-         }}
-      >
-         <strong style={{ textTransform: 'capitalize' }}>
-            Change scraper behaivor
-         </strong>
-
+      <SettingSlot title="Scraper behavior">
          <Button
             size="small"
             variant="contained"
@@ -33,6 +23,6 @@ export default function ScrapeSetting({ onClick }: { onClick: () => void }) {
          >
             <MdOpenInBrowser />
          </Button>
-      </Stack>
+      </SettingSlot>
    )
 }

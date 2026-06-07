@@ -1,6 +1,6 @@
 {
-  "name": "wxt-react-starter",
-  "description": "manifest.json description",
+  "name": "byte-sleuth",
+  "description": "A webscraper with a reprogrammable behaviour",
   "private": true,
   "version": "1.0.6",
   "type": "module",

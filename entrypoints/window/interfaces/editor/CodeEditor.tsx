@@ -11,7 +11,7 @@ import { Box, Paper, Skeleton } from '@mui/material'
 import * as monaco from 'monaco-editor'
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
-import { useEffect, useRef } from 'react'
+import { ChangeEvent, useEffect, useRef } from 'react'
 import CodeMenu from '../popups/CodeMenu'
 import { SCRAPER_LOGIC } from '@/helpers/vars'
 import { deleteScript } from '@/helpers/datastores/scriptDatabase'
@@ -44,6 +44,8 @@ export default function CodeEditor(prop: CodeEditorProps) {
    const monacoDef = useRef<monaco.IDisposable | null>(null)
    const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null)
    const timeout = useRef<NodeJS.Timeout | null>(null)
+
+   const fileInputRef = useRef<HTMLInputElement>(null)
 
    const sampleCode = useMemo(() => {
       if (prop.id === SCRAPER_LOGIC) return scraperSample
@@ -91,8 +93,36 @@ export default function CodeEditor(prop: CodeEditorProps) {
       setMenuPosition(null)
    }
 
+   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0]
+      const tester = /^[^.]+\.ts$/
+
+      if (file && tester.test(file.name)) {
+         const reader = new FileReader()
+
+         reader.onload = (e) => {
+            if (!editorRef.current) return
+
+            if (typeof e.target?.result === 'string') {
+               const code = e.target.result
+
+               editorRef.current.setValue(code)
+               //prop.onCodeWrite(code)
+            }
+         }
+
+         reader.readAsText(file)
+      }
+   }
+
    const handleItemSelect = (id: number) => {
       prop.onFieldLink(id, !prop.linkedIDs.includes(id))
+   }
+
+   const handleExample = (code: string) => {
+      if (!editorRef.current) return
+
+      editorRef.current.setValue(code)
    }
 
    const handleCodeWrite = (code: string | undefined) => {
@@ -147,6 +177,11 @@ export default function CodeEditor(prop: CodeEditorProps) {
             break
          }
 
+         case 'OPEN': {
+            fileInputRef.current?.click()
+            break
+         }
+
          case 'PASTE': {
             try {
                // Fallback to browser Clipboard API since Monaco paste trigger can be restricted
@@ -182,6 +217,22 @@ export default function CodeEditor(prop: CodeEditorProps) {
          case 'RESET': {
             editor.setValue(sampleCode)
             deleteScript(prop.id)
+            break
+         }
+
+         case 'SAVE': {
+            const blob = new Blob([editorRef.current.getValue()], {
+               type: 'text/plain;charset=utf-8',
+            })
+
+            const url = URL.createObjectURL(blob)
+
+            const a = document.createElement('a')
+            a.href = url
+            a.download = 'byte-sleuth.ts'
+            a.click()
+
+            URL.revokeObjectURL(url)
             break
          }
 
@@ -273,6 +324,7 @@ export default function CodeEditor(prop: CodeEditorProps) {
             curID={prop.id}
             linkedIds={prop.linkedIDs}
             itemSelect={handleItemSelect}
+            exampleSelect={handleExample}
             ctxAction={handleContext}
             onClose={handleClose}
             anchorReference="anchorPosition"
@@ -281,6 +333,14 @@ export default function CodeEditor(prop: CodeEditorProps) {
                   ? { top: menuPosition.mouseY, left: menuPosition.mouseX }
                   : undefined
             }
+         />
+
+         <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            style={{ display: 'none' }} // Hides it from view
+            accept=".ts" // Optional: restricts file types
          />
       </Paper>
    )

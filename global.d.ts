@@ -23,7 +23,16 @@ interface MouseCoords {
 }
 
 type TableByte = Record<string, string>
-type CtxAction = 'COPY' | 'CUT' | 'PASTE' | 'FORMAT' | 'LINK' | 'RESET'
+type CtxAction =
+   | 'COPY'
+   | 'CUT'
+   | 'PASTE'
+   | 'FORMAT'
+   | 'LINK'
+   | 'RESET'
+   | 'SAVE'
+   | 'OPEN'
+   | 'EXAMPLES'
 type ExportOptions = 'JSON' | 'CSV' | 'XLSX' | 'Copy to JSON' | 'Copy to CSV'
 
 // Events

@@ -1,6 +1,8 @@
 import { SETTING_BTN_SIZE } from '@/helpers/vars'
-import { Button, Stack } from '@mui/material'
+import { Button } from '@mui/material'
+import { useMemo } from 'react'
 import tiny from 'tinycolor2'
+import SettingSlot from './SettingSlot'
 
 type colorData = {
    color: string
@@ -11,14 +13,7 @@ export default function ColorSetting({ color, onClick }: colorData) {
    const modifier = useMemo(() => tiny(color), [color])
 
    return (
-      <Stack
-         direction="row"
-         sx={{ gap: 2, alignItems: 'center', justifyContent: 'space-between' }}
-      >
-         <strong style={{ textTransform: 'capitalize' }}>
-            Change highlight color
-         </strong>
-
+      <SettingSlot title="Selection highlight">
          <Button
             sx={{
                background: color,
@@ -29,6 +24,6 @@ export default function ColorSetting({ color, onClick }: colorData) {
             }}
             onClick={(e) => onClick(e.currentTarget)}
          ></Button>
-      </Stack>
+      </SettingSlot>
    )
 }

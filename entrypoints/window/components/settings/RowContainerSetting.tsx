@@ -1,6 +1,7 @@
 import { SETTING_BTN_SIZE } from '@/helpers/vars'
-import { Button, Stack } from '@mui/material'
+import { Button } from '@mui/material'
 import { MdOpenInBrowser } from 'react-icons/md'
+import SettingSlot from './SettingSlot'
 
 interface RowContainerSetting {
    onEditClick: () => void
@@ -8,18 +9,7 @@ interface RowContainerSetting {
 
 export default function RowContainerSetting(props: RowContainerSetting) {
    return (
-      <Stack
-         direction="row"
-         sx={{
-            gap: 2,
-            alignItems: 'center',
-            justifyContent: 'space-between',
-         }}
-      >
-         <strong style={{ textTransform: 'capitalize' }}>
-            Add a row container
-         </strong>
-
+      <SettingSlot title="Row architecture">
          <Button
             size="small"
             variant="contained"
@@ -37,6 +27,6 @@ export default function RowContainerSetting(props: RowContainerSetting) {
          >
             <MdOpenInBrowser />
          </Button>
-      </Stack>
+      </SettingSlot>
    )
 }

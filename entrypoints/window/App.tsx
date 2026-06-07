@@ -17,6 +17,8 @@ import InfoPanel, { type Panel } from './interfaces/popups/InfoPanel'
 import SettingsPanel from './interfaces/popups/SettingsPanel'
 import fieldReducer from './reducers/fieldReducer'
 
+const manifest = browser.runtime.getManifest()
+
 function App() {
    const [fieldID, setFieldID] = useState(NaN)
    const [curLinkeds, setCurLinked] = useState<number[]>([])
@@ -213,6 +215,8 @@ function App() {
 
    return (
       <GlobalErrorBoundary>
+         <title>{manifest.name}</title>
+
          <MainScreen
             allFields={fields ?? []}
             allScripts={scripts ?? []}
