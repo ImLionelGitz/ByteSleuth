@@ -24,10 +24,14 @@ export default function setupListeners(
       }
    })
 
-   receiver((msg) => {
+   receiver((msg, _, reply) => {
       switch (msg.message) {
          case 'selection cancelled':
             transmit({ message: 'terminate' })
+            break
+
+         case 'are u there':
+            reply('yes')
             break
 
          default:

@@ -34,7 +34,11 @@ export default defineBackground(() => {
    receiver<'BG'>((msg, _, reply) => {
       switch (msg.message) {
          case 'select an element': {
-            executeFieldCode(msg.fieldId).then((res) => reply(res))
+            executeFieldCode(msg.fieldId).then((res) => {
+               browser.windows.update(windowID, { state: 'normal' })
+               reply(res)
+            })
+
             return true
          }
 

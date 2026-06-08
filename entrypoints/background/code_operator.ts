@@ -1,5 +1,9 @@
 import { giveScript } from '@/helpers/datastores/scriptDatabase'
-import { getCurrentTabID, sendToBackground } from '@/helpers/messager'
+import {
+   getCurrentTabID,
+   sendToBackground,
+   sendToContentJS,
+} from '@/helpers/messager'
 import fieldSample from '@/templates/field.template.ts?raw'
 import scraperSample from '@/templates/scrape.template.ts?raw'
 import fieldMainJS from '@/templates/exec.template.js?raw'
@@ -24,6 +28,14 @@ export async function executeFieldCode(fieldID: number) {
          `
 
       try {
+         const liveCheck = await sendToContentJS<'yes' | null>(tabId, {
+            message: 'are u there',
+         })
+
+         console.log(liveCheck)
+
+         if (liveCheck !== 'yes') throw new Error(':((((')
+
          const respond = await executeWithTimeout(
             browser.userScripts.execute<string>({
                target: { tabId: tabId },

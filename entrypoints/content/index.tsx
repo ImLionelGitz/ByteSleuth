@@ -2,12 +2,13 @@ import { createRoot } from 'react-dom/client'
 import Hud from './Hud'
 
 export default defineContentScript({
-   matches: [
-      'https://www.amazon.co.uk/*',
-      'https://polyhaven.com/*',
-      'https://idlc.com/*',
-      'https://monkeytype.com/*',
-   ],
+   matches: import.meta.env.DEV
+      ? [
+           'https://www.amazon.co.uk/*',
+           'https://polyhaven.com/*',
+           'https://idlc.com/*',
+        ]
+      : ['<all_urls>'],
 
    async main(ctx) {
       const ui = await createShadowRootUi(ctx, {
@@ -28,7 +29,5 @@ export default defineContentScript({
       })
 
       ui.mount()
-
-      //setupListeners(ui.uiContainer)
    },
 })

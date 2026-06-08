@@ -8,11 +8,13 @@ import exportCsv from '@/helpers/exporters/csv'
 import { copyAsCsv, copyAsJson } from '@/helpers/exporters/copy'
 
 interface TablePanel {
+   name: string
+   version: string
    size: number
    data: TableByte[]
 }
 
-export default function TablePanel({ size, data }: TablePanel) {
+export default function TablePanel({ size, data, name, version }: TablePanel) {
    const { palette } = useTheme()
 
    const handleExport = (option: ExportOptions) => {
@@ -80,7 +82,7 @@ export default function TablePanel({ size, data }: TablePanel) {
                   sx={{ alignItems: 'center', gap: '12px', marginLeft: '8px' }}
                >
                   <img src="/wxt.svg" alt="" width={32} height={32} />
-                  <h1>ByteSleuth</h1>
+                  <h1>{name}</h1>
                   <p
                      className="px-1 rounded-[14px]"
                      style={{
@@ -88,7 +90,7 @@ export default function TablePanel({ size, data }: TablePanel) {
                         color: palette.secondary.contrastText,
                      }}
                   >
-                     {browser.runtime.getVersion()}
+                     {version}
                   </p>
                </Stack>
 

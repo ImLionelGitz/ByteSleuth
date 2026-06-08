@@ -30,10 +30,5 @@ export default defineConfig({
     action: {},
     host_permissions: ["<all_urls>"],
     permissions: ['storage', 'userScripts', 'unlimitedStorage'],
-
-    web_accessible_resources: [{
-      resources: ['barrier.html'],
-      matches: ['<all_urls>']
-    }]
   }
 });

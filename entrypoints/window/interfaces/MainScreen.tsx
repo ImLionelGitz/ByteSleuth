@@ -9,6 +9,7 @@ import { Panel } from './popups/InfoPanel'
 import TablePanel from './TablePanel'
 
 const TABLE_SIZE = 390
+const manifest = browser.runtime.getManifest()
 
 interface MainScreen {
    allFields: FieldByte[]
@@ -126,6 +127,8 @@ export default function MainScreen(props: MainScreen) {
 
    return (
       <div>
+         <title>{manifest.name}</title>
+
          <Stack
             direction="row"
             sx={{
@@ -135,7 +138,12 @@ export default function MainScreen(props: MainScreen) {
                gap: '8px',
             }}
          >
-            <TablePanel size={TABLE_SIZE} data={tableData} />
+            <TablePanel
+               size={TABLE_SIZE}
+               data={tableData}
+               name={manifest.name}
+               version={manifest.version}
+            />
 
             <Stack sx={{ gap: '12px', height: TABLE_SIZE }}>
                <FieldsPanel

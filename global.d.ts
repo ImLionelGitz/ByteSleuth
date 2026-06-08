@@ -37,7 +37,7 @@ type ExportOptions = 'JSON' | 'CSV' | 'XLSX' | 'Copy to JSON' | 'Copy to CSV'
 
 // Events
 
-type ContentMessages = { message: 'selection cancelled' }
+type ContentMessages = { message: 'selection cancelled' | 'are u there' }
 
 type BGMessages =
    | { message: 'select an element'; fieldId: number }
