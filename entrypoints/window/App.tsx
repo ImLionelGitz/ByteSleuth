@@ -42,7 +42,7 @@ function App() {
          }
       }
 
-      setDialogState(null)
+      if (dialogState?.title !== "Can't Run Scripts") setDialogState(null)
    }
 
    const handleCodeWrite = (code: string | undefined) => {
@@ -168,7 +168,35 @@ function App() {
          fieldUpdater({ type: 'LOAD', payload: fieldData })
       }
 
-      fetchFields()
+      const checkPerms = async () => {
+         const hasPerms = await browser.permissions.contains({
+            permissions: ['userScripts'],
+         })
+
+         if (!hasPerms || !browser.userScripts) {
+            setDialogState({
+               title: "Can't Run Scripts",
+               msg: 'ByteSleuth currently lacks the "Allow User Scripts" permission, which is required to execute your scripts. Please grant this permission by pressing "Confirm" to use the full functionality.',
+               type: 'WARNING',
+               async onConfirm() {
+                  const granted = await browser.permissions.request({
+                     permissions: ['userScripts'],
+                  })
+
+                  if (granted) {
+                     setDialogState(null)
+                     fetchFields()
+                  }
+               },
+            })
+
+            return
+         }
+
+         fetchFields()
+      }
+
+      checkPerms()
    }, [])
 
    // Error handlers (central)

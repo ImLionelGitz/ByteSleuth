@@ -3,7 +3,8 @@
   "compilerOptions": {
     "allowImportingTsExtensions": true,
     "noEmitOnError": true,
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "types": ["@types/wicg-file-system-access"]
   },
   "exclude": ["**/*/types.template.d.ts"]
 }

@@ -29,6 +29,7 @@ export default defineConfig({
     name: 'ByteSleuth',
     action: {},
     host_permissions: ["<all_urls>"],
-    permissions: ['storage', 'userScripts', 'unlimitedStorage'],
+    optional_permissions: ['userScripts'],
+    permissions: ['storage', 'unlimitedStorage', 'system.display', 'activeTab'],
   }
 });

@@ -3,6 +3,9 @@ import scraperSample from '@/templates/scrape.template.ts?raw'
 import { packages } from '@babel/standalone'
 import { editor, MarkerSeverity } from 'monaco-editor'
 import { SCRAPER_LOGIC } from './vars'
+import { format } from 'prettier/standalone'
+import typescriptPlugin from 'prettier/plugins/typescript'
+import estreePlugin from 'prettier/plugins/estree'
 
 // 1. Define strict structures for configuration targets
 interface ExpectedParam {
@@ -13,10 +16,6 @@ interface ExpectedParam {
 const { parser, traverse } = packages
 
 async function formatCode(code: string) {
-   const { format } = await import('prettier/standalone')
-   const typescriptPlugin = await import('prettier/plugins/typescript')
-   const estreePlugin = await import('prettier/plugins/estree')
-
    return format(code, {
       parser: 'typescript',
       plugins: [typescriptPlugin, estreePlugin],

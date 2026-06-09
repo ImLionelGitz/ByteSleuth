@@ -35,8 +35,9 @@ export default defineBackground(() => {
       switch (msg.message) {
          case 'select an element': {
             executeFieldCode(msg.fieldId).then((res) => {
-               browser.windows.update(windowID, { state: 'normal' })
-               reply(res)
+               browser.windows
+                  .update(windowID, { focused: true, drawAttention: true })
+                  .then(() => reply(res))
             })
 
             return true

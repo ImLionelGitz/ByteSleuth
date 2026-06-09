@@ -1,18 +1,14 @@
 import { unparse } from 'papaparse'
+import saveFile from './saveAs'
 
 export default function exportCsv(rows: TableByte[]) {
    const csv = unparse(rows)
 
-   const blob = new Blob([csv], {
-      type: 'text/csv;charset=utf-8;',
+   saveFile({
+      content: csv,
+      suggestedName: 'data.csv',
+      contentType: 'text/csv',
+      extension: '.csv',
+      fileDescription: 'CSV File',
    })
-
-   const url = URL.createObjectURL(blob)
-
-   const a = document.createElement('a')
-   a.href = url
-   a.download = 'data.csv'
-   a.click()
-
-   URL.revokeObjectURL(url)
 }
