@@ -32,16 +32,16 @@ export default defineConfig(
       {
         "patterns": [
           {
-            "group": ["**/helpers/hooks/private/*"],
-            "message": "Direct imports from my helper hooks are restricted"
-          },
-          {
             "group": ["**/background/*", "**/content/*"],
             "message": "Direct imports from background and content are restricted"
           },
           {
             "group": ["**/components/settings/*"],
             "message": "Direct imports from settings slots are restricted"
+          },
+          {
+            "group": ["**/helpers/formatter/*"],
+            "message": "Direct imports from formatter are restricted"
           }
         ]
       }

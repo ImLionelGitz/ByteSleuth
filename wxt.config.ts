@@ -8,6 +8,7 @@ export default defineConfig({
   vite: () => ({
     plugins: [tailwindcss()],
     build: {
+      minify: 'esbuild',
       rolldownOptions: {
         output: {
           codeSplitting: {

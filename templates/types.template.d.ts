@@ -20,10 +20,12 @@ declare interface Config {
    fields: Field[]
 }
 
+declare type TableEntry = Record<string, string>
+
 /**
  * A mapped record of extracted data where keys are field names.
  */
-declare type Table = Record<string, string>
+declare type Table = Array<TableEntry>
 
 /**
  * Selects the first element that matches the specified CSS selector.

@@ -8,7 +8,7 @@ import fieldSample from '@/templates/field.template.ts?raw'
 import scraperSample from '@/templates/scrape.template.ts?raw'
 import fieldMainJS from '@/templates/exec.template.js?raw'
 import scraperMainJS from '@/templates/exec2.template.js?raw'
-import { transform } from '@babel/standalone'
+import { transform } from 'sucrase'
 import { ROW_CONT_LOGIC, SCRAPER_LOGIC } from '@/helpers/vars'
 
 export async function executeFieldCode(fieldID: number) {
@@ -16,8 +16,7 @@ export async function executeFieldCode(fieldID: number) {
    const tabId = await getCurrentTabID()
 
    const mainCode = transform(script?.code || fieldSample, {
-      presets: ['typescript'],
-      filename: 'script.ts',
+      transforms: ['typescript'],
    })
 
    if (mainCode.code && tabId) {
@@ -63,8 +62,7 @@ export async function executeScrapeCode(list: FieldByte[]) {
    const tabId = await getCurrentTabID()
 
    const mainCode = transform(script?.code || scraperSample, {
-      presets: ['typescript'],
-      filename: 'script.ts',
+      transforms: ['typescript'],
    })
 
    const mainField = list.find((f) => f.id === ROW_CONT_LOGIC)
