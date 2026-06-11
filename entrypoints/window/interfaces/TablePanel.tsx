@@ -2,7 +2,6 @@ import { Paper, Stack, useTheme } from '@mui/material'
 import EmptyMessage from '../components/EmptyMsg'
 import SplitButton from '../components/SplitButton'
 import DaTable from '../components/Table'
-import exportExcel from '@/helpers/exporters/excel'
 import exportJson from '@/helpers/exporters/json'
 import exportCsv from '@/helpers/exporters/csv'
 import { copyAsCsv, copyAsJson } from '@/helpers/exporters/copy'
@@ -29,9 +28,17 @@ export default function TablePanel({ size, data, name, version }: TablePanel) {
             exportCsv(data)
             break
 
-         case 'XLSX':
-            exportExcel(data)
+         case 'XLSX': {
+            const run = async () => {
+               const { default: exportExcel } =
+                  await import('@/helpers/exporters/excel')
+
+               await exportExcel(data)
+            }
+
+            run()
             break
+         }
 
          case 'Copy to JSON':
             copyAsJson(data)

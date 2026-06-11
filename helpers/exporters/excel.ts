@@ -1,13 +1,14 @@
-import { write, utils } from 'xlsx'
 import saveFile from './saveAs'
 
-export default function exportExcel(rows: TableByte[]) {
-   const worksheet = utils.json_to_sheet(rows)
-   const workbook = utils.book_new()
+export default async function exportExcel(rows: TableByte[]) {
+   const XLSX = await import('xlsx')
 
-   utils.book_append_sheet(workbook, worksheet, 'Results')
+   const worksheet = XLSX.utils.json_to_sheet(rows)
+   const workbook = XLSX.utils.book_new()
 
-   const excelBuffer: ArrayBuffer = write(workbook, {
+   XLSX.utils.book_append_sheet(workbook, worksheet, 'Results')
+
+   const excelBuffer: ArrayBuffer = XLSX.write(workbook, {
       bookType: 'xlsx',
       type: 'array',
    })

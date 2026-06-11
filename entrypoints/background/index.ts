@@ -2,42 +2,47 @@ import { receiver } from '@/helpers/messager'
 import { executeFieldCode, executeScrapeCode } from './code_operator'
 
 export default defineBackground(() => {
-   let windowID = 0
+   browser.action.onClicked.addListener(async () => {
+      const windowID = await storage.getItem<number>('session:winID')
 
-   browser.action.onClicked.addListener(() => {
       if (windowID) {
          browser.windows.update(windowID, { focused: true })
          return
       }
 
-      browser.windows.create(
-         {
-            url: '/window.html',
-            width: 640,
-            height: 480,
-            type: 'popup',
-         },
-         (win) => {
-            if (win && win.id) {
-               windowID = win.id
-            }
-         }
-      )
+      const win = await browser.windows.create({
+         url: '/window.html',
+         width: 640,
+         height: 480,
+         type: 'popup',
+      })
+
+      if (win && win.id) {
+         storage.setItem('session:winID', win.id)
+      }
    })
 
-   browser.windows.onRemoved.addListener((id) => {
+   browser.windows.onRemoved.addListener(async (id) => {
+      const windowID = await storage.getItem<number>('session:winID')
+
       if (id === windowID) {
-         windowID = 0
+         storage.removeItem('session:winID')
       }
    })
 
    receiver<'BG'>((msg, _, reply) => {
       switch (msg.message) {
          case 'select an element': {
-            executeFieldCode(msg.fieldId).then((res) => {
-               browser.windows
-                  .update(windowID, { focused: true, drawAttention: true })
-                  .then(() => reply(res))
+            executeFieldCode(msg.fieldId).then(async (res) => {
+               const windowID = await storage.getItem<number>('session:winID')
+               if (!windowID) return
+
+               await browser.windows.update(windowID, {
+                  focused: true,
+                  drawAttention: true,
+               })
+
+               reply(res)
             })
 
             return true

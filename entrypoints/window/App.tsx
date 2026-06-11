@@ -9,13 +9,13 @@ import { getCurrentTabID, sendToContentJS } from '@/helpers/messager'
 import { SCRIPT_LENGTH } from '@/helpers/vars'
 import { Dialog, Modal } from '@mui/material'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { GlobalErrorBoundary } from './components/GlobalErrorBoundary'
-import CodeEditor from './interfaces/editor/CodeEditor'
 import MainScreen from './interfaces/MainScreen'
 import InfoPanel, { type Panel } from './interfaces/popups/InfoPanel'
 import SettingsPanel from './interfaces/popups/SettingsPanel'
 import fieldReducer from './reducers/fieldReducer'
+import Loading from './interfaces/popups/Loading'
 
 function App() {
    const [fieldID, setFieldID] = useState(NaN)
@@ -30,6 +30,8 @@ function App() {
 
    const [settingVisible, setSettingVisible] = useState(false)
    const [dialogState, setDialogState] = useState<Panel | null>(null)
+
+   const CodeEditor = lazy(() => import('./interfaces/editor/CodeEditor'))
 
    const handleInfoClose = async () => {
       if (dialogState?.type == 'INFO') {
@@ -183,7 +185,7 @@ function App() {
                      permissions: ['userScripts'],
                   })
 
-                  if (granted) {
+                  if (granted && browser.userScripts) {
                      setDialogState(null)
                      fetchFields()
                   }
@@ -267,15 +269,17 @@ function App() {
                alignItems: 'center',
             }}
          >
-            <CodeEditor
-               fields={fields}
-               scripts={scripts ?? []}
-               id={fieldID}
-               linkedIDs={curLinkeds}
-               code={curCode}
-               onCodeWrite={handleCodeWrite}
-               onFieldLink={handleCodeLink}
-            />
+            <Suspense fallback={<Loading />}>
+               <CodeEditor
+                  fields={fields}
+                  scripts={scripts ?? []}
+                  id={fieldID}
+                  linkedIDs={curLinkeds}
+                  code={curCode}
+                  onCodeWrite={handleCodeWrite}
+                  onFieldLink={handleCodeLink}
+               />
+            </Suspense>
          </Modal>
 
          <Dialog

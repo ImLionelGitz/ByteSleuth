@@ -4,18 +4,15 @@ import {
    sendToBackground,
    sendToContentJS,
 } from '@/helpers/messager'
-import fieldSample from '@/templates/field.template.ts?raw'
-import scraperSample from '@/templates/scrape.template.ts?raw'
-import fieldMainJS from '@/templates/exec.template.js?raw'
-import scraperMainJS from '@/templates/exec2.template.js?raw'
 import { transform } from 'sucrase'
 import { ROW_CONT_LOGIC, SCRAPER_LOGIC } from '@/helpers/vars'
+import { templates, javascript } from '@/templates'
 
 export async function executeFieldCode(fieldID: number) {
    const script = await giveScript(fieldID)
    const tabId = await getCurrentTabID()
 
-   const mainCode = transform(script?.code || fieldSample, {
+   const mainCode = transform(script?.code || templates.fieldSample, {
       transforms: ['typescript'],
    })
 
@@ -23,7 +20,7 @@ export async function executeFieldCode(fieldID: number) {
       const build = `
          ${mainCode.code};
 
-         ${fieldMainJS}
+         ${javascript.fieldMainJS}
          `
 
       try {
@@ -61,7 +58,7 @@ export async function executeScrapeCode(list: FieldByte[]) {
    const script = await giveScript(SCRAPER_LOGIC)
    const tabId = await getCurrentTabID()
 
-   const mainCode = transform(script?.code || scraperSample, {
+   const mainCode = transform(script?.code || templates.scraperSample, {
       transforms: ['typescript'],
    })
 
@@ -79,7 +76,7 @@ export async function executeScrapeCode(list: FieldByte[]) {
 
          ${mainCode.code};
 
-         ${scraperMainJS}
+         ${javascript.scraperMainJS}
           })()
          `
 

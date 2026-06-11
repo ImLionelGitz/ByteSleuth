@@ -1,11 +1,6 @@
-import {
-   formatCode,
-   checkCodeSignature,
-   hasInfiniteLoop,
-} from '@/helpers/formatter'
-import fieldSample from '@/templates/field.template.ts?raw'
-import scraperSample from '@/templates/scrape.template.ts?raw'
-import types from '@/templates/types.template.d.ts?raw'
+import { deleteScript } from '@/helpers/datastores/scriptDatabase'
+import { checkCodeSignature, hasInfiniteLoop } from '@/helpers/formatter'
+import { SCRAPER_LOGIC } from '@/helpers/vars'
 import { Editor, loader } from '@monaco-editor/react'
 import { Box, Paper, Skeleton } from '@mui/material'
 import * as monaco from 'monaco-editor'
@@ -13,9 +8,8 @@ import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
 import { ChangeEvent, useEffect, useRef } from 'react'
 import CodeMenu from '../popups/CodeMenu'
-import { SCRAPER_LOGIC } from '@/helpers/vars'
-import { deleteScript } from '@/helpers/datastores/scriptDatabase'
 import setupTheme from './setupTheme'
+import { templates } from '@/templates'
 
 interface CodeEditorProps extends Omit<Script, 'code'> {
    fields: FieldByte[]
@@ -48,8 +42,8 @@ export default function CodeEditor(prop: CodeEditorProps) {
    const fileInputRef = useRef<HTMLInputElement>(null)
 
    const sampleCode = useMemo(() => {
-      if (prop.id === SCRAPER_LOGIC) return scraperSample
-      else return fieldSample
+      if (prop.id === SCRAPER_LOGIC) return templates.scraperSample
+      else return templates.fieldSample
    }, [])
 
    // --- MUI Menu States ---
@@ -68,7 +62,7 @@ export default function CodeEditor(prop: CodeEditorProps) {
          const fileUri = 'file:///node_modules/@types/global/index.d.ts'
          // Assuming 'types' is defined globally or imported elsewhere in your file
          monacoDef.current = vscode.typescript.typescriptDefaults.addExtraLib(
-            types,
+            templates.types,
             fileUri
          )
       }
@@ -209,8 +203,7 @@ export default function CodeEditor(prop: CodeEditorProps) {
          }
 
          case 'FORMAT': {
-            const formatted = await formatCode(editor.getValue())
-            editor.setValue(formatted)
+            await editor.getAction('editor.action.formatDocument')?.run()
             break
          }
 
@@ -280,6 +273,15 @@ export default function CodeEditor(prop: CodeEditorProps) {
                      contextmenu: false,
                      scrollBeyondLastLine: false,
                      automaticLayout: true,
+
+                     accessibilitySupport: 'off',
+                     links: false,
+                     codeLens: false,
+                     quickSuggestions: {
+                        other: true,
+                        comments: false,
+                        strings: false,
+                     },
                   }}
                   onMount={handleEditorDidMount}
                   onChange={handleCodeWrite}
