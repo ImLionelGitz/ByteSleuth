@@ -88,7 +88,7 @@ export default function TablePanel({ size, data, name, version }: TablePanel) {
                   direction="row"
                   sx={{ alignItems: 'center', gap: '12px', marginLeft: '8px' }}
                >
-                  <img src="/wxt.svg" alt="" width={32} height={32} />
+                  <img src="/icon/32.png" alt="" width={32} height={32} />
                   <h1>{name}</h1>
                   <p
                      className="px-1 rounded-[14px]"
