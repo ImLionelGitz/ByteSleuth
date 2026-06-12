@@ -47,6 +47,6 @@ export default defineConfig({
     action: {},
     host_permissions: ["<all_urls>"],
     optional_permissions: ['userScripts'],
-    permissions: ['storage', 'unlimitedStorage', 'system.display', 'activeTab'],
+    permissions: ['storage', 'activeTab'],
   }
 });
